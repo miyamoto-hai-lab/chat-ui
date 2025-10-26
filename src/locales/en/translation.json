@@ -21,6 +21,8 @@
     "apiServerPlaceholder": "https://api.example.com/v1/chat/completions",
     "apiKey": "API Key",
     "apiKeyPlaceholder": "sk-...",
+    "modelName": "Model Name",
+    "modelNamePlaceholder": "gpt-3.5-turbo (leave empty for server default)",
     "systemPrompt": "System Prompt",
     "systemPromptPlaceholder": "You are a helpful assistant",
     "showThinking": "Show Thinking (intermediate steps)",

@@ -99,6 +99,25 @@ export function ChatContainer({ password }: ChatContainerProps) {
         });
       }
 
+      // リクエストボディの構築
+      const requestBody: Record<string, unknown> = {
+        messages: requestMessages,
+        stream: env.assistantResponseMode === 'streaming',
+      };
+
+      // モデル名が設定されている場合のみ追加（設定で空の場合はサーバー側のデフォルトを使用）
+      if (settings.modelName) {
+        requestBody.model = settings.modelName;
+      }
+
+      console.log('API Request:', {
+        url: settings.apiServerUrl,
+        hasApiKey: !!settings.apiKey,
+        messageCount: requestMessages.length,
+        stream: requestBody.stream,
+        model: requestBody.model,
+      });
+
       const response = await fetch(settings.apiServerUrl, {
         method: 'POST',
         headers: {
@@ -106,15 +125,27 @@ export function ChatContainer({ password }: ChatContainerProps) {
           ...(settings.apiKey && { Authorization: `Bearer ${settings.apiKey}` }),
           ...(password && { 'chatui-password': password }),
         },
-        body: JSON.stringify({
-          messages: requestMessages,
-          stream: env.assistantResponseMode === 'streaming',
-        }),
+        body: JSON.stringify(requestBody),
         signal: abortController.signal,
       });
 
+      console.log('API Response:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+      });
+
       if (!response.ok) {
-        throw new Error(`API request failed: ${response.statusText}`);
+        // エラーレスポンスの詳細を取得
+        let errorMessage = `HTTP ${response.status}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error?.message || errorData.message || errorMessage;
+        } catch {
+          // JSONパース失敗時はstatusTextを使用
+          errorMessage = response.statusText || errorMessage;
+        }
+        throw new Error(`API request failed: ${errorMessage}`);
       }
 
       const assistantMessageId = `assistant-${Date.now()}`;

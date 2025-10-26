@@ -3,10 +3,10 @@
 import { useSettings } from '@/components/providers/SettingsProvider';
 import { Button } from '@/components/ui/button';
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -81,6 +81,22 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                     setLocalSettings((prev) => ({
                       ...prev,
                       apiKey: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="modelName">{t('settings.modelName')}</Label>
+                <Input
+                  id="modelName"
+                  type="text"
+                  placeholder={t('settings.modelNamePlaceholder')}
+                  value={localSettings.modelName}
+                  onChange={(e) =>
+                    setLocalSettings((prev) => ({
+                      ...prev,
+                      modelName: e.target.value,
                     }))
                   }
                 />

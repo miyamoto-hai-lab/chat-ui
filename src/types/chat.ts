@@ -1,6 +1,7 @@
 export interface ChatSettings {
   apiServerUrl: string;
   apiKey: string;
+  modelName: string;
   systemPrompt: string;
   showThinking: boolean;
   language: string;

@@ -7,6 +7,7 @@ const PASSWORD_KEY = 'chatui-password';
 export const defaultSettings: ChatSettings = {
   apiServerUrl: '',
   apiKey: '',
+  modelName: '',
   systemPrompt: '',
   showThinking: false,
   language: 'ja',

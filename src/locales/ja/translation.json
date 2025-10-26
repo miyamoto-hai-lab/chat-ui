@@ -18,9 +18,11 @@
   "settings": {
     "title": "設定",
     "apiServer": "APIサーバーURL",
-    "apiServerPlaceholder": "https://api.example.com/v1/chat/completions",
+    "apiServerPlaceholder": "https://api.openai.com/v1/chat/completions",
     "apiKey": "APIキー",
     "apiKeyPlaceholder": "sk-...",
+    "modelName": "モデル名",
+    "modelNamePlaceholder": "gpt-3.5-turbo (空欄でサーバーのデフォルト)",
     "systemPrompt": "システムプロンプト",
     "systemPromptPlaceholder": "あなたは親切なアシスタントです",
     "showThinking": "Thinking（中間ステップ）を表示",
