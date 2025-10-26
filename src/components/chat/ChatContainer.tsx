@@ -262,29 +262,54 @@ export function ChatContainer({ password }: ChatContainerProps) {
 
       {/* メッセージリスト */}
       <ScrollArea className="flex-1 p-4" ref={scrollRef}>
-        <div className="space-y-4 max-w-4xl mx-auto">
-          {displayMessages.map((message) => (
-            <ChatMessage
-              key={message.id}
-              role={message.role}
-              content={message.content}
-              isStreaming={
-                message.id === 'streaming' &&
-                env.assistantResponseMode === 'streaming'
-              }
-            />
-          ))}
+        <div className="max-w-4xl mx-auto">
+          {displayMessages.map((message, index) => {
+            // 最後のユーザーメッセージかどうか
+            const isLastUserMessage =
+              message.role === 'user' &&
+              index === displayMessages.length - 1 &&
+              isLoading;
 
-          {/* ローディング表示（非ストリーミングモード） */}
-          {isLoading && env.assistantResponseMode !== 'streaming' && (
-            <div className="flex items-center justify-center p-4">
-              {env.assistantResponseMode === 'spinner' ? (
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-              ) : env.assistantResponseMode === 'read' ? (
-                <div className="text-sm text-muted-foreground">既読</div>
-              ) : null}
-            </div>
-          )}
+            // スピナーを表示するかどうか（最後のメッセージでローディング中、かつspinnerモード）
+            const showSpinner =
+              message.id === 'streaming' &&
+              isLoading &&
+              env.assistantResponseMode === 'spinner';
+
+            // 既読マークを表示するかどうか（最後のユーザーメッセージでローディング中、かつreadモード）
+            const showReadMark =
+              isLastUserMessage && env.assistantResponseMode === 'read';
+
+            return (
+              <ChatMessage
+                key={message.id}
+                role={message.role}
+                content={message.content}
+                isStreaming={
+                  message.id === 'streaming' &&
+                  env.assistantResponseMode === 'streaming'
+                }
+                showSpinner={showSpinner}
+                showReadMark={showReadMark}
+              />
+            );
+          })}
+
+          {/* ローディング表示（非ストリーミングモードでスピナー） */}
+          {isLoading &&
+            env.assistantResponseMode === 'spinner' &&
+            !streamingContent && (
+              <div className="flex gap-3 mb-4">
+                <div className="flex-shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
+                    <Loader2 className="w-5 h-5 text-secondary-foreground animate-spin" />
+                  </div>
+                </div>
+                <div className="relative max-w-[75%] rounded-2xl px-4 py-2.5 shadow-sm bg-muted rounded-tl-sm flex items-center">
+                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                </div>
+              </div>
+            )}
 
           {/* エラー表示 */}
           {error && (
