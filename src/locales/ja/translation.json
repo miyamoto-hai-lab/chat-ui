@@ -1,0 +1,43 @@
+{
+  "common": {
+    "settings": "設定",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "close": "閉じる",
+    "export": "エクスポート",
+    "exit": "終了"
+  },
+  "chat": {
+    "inputPlaceholder": "メッセージを入力...",
+    "send": "送信",
+    "turnCounter": "{{current}} / {{max}}",
+    "turnCounterNoLimit": "{{current}}",
+    "limitReached": "会話のターン数制限に達しました",
+    "assistant": "アシスタント"
+  },
+  "settings": {
+    "title": "設定",
+    "apiServer": "APIサーバーURL",
+    "apiServerPlaceholder": "https://api.example.com/v1/chat/completions",
+    "apiKey": "APIキー",
+    "apiKeyPlaceholder": "sk-...",
+    "systemPrompt": "システムプロンプト",
+    "systemPromptPlaceholder": "あなたは親切なアシスタントです",
+    "showThinking": "Thinking（中間ステップ）を表示",
+    "language": "言語"
+  },
+  "password": {
+    "title": "パスワード認証",
+    "placeholder": "パスワードを入力",
+    "submit": "認証"
+  },
+  "export": {
+    "success": "会話履歴をエクスポートしました",
+    "error": "エクスポートに失敗しました"
+  },
+  "error": {
+    "apiError": "APIエラーが発生しました",
+    "networkError": "ネットワークエラーが発生しました",
+    "unknownError": "不明なエラーが発生しました"
+  }
+}
