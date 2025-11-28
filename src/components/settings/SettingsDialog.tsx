@@ -3,10 +3,10 @@
 import { useSettings } from '@/components/providers/SettingsProvider';
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -54,6 +54,55 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
           {/* APIサーバー設定 */}
           {env.allowUserApiServer && (
             <>
+              <div className="space-y-2">
+                <Label htmlFor="provider">{t('settings.provider')}</Label>
+                <select
+                  id="provider"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  value={localSettings.provider || 'openai'}
+                  onChange={(e) => {
+                    const provider = e.target.value as any;
+                    let defaultUrl = '';
+                    let defaultModel = '';
+                    switch (provider) {
+                      case 'openai':
+                        defaultUrl = 'https://api.openai.com/v1/chat/completions';
+                        defaultModel = 'gpt-4o';
+                        break;
+                      case 'gemini':
+                        defaultUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-thinking-exp:streamGenerateContent';
+                        defaultModel = 'gemini-2.0-flash-thinking-exp';
+                        break;
+                      case 'anthropic':
+                        defaultUrl = 'https://api.anthropic.com/v1/messages';
+                        defaultModel = 'claude-3-5-sonnet-20241022';
+                        break;
+                      case 'grok':
+                        defaultUrl = 'https://api.x.ai/v1/chat/completions';
+                        defaultModel = 'grok-beta';
+                        break;
+                      case 'deepseek':
+                        defaultUrl = 'https://api.deepseek.com/chat/completions';
+                        defaultModel = 'deepseek-reasoner';
+                        break;
+                    }
+                    
+                    setLocalSettings((prev) => ({
+                      ...prev,
+                      provider,
+                      apiServerUrl: defaultUrl,
+                      modelName: defaultModel,
+                    }));
+                  }}
+                >
+                  <option value="openai">OpenAI</option>
+                  <option value="gemini">Google Gemini</option>
+                  <option value="anthropic">Anthropic Claude</option>
+                  <option value="grok">xAI Grok</option>
+                  <option value="deepseek">DeepSeek</option>
+                </select>
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="apiServerUrl">{t('settings.apiServer')}</Label>
                 <Input

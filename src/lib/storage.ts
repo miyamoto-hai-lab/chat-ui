@@ -1,3 +1,4 @@
+import { env } from '@/lib/env';
 import type { ChatSettings } from '@/types/chat';
 
 const STORAGE_KEY = 'chatui-settings';
@@ -5,11 +6,12 @@ const PASSWORD_KEY = 'chatui-password';
 
 // デフォルト設定
 export const defaultSettings: ChatSettings = {
-  apiServerUrl: '',
-  apiKey: '',
+  provider: 'openai',
+  apiServerUrl: env.defaultApiServer,
+  apiKey: env.defaultApiKey,
   modelName: '',
-  systemPrompt: '',
-  showThinking: false,
+  systemPrompt: env.systemPrompt,
+  showThinking: env.allowUserShowThinking,
   language: 'ja',
 };
 

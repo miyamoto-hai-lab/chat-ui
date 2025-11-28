@@ -2,6 +2,7 @@
 
 import { useSettings } from '@/components/providers/SettingsProvider';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { ChatService } from '@/lib/chat-service';
 import { env } from '@/lib/env';
 import { logChatMessage } from '@/lib/event-logger';
 import { Loader2 } from 'lucide-react';
@@ -18,6 +19,7 @@ interface Message {
   id: string;
   role: 'user' | 'assistant' | 'system';
   content: string;
+  reasoning?: string;
 }
 
 export function ChatContainer({ password }: ChatContainerProps) {
@@ -40,7 +42,9 @@ export function ChatContainer({ password }: ChatContainerProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | undefined>(undefined);
   const [streamingContent, setStreamingContent] = useState('');
+  const [streamingReasoning, setStreamingReasoning] = useState('');
   const abortControllerRef = useRef<AbortController | null>(null);
+  const accumulatedRef = useRef({ content: '', reasoning: '' });
 
   // メッセージが追加されたら自動スクロール
   // biome-ignore lint/correctness/useExhaustiveDependencies: messagesとstreamingContentの変更時にスクロールする必要がある
@@ -48,7 +52,7 @@ export function ChatContainer({ password }: ChatContainerProps) {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages, streamingContent]);
+  }, [messages, streamingContent, streamingReasoning]);
 
   // ターン数の計算（systemメッセージを除外）
   const currentTurns = Math.floor(
@@ -79,144 +83,36 @@ export function ChatContainer({ password }: ChatContainerProps) {
     setError(undefined);
     setIsLoading(true);
     setStreamingContent('');
+    setStreamingReasoning('');
+    accumulatedRef.current = { content: '', reasoning: '' };
 
     // AbortControllerを作成
     const abortController = new AbortController();
     abortControllerRef.current = abortController;
 
     try {
-      // APIリクエストの準備
-      const requestMessages = [...messages, userMessage].map((msg) => ({
-        role: msg.role,
-        content: msg.content,
-      }));
-
-      // システムプロンプトを追加
-      if (settings.systemPrompt) {
-        requestMessages.unshift({
-          role: 'system',
-          content: settings.systemPrompt,
-        });
-      }
-
-      // リクエストボディの構築
-      const requestBody: Record<string, unknown> = {
-        messages: requestMessages,
-        stream: env.assistantResponseMode === 'streaming',
-      };
-
-      // モデル名が設定されている場合のみ追加（設定で空の場合はサーバー側のデフォルトを使用）
-      if (settings.modelName) {
-        requestBody.model = settings.modelName;
-      }
-
-      console.log('API Request:', {
-        url: settings.apiServerUrl,
-        hasApiKey: !!settings.apiKey,
-        messageCount: requestMessages.length,
-        stream: requestBody.stream,
-        model: requestBody.model,
-      });
-
-      const response = await fetch(settings.apiServerUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(settings.apiKey && { Authorization: `Bearer ${settings.apiKey}` }),
-          ...(password && { 'chatui-password': password }),
-        },
-        body: JSON.stringify(requestBody),
+      await ChatService.sendMessage({
+        messages: [...messages, userMessage],
+        settings,
+        password,
         signal: abortController.signal,
+        onUpdate: (content, reasoning) => {
+          accumulatedRef.current = { content, reasoning: reasoning || '' };
+          setStreamingContent(content);
+          if (reasoning) setStreamingReasoning(reasoning);
+        },
       });
 
-      console.log('API Response:', {
-        status: response.status,
-        statusText: response.statusText,
-        ok: response.ok,
-      });
-
-      if (!response.ok) {
-        // エラーレスポンスの詳細を取得
-        let errorMessage = `HTTP ${response.status}`;
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.error?.message || errorData.message || errorMessage;
-        } catch {
-          // JSONパース失敗時はstatusTextを使用
-          errorMessage = response.statusText || errorMessage;
-        }
-        throw new Error(`API request failed: ${errorMessage}`);
-      }
-
-      const assistantMessageId = `assistant-${Date.now()}`;
-
-      if (env.assistantResponseMode === 'streaming' && response.body) {
-        // ストリーミングモード
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let accumulatedContent = '';
-
-        try {
-          // biome-ignore lint/suspicious/noAssignInExpressions: ストリームの読み取りにはこのパターンが必要
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-
-            const chunk = decoder.decode(value, { stream: true });
-            const lines = chunk.split('\n');
-
-            for (const line of lines) {
-              if (line.startsWith('data: ')) {
-                const data = line.slice(6);
-                if (data === '[DONE]') continue;
-
-                try {
-                  const parsed = JSON.parse(data);
-                  const content =
-                    parsed.choices?.[0]?.delta?.content ||
-                    parsed.choices?.[0]?.message?.content ||
-                    '';
-
-                  if (content) {
-                    accumulatedContent += content;
-                    setStreamingContent(accumulatedContent);
-                  }
-                } catch {
-                  // JSON パースエラーは無視
-                }
-              }
-            }
-          }
-        } finally {
-          reader.releaseLock();
-        }
-
-        // ストリーミング完了後、メッセージを確定
-        const assistantMessage: Message = {
-          id: assistantMessageId,
-          role: 'assistant',
-          content: accumulatedContent,
-        };
-        setMessages((prev) => [...prev, assistantMessage]);
-        setStreamingContent('');
-        logChatMessage('assistant', accumulatedContent, currentTurns + 1);
-      } else {
-        // 非ストリーミングモード
-        const data = await response.json();
-        const content =
-          data.choices?.[0]?.message?.content ||
-          data.message?.content ||
-          data.content ||
-          '';
-
-        const assistantMessage: Message = {
-          id: assistantMessageId,
-          role: 'assistant',
-          content,
-        };
-        setMessages((prev) => [...prev, assistantMessage]);
-        logChatMessage('assistant', content, currentTurns + 1);
-      }
+      const assistantMessage: Message = {
+        id: `assistant-${Date.now()}`,
+        role: 'assistant',
+        content: accumulatedRef.current.content,
+        reasoning: accumulatedRef.current.reasoning,
+      };
+      
+      setMessages((prev) => [...prev, assistantMessage]);
+      logChatMessage('assistant', assistantMessage.content, currentTurns + 1);
+      
     } catch (err) {
       if (err instanceof Error && err.name === 'AbortError') {
         // ユーザーによる中断
@@ -227,6 +123,8 @@ export function ChatContainer({ password }: ChatContainerProps) {
       console.error('Chat error:', error);
     } finally {
       setIsLoading(false);
+      setStreamingContent('');
+      setStreamingReasoning('');
       abortControllerRef.current = null;
     }
   };
@@ -236,11 +134,12 @@ export function ChatContainer({ password }: ChatContainerProps) {
 
   // 表示用メッセージリスト
   const displayMessages = [...messages];
-  if (streamingContent && isLoading) {
+  if ((streamingContent || streamingReasoning) && isLoading) {
     displayMessages.push({
       id: 'streaming',
       role: 'assistant',
       content: streamingContent,
+      reasoning: streamingReasoning,
     });
   }
 
@@ -285,6 +184,7 @@ export function ChatContainer({ password }: ChatContainerProps) {
                 key={message.id}
                 role={message.role}
                 content={message.content}
+                reasoning={message.reasoning}
                 isStreaming={
                   message.id === 'streaming' &&
                   env.assistantResponseMode === 'streaming'

@@ -1,4 +1,5 @@
 export interface ChatSettings {
+  provider: 'openai' | 'gemini' | 'anthropic' | 'grok' | 'deepseek';
   apiServerUrl: string;
   apiKey: string;
   modelName: string;
@@ -11,6 +12,7 @@ export interface ChatMessage {
   id: string;
   role: 'system' | 'user' | 'assistant';
   content: string;
+  reasoning?: string;
   createdAt?: Date;
 }
 

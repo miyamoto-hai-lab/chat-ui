@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 interface ChatMessageProps {
   role: 'user' | 'assistant' | 'system';
   content: string;
+  reasoning?: string;
   isStreaming?: boolean;
   showSpinner?: boolean;
   showReadMark?: boolean;
@@ -15,6 +16,7 @@ interface ChatMessageProps {
 export function ChatMessage({
   role,
   content,
+  reasoning,
   isStreaming,
   showSpinner,
   showReadMark,
@@ -47,12 +49,22 @@ export function ChatMessage({
             : 'bg-muted rounded-tl-sm'
         )}
       >
-        <div className="prose prose-sm dark:prose-invert max-w-none break-words whitespace-pre-wrap">
           {content}
           {isStreaming && (
             <span className="inline-block w-2 h-4 ml-1 bg-current animate-pulse" />
           )}
-        </div>
+
+        {/* 思考過程（Assistantの吹き出し内） */}
+        {!isUser && reasoning && (
+          <details className="mt-2 text-sm text-muted-foreground">
+            <summary className="cursor-pointer hover:text-foreground transition-colors font-medium">
+              思考過程
+            </summary>
+            <div className="mt-1 pl-2 border-l-2 border-muted-foreground/20 whitespace-pre-wrap">
+              {reasoning}
+            </div>
+          </details>
+        )}
 
         {/* スピナー（Assistantの吹き出し内） */}
         {!isUser && showSpinner && (
