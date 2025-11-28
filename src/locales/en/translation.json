@@ -1,0 +1,44 @@
+{
+  "common": {
+    "settings": "Settings",
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "export": "Export",
+    "exit": "Exit"
+  },
+  "chat": {
+    "inputPlaceholder": "Type a message...",
+    "send": "Send",
+    "turnCounter": "{{current}} / {{max}}",
+    "turnCounterNoLimit": "{{current}}",
+    "limitReached": "Conversation turn limit reached",
+    "assistant": "Assistant"
+  },
+  "settings": {
+    "title": "Settings",
+    "provider": "Provider",
+    "apiServer": "API Server URL",
+    "apiKey": "API Key",
+    "apiKeyError": "Please enter API Key",
+    "apiKeyHelp": "Check how to get API Key",
+    "modelName": "Model Name",
+    "systemPrompt": "System Prompt",
+    "showThinking": "Show Thinking (intermediate steps)",
+    "language": "Language"
+  },
+  "password": {
+    "title": "Password Authentication",
+    "placeholder": "Enter password",
+    "submit": "Authenticate"
+  },
+  "export": {
+    "success": "Chat history exported successfully",
+    "error": "Failed to export chat history"
+  },
+  "error": {
+    "apiError": "API error occurred",
+    "networkError": "Network error occurred",
+    "unknownError": "Unknown error occurred"
+  }
+}
