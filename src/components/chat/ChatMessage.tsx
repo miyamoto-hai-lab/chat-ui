@@ -1,5 +1,6 @@
 'use client';
 
+import { useSettings } from '@/components/providers/SettingsProvider';
 import { cn } from '@/lib/utils';
 import { Bot, Loader2, User } from 'lucide-react';
 
@@ -20,6 +21,7 @@ export function ChatMessage({
   showSpinner,
   showReadMark,
 }: ChatMessageProps) {
+  const { settings } = useSettings();
   // const { t } = useTranslation(); // t is unused, removing or commenting out
 
 
@@ -43,7 +45,7 @@ export function ChatMessage({
       {/* メッセージコンテンツエリア */}
       <div className="flex flex-col max-w-[75%]">
         {/* 思考過程（Assistantの吹き出しの上） */}
-        {!isUser && reasoning && (
+        {!isUser && reasoning && settings.showThinking && (
           <details className="mb-2 text-sm text-muted-foreground">
             <summary className="cursor-pointer hover:text-foreground transition-colors font-medium">
               思考過程

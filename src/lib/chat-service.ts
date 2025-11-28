@@ -1,3 +1,5 @@
+import { env } from '@/lib/env';
+import { PROVIDER_CONFIG } from '@/lib/provider-config';
 import type { ChatMessage, ChatSettings } from '@/types/chat';
 
 export interface ChatRequestOptions {
@@ -53,6 +55,9 @@ export class ChatService {
       });
     }
 
+    const provider = settings.provider || 'openai';
+    const providerConfig = PROVIDER_CONFIG[provider as keyof typeof PROVIDER_CONFIG] || PROVIDER_CONFIG['openai'];
+
     const requestBody: Record<string, unknown> = {
       messages: requestMessages,
       stream: true,
@@ -60,6 +65,8 @@ export class ChatService {
 
     if (settings.modelName) {
       requestBody.model = settings.modelName;
+    } else {
+      requestBody.model = providerConfig.defaultModel;
     }
 
     const headers: Record<string, string> = {
@@ -68,7 +75,9 @@ export class ChatService {
       ...(password && { 'chatui-password': password }),
     };
 
-    const response = await fetch(settings.apiServerUrl, {
+    const apiServerUrl = settings.apiServerUrl || providerConfig.defaultUrl;
+
+    const response = await fetch(apiServerUrl, {
       method: 'POST',
       headers,
       body: JSON.stringify(requestBody),
@@ -140,8 +149,26 @@ export class ChatService {
       parts: [{ text: msg.content }]
     }));
 
+
     // Construct URL with API key
-    const url = new URL(settings.apiServerUrl);
+    // Base URL should be like https://generativelanguage.googleapis.com/v1beta/models/
+    // We append {model}:{method}
+    
+    const providerConfig = PROVIDER_CONFIG['gemini'];
+    let baseUrl = settings.apiServerUrl || providerConfig.defaultUrl;
+    if (!baseUrl.endsWith('/')) {
+      baseUrl += '/';
+    }
+    
+    // If the user entered a full URL including the model, we should probably respect it if it matches our expectations,
+    // but the requirement is to construct it.
+    // The settings dialog trims it to .../models/, so we assume that format.
+    
+    const modelName = settings.modelName || providerConfig.defaultModel;
+    const method = env.assistantResponseMode === 'streaming' ? 'streamGenerateContent' : 'generateContent';
+    const urlString = `${baseUrl}${modelName}:${method}`;
+    
+    const url = new URL(urlString);
     url.searchParams.append('key', settings.apiKey);
     
     const requestBody: any = {
@@ -274,7 +301,9 @@ export class ChatService {
 
     const systemMessage = settings.systemPrompt;
 
-    const response = await fetch(settings.apiServerUrl, {
+    const apiServerUrl = settings.apiServerUrl || PROVIDER_CONFIG['anthropic'].defaultUrl;
+
+    const response = await fetch(apiServerUrl, {
       method: 'POST',
       headers: {
         'x-api-key': settings.apiKey,
@@ -283,7 +312,7 @@ export class ChatService {
         'dangerously-allow-browser': 'true' // Needed for client-side calls
       },
       body: JSON.stringify({
-        model: settings.modelName,
+        model: settings.modelName || PROVIDER_CONFIG['anthropic'].defaultModel,
         messages: requestMessages,
         system: systemMessage,
         stream: true,

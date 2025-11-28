@@ -3,16 +3,18 @@
 import { useSettings } from '@/components/providers/SettingsProvider';
 import { Button } from '@/components/ui/button';
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { env } from '@/lib/env';
+import { PROVIDER_CONFIG } from '@/lib/provider-config';
+import { HelpCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -21,19 +23,44 @@ interface SettingsDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+function SimpleTooltip({ children, content }: { children: React.ReactNode; content: string }) {
+  const [isVisible, setIsVisible] = useState(false);
+
+  return (
+    <div 
+      className="relative inline-flex items-center"
+      onMouseEnter={() => setIsVisible(true)}
+      onMouseLeave={() => setIsVisible(false)}
+    >
+      {children}
+      {isVisible && (
+        <div className="absolute left-full ml-2 px-2 py-1 bg-popover text-popover-foreground text-xs rounded shadow-md whitespace-nowrap z-50 border">
+          {content}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const { t, i18n } = useTranslation();
   const { settings, updateSettings } = useSettings();
   
   const [localSettings, setLocalSettings] = useState(settings);
+  const [apiKeyError, setApiKeyError] = useState(false);
 
   useEffect(() => {
     if (open) {
       setLocalSettings(settings);
+      setApiKeyError(false);
     }
   }, [settings, open]);
 
   const handleSave = () => {
+    if (!localSettings.apiKey) {
+      setApiKeyError(true);
+      return;
+    }
     updateSettings(localSettings);
     onOpenChange(false);
   };
@@ -61,37 +88,13 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   value={localSettings.provider || 'openai'}
                   onChange={(e) => {
-                    const provider = e.target.value as any;
-                    let defaultUrl = '';
-                    let defaultModel = '';
-                    switch (provider) {
-                      case 'openai':
-                        defaultUrl = 'https://api.openai.com/v1/chat/completions';
-                        defaultModel = 'gpt-4o';
-                        break;
-                      case 'gemini':
-                        defaultUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-thinking-exp:streamGenerateContent';
-                        defaultModel = 'gemini-2.0-flash-thinking-exp';
-                        break;
-                      case 'anthropic':
-                        defaultUrl = 'https://api.anthropic.com/v1/messages';
-                        defaultModel = 'claude-3-5-sonnet-20241022';
-                        break;
-                      case 'grok':
-                        defaultUrl = 'https://api.x.ai/v1/chat/completions';
-                        defaultModel = 'grok-beta';
-                        break;
-                      case 'deepseek':
-                        defaultUrl = 'https://api.deepseek.com/chat/completions';
-                        defaultModel = 'deepseek-reasoner';
-                        break;
-                    }
+                    const provider = e.target.value as keyof typeof PROVIDER_CONFIG;
                     
                     setLocalSettings((prev) => ({
                       ...prev,
                       provider,
-                      apiServerUrl: defaultUrl,
-                      modelName: defaultModel,
+                      // Do not overwrite URL and Model with defaults, only update provider
+                      // Placeholders will update automatically based on provider
                     }));
                   }}
                 >
@@ -108,7 +111,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 <Input
                   id="apiServerUrl"
                   type="url"
-                  placeholder={t('settings.apiServerPlaceholder')}
+                  placeholder={PROVIDER_CONFIG[localSettings.provider || 'openai'].defaultUrl}
                   value={localSettings.apiServerUrl}
                   onChange={(e) =>
                     setLocalSettings((prev) => ({
@@ -116,22 +119,65 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                       apiServerUrl: e.target.value,
                     }))
                   }
+                  onBlur={() => {
+                    if (localSettings.provider === 'gemini') {
+                      const url = localSettings.apiServerUrl;
+                      // Check if URL ends with specific pattern and trim it
+                      // Pattern: .../models/{model}:{method}
+                      // We look for /models/ and then trim after the next slash if it looks like a model name followed by method
+                      if (url.includes('/models/')) {
+                        const parts = url.split('/models/');
+                        if (parts.length === 2) {
+                          const afterModels = parts[1];
+                          if (afterModels.includes(':')) {
+                             // Likely has :streamGenerateContent or :generateContent
+                             const newUrl = parts[0] + '/models/';
+                             setLocalSettings(prev => ({
+                               ...prev,
+                               apiServerUrl: newUrl
+                             }));
+                          }
+                        }
+                      }
+                    }
+                  }}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="apiKey">{t('settings.apiKey')}</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="apiKey">{t('settings.apiKey')}</Label>
+                  {apiKeyError && (
+                    <div className="flex items-center gap-1 text-red-500 text-sm">
+                      <span>{t('settings.apiKeyError')}</span>
+                      <SimpleTooltip content={t('settings.apiKeyHelp')}>
+                        <a 
+                          href={PROVIDER_CONFIG[localSettings.provider || 'openai'].apiKeyHelpUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:text-red-600 transition-colors"
+                        >
+                          <HelpCircle className="h-4 w-4" />
+                        </a>
+                      </SimpleTooltip>
+                    </div>
+                  )}
+                </div>
                 <Input
                   id="apiKey"
                   type="password"
-                  placeholder={t('settings.apiKeyPlaceholder')}
+                  placeholder={PROVIDER_CONFIG[localSettings.provider || 'openai'].placeholderKey}
                   value={localSettings.apiKey}
-                  onChange={(e) =>
+                  className={apiKeyError ? 'border-red-500 focus-visible:ring-red-500' : ''}
+                  onChange={(e) => {
                     setLocalSettings((prev) => ({
                       ...prev,
                       apiKey: e.target.value,
-                    }))
-                  }
+                    }));
+                    if (e.target.value) {
+                      setApiKeyError(false);
+                    }
+                  }}
                 />
               </div>
 
@@ -140,7 +186,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 <Input
                   id="modelName"
                   type="text"
-                  placeholder={t('settings.modelNamePlaceholder')}
+                  placeholder={PROVIDER_CONFIG[localSettings.provider || 'openai'].defaultModel}
                   value={localSettings.modelName}
                   onChange={(e) =>
                     setLocalSettings((prev) => ({
@@ -159,7 +205,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
               <Label htmlFor="systemPrompt">{t('settings.systemPrompt')}</Label>
               <Textarea
                 id="systemPrompt"
-                placeholder={t('settings.systemPromptPlaceholder')}
+                placeholder={t('settings.systemPrompt')}
                 value={localSettings.systemPrompt}
                 onChange={(e) =>
                   setLocalSettings((prev) => ({
@@ -188,6 +234,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
               />
             </div>
           )}
+
 
           {/* 言語設定 */}
           <div className="space-y-2">

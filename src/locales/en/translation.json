@@ -17,14 +17,13 @@
   },
   "settings": {
     "title": "Settings",
+    "provider": "Provider",
     "apiServer": "API Server URL",
-    "apiServerPlaceholder": "https://api.example.com/v1/chat/completions",
     "apiKey": "API Key",
-    "apiKeyPlaceholder": "sk-...",
+    "apiKeyError": "Please enter API Key",
+    "apiKeyHelp": "Check how to get API Key",
     "modelName": "Model Name",
-    "modelNamePlaceholder": "gpt-3.5-turbo (leave empty for server default)",
     "systemPrompt": "System Prompt",
-    "systemPromptPlaceholder": "You are a helpful assistant",
     "showThinking": "Show Thinking (intermediate steps)",
     "language": "Language"
   },

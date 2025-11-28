@@ -17,14 +17,13 @@
   },
   "settings": {
     "title": "設定",
+    "provider": "プロバイダー",
     "apiServer": "APIサーバーURL",
-    "apiServerPlaceholder": "https://api.openai.com/v1/chat/completions",
     "apiKey": "APIキー",
-    "apiKeyPlaceholder": "sk-...",
+    "apiKeyError": "APIキーを入力してください",
+    "apiKeyHelp": "APIキーの取得方法を確認",
     "modelName": "モデル名",
-    "modelNamePlaceholder": "gpt-3.5-turbo (空欄でサーバーのデフォルト)",
     "systemPrompt": "システムプロンプト",
-    "systemPromptPlaceholder": "あなたは親切なアシスタントです",
     "showThinking": "Thinking（中間ステップ）を表示",
     "language": "言語"
   },
