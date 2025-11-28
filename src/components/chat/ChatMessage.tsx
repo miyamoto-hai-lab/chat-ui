@@ -2,7 +2,6 @@
 
 import { cn } from '@/lib/utils';
 import { Bot, Loader2, User } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
 
 interface ChatMessageProps {
   role: 'user' | 'assistant' | 'system';
@@ -21,7 +20,8 @@ export function ChatMessage({
   showSpinner,
   showReadMark,
 }: ChatMessageProps) {
-  const { t } = useTranslation();
+  // const { t } = useTranslation(); // t is unused, removing or commenting out
+
 
   if (role === 'system') {
     return null;
@@ -40,23 +40,11 @@ export function ChatMessage({
         </div>
       )}
 
-      {/* メッセージバブル */}
-      <div
-        className={cn(
-          'relative max-w-[75%] rounded-2xl px-4 py-2.5 shadow-sm',
-          isUser
-            ? 'bg-primary text-primary-foreground rounded-tr-sm'
-            : 'bg-muted rounded-tl-sm'
-        )}
-      >
-          {content}
-          {isStreaming && (
-            <span className="inline-block w-2 h-4 ml-1 bg-current animate-pulse" />
-          )}
-
-        {/* 思考過程（Assistantの吹き出し内） */}
+      {/* メッセージコンテンツエリア */}
+      <div className="flex flex-col max-w-[75%]">
+        {/* 思考過程（Assistantの吹き出しの上） */}
         {!isUser && reasoning && (
-          <details className="mt-2 text-sm text-muted-foreground">
+          <details className="mb-2 text-sm text-muted-foreground">
             <summary className="cursor-pointer hover:text-foreground transition-colors font-medium">
               思考過程
             </summary>
@@ -66,12 +54,57 @@ export function ChatMessage({
           </details>
         )}
 
-        {/* スピナー（Assistantの吹き出し内） */}
-        {!isUser && showSpinner && (
-          <div className="flex items-center justify-center mt-2">
+        {/* スピナー（Assistantの吹き出しの上、コンテンツ生成前） */}
+        {!isUser && showSpinner && content.length === 0 && (
+          <div className="flex items-center justify-start mb-2">
             <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
           </div>
         )}
+
+        {/* メッセージバブル */}
+        {content.length > 0 && (
+          <div
+            className={cn(
+              'relative rounded-2xl px-4 py-2.5 shadow-sm',
+              isUser
+                ? 'bg-primary text-primary-foreground rounded-tr-sm'
+                : 'bg-muted rounded-tl-sm'
+            )}
+          >
+            {content}
+            {isStreaming && (
+              <span className="inline-block w-2 h-4 ml-1 bg-current animate-pulse" />
+            )}
+          </div>
+        )}
+        
+        {/* スピナー（Assistantの吹き出し内、ストリーミング中など） - 既存のロジックだと吹き出し内だったが、
+            要件は「吹き出しの外かつ吹き出しの上」だが、
+            responseが1文字以上来てから表示される吹き出しの中にスピナーを入れるべきか？
+            元のコードは吹き出し内にあった。
+            要件: "responseの下に思考過程のアコーディオンがありますが，思考過程は吹き出しの外かつ吹き出しの上においてほしいです"
+            
+            思考過程 -> 吹き出し外・上
+            吹き出し -> response >= 1文字
+            
+            Spinnerの位置については明言がないが、通常は応答待ちのときは吹き出し外・上で、
+            応答中はカーソル点滅(isStreaming)がある。
+            showSpinnerは "waiting for response" の状態だと思われる。
+            
+            元のコード:
+            {!isUser && showSpinner && ( ... )}
+            
+            もし content.length > 0 なら吹き出しが表示される。
+            その場合 showSpinner が true ならどうするか？
+            通常、文字が出始めたら showSpinner は false になるか、あるいは isStreaming が true になるはず。
+            
+            一旦、showSpinner は「まだ文字が出ていないとき」のローディング表示として扱い、
+            文字が出ているときは isStreaming のカーソルに任せるのが自然だが、
+            既存ロジックを壊さないように注意。
+            
+            とりあえず showSpinner も「吹き出しの外・上」に移動しておくのが安全そう（思考過程と同じ扱い）。
+            ただし、思考過程の下、吹き出しの上。
+         */}
       </div>
 
       {/* 既読マーク（ユーザーの吹き出しの左下） */}
