@@ -18,13 +18,13 @@
   "settings": {
     "title": "設定",
     "provider": "プロバイダー",
-    "apiServer": "APIサーバーURL",
+    "apiServer": "APIエンドポイントURL",
     "apiKey": "APIキー",
     "apiKeyError": "APIキーを入力してください",
     "apiKeyHelp": "APIキーの取得方法を確認",
     "modelName": "モデル名",
     "systemPrompt": "システムプロンプト",
-    "showThinking": "Thinking（中間ステップ）を表示",
+    "showThinking": "思考過程(Thought)を表示",
     "language": "言語"
   },
   "password": {

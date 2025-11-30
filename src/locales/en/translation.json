@@ -24,7 +24,7 @@
     "apiKeyHelp": "Check how to get API Key",
     "modelName": "Model Name",
     "systemPrompt": "System Prompt",
-    "showThinking": "Show Thinking (intermediate steps)",
+    "showThinking": "Show Thinking Process (reasoning contents)",
     "language": "Language"
   },
   "password": {

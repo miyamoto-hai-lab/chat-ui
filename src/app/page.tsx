@@ -32,7 +32,7 @@ export default function Home() {
         onSettingsClick={() => setSettingsOpen(true)}
         onExportClick={handleExport}
       />
-      <main className="flex-1 overflow-hidden">
+      <main className="flex-1 overflow-hidden min-h-0">
         <ChatContainer password={password} />
       </main>
       <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />

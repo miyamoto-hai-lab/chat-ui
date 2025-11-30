@@ -49,8 +49,9 @@ export function ChatContainer({ password }: ChatContainerProps) {
   // メッセージが追加されたら自動スクロール
   // biome-ignore lint/correctness/useExhaustiveDependencies: messagesとstreamingContentの変更時にスクロールする必要がある
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    const viewport = scrollRef.current?.querySelector('[data-slot="scroll-area-viewport"]');
+    if (viewport) {
+      viewport.scrollTop = viewport.scrollHeight;
     }
   }, [messages, streamingContent, streamingReasoning]);
 
@@ -130,7 +131,7 @@ export function ChatContainer({ password }: ChatContainerProps) {
   };
 
   // アプリ説明の表示
-  const showDescription = env.appDescription && messages.length === 0;
+  const showDescription = !!env.appDescription;
 
   // 表示用メッセージリスト
   const displayMessages = [...messages];
@@ -160,8 +161,9 @@ export function ChatContainer({ password }: ChatContainerProps) {
       </div>
 
       {/* メッセージリスト */}
-      <ScrollArea className="flex-1 p-4" ref={scrollRef}>
-        <div className="max-w-4xl mx-auto">
+      <div className="flex-1 min-h-0">
+        <ScrollArea className="h-full" ref={scrollRef}>
+        <div className="max-w-4xl mx-auto p-4">
           {displayMessages.map((message, index) => {
             // 最後のユーザーメッセージかどうか
             const isLastUserMessage =
@@ -218,7 +220,8 @@ export function ChatContainer({ password }: ChatContainerProps) {
             </div>
           )}
         </div>
-      </ScrollArea>
+        </ScrollArea>
+      </div>
 
       {/* 入力フォーム */}
       <div className="p-4 border-t bg-background">
