@@ -85,54 +85,68 @@ This is the standard method for environments where a Node.js server cannot be us
 
 When deploying to platforms like Vercel, the output: 'export' setting is not required. Environment variables should be set from each platform's dashboard.
 
-1. Push the repository to GitHub.  
-2. Import and deploy the repository from your Vercel or Netlify dashboard.
+1.  Push the repository to GitHub.  
+2.  Import and deploy the repository from your Vercel or Netlify dashboard.
 
-## **Build-Time Customization (Environment Variables)**
+## **Configuration**
 
-You can control the app's features by creating a .env.local file or by specifying environment variables when running the build command.
+You can customize the application behavior by creating a `.env.local` file or setting environment variables.
 
-### **UI Setting Control**
+### **Basic Usage**
+
+*   **File Loading:** You can load the content of a file as a value by prefixing the value with `file::` (e.g., `NEXT_PUBLIC_LLM_SYSTEM_PROMPT=file::prompts/system.txt`).
+*   **Boolean Values:** In addition to `true`/`false`, you can use `yes`/`no`, `on`/`off`, `enable`/`disable` (case-insensitive).
+
+### **LLM Settings**
+
+Use these variables to fix the API endpoint, model, API key, etc.
+When these values are set, the corresponding settings in the UI will be hidden, and users will not be able to change them.
+Conversely, if you want to allow users to configure them freely, leave these variables empty (or undefined).
+
+| Variable | Description |
+| :--- | :--- |
+| `NEXT_PUBLIC_LLM_API_PROVIDER` | API Provider (`openai`, `gemini`, `anthropic`, `grok`, `deepseek`). |
+| `NEXT_PUBLIC_LLM_API_ENDPOINT` | API Server URL (e.g., `https://api.openai.com/v1`). |
+| `NEXT_PUBLIC_LLM_MODEL` | Model name (e.g., `gpt-4o`). |
+| `NEXT_PUBLIC_LLM_API_KEY` | API Key. |
+| `NEXT_PUBLIC_LLM_SYSTEM_PROMPT` | System Prompt. Newlines (`\n`) are supported. |
+| `NEXT_PUBLIC_LLM_SHOW_THINKING` | Thinking process display setting. `true` to show, `false` to hide. If set, the toggle switch in the UI will be hidden. |
+
+### **Feature Toggles**
+
+Enable or disable specific features.
 
 | Variable | Default | Description |
-| :---- | :----: | :---- |
-| NEXT_PUBLIC_ALLOW_USER_API_SERVER | "true" | If false, hides the UI for setting the API server URL and API key. |
-| NEXT_PUBLIC_ALLOW_USER_SYSTEM_PROMPT | "true" | If false, hides the UI for setting the system prompt. |
-| NEXT_PUBLIC_ALLOW_EXPORT | "true" | If false, hides the conversation history export button. |
-| NEXT_PUBLIC_ALLOW_USER_SHOW_THINKING | "true" | If false, hides the UI (e.g., checkbox) that allows the user to toggle the "Show Thinking" (intermediate steps) setting. |
-| NEXT_PUBLIC_ENABLE_PASSWORD_AUTH | "false" | If true, requires a simple password input before using the UI. The entered password is sent as a chatui-password: \<password\> header to the API server. (For access control in research, etc.) |
-
-### **Default and Fixed Values**
-
-| Variable | Default | Description |
-| :---- | :----: | :---- |
-| NEXT_PUBLIC_DEFAULT_API_SERVER | "" | The fixed API server URL to be used when ALLOW_USER_API_SERVER=false. |
-| NEXT_PUBLIC_DEFAULT_API_KEY | "" | The fixed API key to be used when ALLOW_USER_API_SERVER=false. |
-| NEXT_PUBLIC_SYSTEM_PROMPT | "" | The default system prompt. Used as a fixed value if ALLOW_USER_SYSTEM_PROMPT=false, or as a user-changeable initial value if true. |
+| :--- | :---: | :--- |
+| `NEXT_PUBLIC_ALLOW_IMPORT` | `true` | Enable chat history import feature. |
+| `NEXT_PUBLIC_ALLOW_EXPORT` | `true` | Enable chat history export feature. |
 
 ### **Chat Behavior Control**
 
 | Variable | Default | Description |
-| :---- | :----: | :---- |
-| NEXT_PUBLIC_STARTING_ROLE | "assistant" | The first speaker in the chat. Specify "user" (user types first) or "assistant" (AI speaks first). |
-| NEXT_PUBLIC_MAX_CHAT_TURNS | 0 | Maximum number of conversation turns (one user \+ one assistant reply). 0 means unlimited. Input is disabled upon reaching this limit. |
-| NEXT_PUBLIC_DISPLAY_CHAT_TURNS | "OFF" | How to display chat turns. "OFF": Does not display turns. "MAX": Displays as n / N (N is the value of MAX_CHAT_TURNS). If N=0, displays n only. {Any String}: Displays as n / {Specified String} (e.g., NEXT_PUBLIC_DISPLAY_CHAT_TURNS="Approx. 10"). |
-| NEXT_PUBLIC_ASSISTANT_RESPONSE_MODE | "streaming" | How assistant (LLM) responses are displayed. "streaming": Sequential display (default). "spinner": Shows a loading spinner during generation, then displays all at once. "read": Shows a static "read" mark (no spinner), then displays all at once. "instant": Shows no indicator during generation and displays all at once upon completion. |
+| :--- | :---: | :--- |
+| `NEXT_PUBLIC_STARTING_ROLE` | `assistant` | The first speaker. `user` or `assistant`. |
+| `NEXT_PUBLIC_MAX_CHAT_TURNS` | `0` | Maximum number of chat turns. `0` for unlimited. |
+| `NEXT_PUBLIC_ON_MAX_CHAT_TURNS` | `nothing` | Behavior when max turns reached.<br>`exit`: End chat and redirect to specified URL.<br>`message`: Show completion message.<br>`nothing`: Just disable input. |
+| `NEXT_PUBLIC_ALLOW_USER_EXIT` | `always` | "End Chat" button visibility.<br>`always`: Always visible.<br>`max`: Visible only when max turns reached.<br>`never`: Never visible. |
+| `NEXT_PUBLIC_DISPLAY_CHAT_TURNS` | `OFF` | Turn count display.<br>`OFF`: Hidden.<br>`MAX`: `n / N` format.<br>Any string: `n / String` format. |
 
-### Research  Settings
-| Variable | Default | Description |
-| :---- | :----: | :---- |
-| NEXT_PUBLIC_ENABLE_PASSWORD_AUTH | `false` | If `true`, requires a simple password input before using the UI. The entered password is sent as a `chatui-password: <password>` header to the API server.
-| NEXT_PUBLIC_ENABLED_EVENTS | `""` | Specifies events to send as logs, comma-separated (e.g., `"KEY_INPUT,CHAT_MESSAGE"`). Default is empty (nothing sent).<br>**"KEY_INPUT"**: Sends the content and timestamp whenever the input field changes (onChange).<br>**"CHAT_MESSAGE"**: Sends the content and timestamp when a user or assistant sends a message.
-| NEXT_PUBLIC_EVENT_ENDPOINT_URL | `""` | The API endpoint URL where the event data specified by ENABLED_EVENTS will be sent.
-
-### **UI & Others**
+### **Response & Display Settings**
 
 | Variable | Default | Description |
-| :---- | :----: | :---- |
-| NEXT_PUBLIC_APP_TITLE | "Chat UI" | The title displayed in the app header and browser tab. |
-| NEXT_PUBLIC_APP_DESCRIPTION | "" | A description displayed at the top of the chat UI (e.g., below the header). **HTML tags can be used.** (e.g., `"\<h1\>Situation\</h1\>\<p\>The user and assistant..."`) |
-| NEXT_PUBLIC_REDIRECT_URL_ON_EXIT | "" | If a URL is specified (e.g., https://example.com), an "Exit" button linking to it will be displayed in the header. Hidden if empty. |
-| NEXT_PUBLIC_EXPORT_FILENAME_STRATEGY | "chat_{YYYYMMDDHHmmss}.json" | Filename for chat export. Placeholders: {YYYYMMDDHHmmss}: Current timestamp {FIRST_PROMPT}: First user prompt (e.g., first 30 chars) |
-| NEXT_PUBLIC_ASSISTANT_DISPLAY_NAME | "Assistant" | The display name for the assistant (LLM) speaker in the chat UI. |
+| :--- | :---: | :--- |
+| `NEXT_PUBLIC_ASSISTANT_PROCESSING_STYLE` | `streaming` | Response generation display.<br>`streaming`: Real-time streaming.<br>`spinner`: Show spinner until complete.<br>`read`: Show "Read" mark until complete.<br>`instant`: Show nothing until complete. |
+| `NEXT_PUBLIC_ASSISTANT_RESPONSE_STYLE` | `bubble` | Response message style.<br>`bubble`: Bubble style.<br>`flat`: Flat style (for future use). |
 
+### **Misc & Experimental**
+
+| Variable | Default | Description |
+| :--- | :---: | :--- |
+| `NEXT_PUBLIC_AUTH_PASSWORD` | - | If set, requires password authentication before use. |
+| `NEXT_PUBLIC_ENABLED_EVENTS` | - | Events to log (comma separated). e.g., `KEY_INPUT,CHAT_MESSAGE` |
+| `NEXT_PUBLIC_EVENT_ENDPOINT_URL` | - | API endpoint URL for event logging. |
+| `NEXT_PUBLIC_APP_TITLE` | `Chat UI` | Application title. |
+| `NEXT_PUBLIC_APP_DESCRIPTION` | - | Application description (HTML supported). |
+| `NEXT_PUBLIC_REDIRECT_URL_ON_EXIT` | - | URL to redirect when exiting. |
+| `NEXT_PUBLIC_EXPORT_FILENAME_STRATEGY` | `chat_{YYYYMMDDHHmmss}.json` | Export filename format. |
+| `NEXT_PUBLIC_ASSISTANT_DISPLAY_NAME` | `Assistant` | Assistant display name. |

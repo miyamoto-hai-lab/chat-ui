@@ -81,6 +81,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
           {/* APIサーバー設定 */}
           {env.allowUserApiServer && (
             <>
+              {env.allowUserProvider && (
               <div className="space-y-2">
                 <Label htmlFor="provider">{t('settings.provider')}</Label>
                 <select
@@ -105,6 +106,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   <option value="deepseek">DeepSeek</option>
                 </select>
               </div>
+              )}
 
               <div className="space-y-2">
                 <Label htmlFor="apiServerUrl">{t('settings.apiServer')}</Label>

@@ -22,8 +22,6 @@ export function ChatMessage({
   showReadMark,
 }: ChatMessageProps) {
   const { settings } = useSettings();
-  // const { t } = useTranslation(); // t is unused, removing or commenting out
-
 
   if (role === 'system') {
     return null;
@@ -54,7 +52,8 @@ export function ChatMessage({
               {reasoning}
             </div>
           </details>
-        )}
+        )
+        }
 
         {/* スピナー（Assistantの吹き出しの上、コンテンツ生成前） */}
         {!isUser && showSpinner && content.length === 0 && (

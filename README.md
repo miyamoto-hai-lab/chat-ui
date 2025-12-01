@@ -88,50 +88,66 @@ Vercelなどのプラットフォームにデプロイする場合、output: 'ex
 1. リポジトリをGitHubにプッシュします。  
 2. VercelやNetlifyのダッシュボードから、そのリポジトリをインポートしてデプロイします。
 
-## **ビルド時カスタマイズ (環境変数)**
+## **設定 (Configuration)**
 
-.env.local ファイルを作成するか、ビルドコマンドの実行時に環境変数を指定することで、アプリの機能を制御できます。
+`.env.local` ファイルを作成するか、環境変数を指定することで、アプリの動作を詳細にカスタマイズできます。
 
-### **UI設定の制御**
+### **基本仕様**
+
+* **ファイル読み込み:** 値の先頭に `file::` を付けることで、指定したファイルの内容を値として読み込むことができます（例: `NEXT_PUBLIC_LLM_SYSTEM_PROMPT=file::prompts/system.txt`）。
+* **真偽値:** `true`/`false` だけでなく、`yes`/`no`, `on`/`off`, `enable`/`disable` (大文字小文字区別なし) も使用可能です。
+
+### **LLMの設定**
+
+APIエンドポイントやモデル、APIキーなどを固定したい場合に使用します。
+これらの値が設定されると、UI上の設定項目は非表示になり、ユーザーは変更できなくなります。
+逆に、ユーザーに自由に設定させたい場合は、これらの変数を空（または未定義）にしてください。
+
+| 変数名 | 説明 |
+| :--- | :--- |
+| `NEXT_PUBLIC_LLM_API_PROVIDER` | APIプロバイダー（`openai`, `gemini`, `anthropic`, `grok`, `deepseek`）。 |
+| `NEXT_PUBLIC_LLM_API_ENDPOINT` | APIサーバーのURL（例: `https://api.openai.com/v1`）。 |
+| `NEXT_PUBLIC_LLM_MODEL` | 使用するモデル名（例: `gpt-4o`）。 |
+| `NEXT_PUBLIC_LLM_API_KEY` | APIキー。 |
+| `NEXT_PUBLIC_LLM_SYSTEM_PROMPT` | システムプロンプト。改行コード(`\n`)も使用可能です。 |
+| `NEXT_PUBLIC_LLM_SHOW_THINKING` | Thinking（思考プロセス）の表示設定。`true`で表示、`false`で非表示。設定するとUI上の切り替えスイッチが非表示になります。 |
+
+### **機能の許可設定**
+
+特定の機能の有効/無効を切り替えます。
 
 | 変数名 | デフォルト | 説明 |
-| :---- | :----: | :---- |
-| NEXT_PUBLIC_ALLOW_USER_API_SERVER | `"true"` | false にすると、APIサーバーURLおよびAPIキーの設定UIを非表示にします。 |
-| NEXT_PUBLIC_ALLOW_USER_SYSTEM_PROMPT | `"true"` | false にすると、システムプロンプトの設定UIを非表示にします。 |
-| NEXT_PUBLIC_ALLOW_EXPORT | `"true"` | false にすると、会話履歴のエクスポートボタンを非表示にします。 |
-| NEXT_PUBLIC_ALLOW_USER_SHOW_THINKING | `"true"` | false にすると、ユーザーがUI上で「Thinking（中間ステップ）を表示する」設定を変更するUI（チェックボックス等）を非表示にします。 |
-
-### **デフォルト値と固定値**
-
-| 変数名 | デフォルト | 説明 |
-| :---- | :----: | :---- |
-| NEXT_PUBLIC_DEFAULT_API_SERVER | `""` | ALLOW_USER_API_SERVER=false の時に使用される固定APIサーバーURL。 |
-| NEXT_PUBLIC_DEFAULT_API_KEY | `""` | ALLOW_USER_API_SERVER=false の時に使用される固定APIキー。 |
-| NEXT_PUBLIC_SYSTEM_PROMPT | `""` | デフォルトのシステムプロンプト。ALLOW_USER_SYSTEM_PROMPT=false の場合は固定値として、true の場合はユーザーが変更可能な初期値として使われます。 |
+| :--- | :---: | :--- |
+| `NEXT_PUBLIC_ALLOW_IMPORT` | `true` | 会話履歴のインポート機能を有効にするか。 |
+| `NEXT_PUBLIC_ALLOW_EXPORT` | `true` | 会話履歴のエクスポート機能を有効にするか。 |
 
 ### **チャット動作の制御**
 
 | 変数名 | デフォルト | 説明 |
-| :---- | :----: | :---- |
-| NEXT_PUBLIC_STARTING_ROLE | `"assistant"` | チャットの最初の発言者。"user"（ユーザーが最初に入力する）または "assistant"（AIが最初の発話を行う）を指定。 |
-| NEXT_PUBLIC_MAX_CHAT_TURNS | `0` | 最大会話ターン数（ユーザーとアシスタントの往復）。0 は無制限。この値に達すると入力不可になります。 |
-| NEXT_PUBLIC_DISPLAY_CHAT_TURNS | `"OFF"` | チャットターン数の表示方法。 **"OFF"**: ターン数を表示しない。 **"MAX"**: n / N 形式で表示 (N は MAX_CHAT_TURNS の値)。N=0 の場合は n のみ表示。 **{Any String}**: n / {指定文字列} 形式で表示（例: NEXT_PUBLIC_DISPLAY_CHAT_TURNS="目安10回"）。 |
-| NEXT_PUBLIC_ASSISTANT_RESPONSE_MODE | `"streaming"` | アシスタント（LLM）の応答メッセージの表示方法。 **"streaming"**: 逐次表示（デフォルト）。 **"spinner"**: 生成中はローディングスピナーを表示し、完了後に一括表示。 **"read"**: スピナー等は表示せず、「既読」のような静的なマークを表示し、完了後に一括表示。 **"instant"**: 生成中のインジケータを一切表示せず、完了後に一括表示。 |
+| :--- | :---: | :--- |
+| `NEXT_PUBLIC_STARTING_ROLE` | `assistant` | 最初の発言者。`user` または `assistant`。 |
+| `NEXT_PUBLIC_MAX_CHAT_TURNS` | `0` | 最大会話ターン数。`0` で無制限。 |
+| `NEXT_PUBLIC_ON_MAX_CHAT_TURNS` | `nothing` | 最大ターン数到達時の動作。<br>`exit`: チャットを終了し、指定URLへリダイレクト。<br>`message`: 終了メッセージを表示。<br>`nothing`: 入力を無効化するのみ。 |
+| `NEXT_PUBLIC_ALLOW_USER_EXIT` | `always` | 「チャットを終了」ボタンの表示制御。<br>`always`: 常に表示。<br>`max`: 最大ターン数到達時のみ表示。<br>`never`: 表示しない。 |
+| `NEXT_PUBLIC_DISPLAY_CHAT_TURNS` | `OFF` | ターン数の表示。<br>`OFF`: 表示しない。<br>`MAX`: `n / N` 形式。<br>任意の文字列: `n / 文字列` 形式。 |
 
-### 研究・実験用設定
-| 変数名 | デフォルト | 説明 |
-| :---- | :----: | :---- |
-| NEXT_PUBLIC_ENABLE_PASSWORD_AUTH | `false` | `true` にすると、UI利用前に簡易的なパスワード入力を要求します。入力されたパスワードは `chatui-password: <パスワード>` ヘッダーとしてAPIサーバーに送信されます。
-| NEXT_PUBLIC_ENABLED_EVENTS | `""` | ログとして送信するイベントをカンマ区切りで指定します（例: "KEY_INPUT,CHAT_MESSAGE"）。デフォルトは空（何も送信しない）。<br>- **"KEY_INPUT"**: 入力欄の状態が変化するたび（onChange）に、その内容とタイムスタンプを送信します。<br>- **"CHAT_MESSAGE"**: ユーザーまたはアシスタントがメッセージを送信した際に、その内容とタイムスタンプを送信します。
-| NEXT_PUBLIC_EVENT_ENDPOINT_URL | `""` | NEXT_PUBLIC_ENABLED_EVENTS で指定されたイベントデータの送信先となるAPIエンドポイントのURL。
-
-### UI・その他
+### **レスポンス・表示設定**
 
 | 変数名 | デフォルト | 説明 |
-| :---- | :----: | :---- |
-| NEXT_PUBLIC_APP_TITLE | `"Chat UI"` | アプリのヘッダーやブラウザのタブに表示されるタイトル。 |
-| NEXT_PUBLIC_APP_DESCRIPTION | `""` | アプリのチャットUI上部（ヘッダー直下など）に表示される説明文。**HTMLタグが利用可能**です。（例: `"\<h1\>会話のシチュエーション\</h1\>\<p\>ユーザはassistantと3年間友達のように毎日話してきた。"`） |
-| NEXT_PUBLIC_REDIRECT_URL_ON_EXIT | `""` | URL（例: https://example.com）を指定すると、そのURLへの「終了」ボタンがヘッダーなどに表示されます。空の場合は非表示。 |
-| NEXT_PUBLIC_EXPORT_FILENAME_STRATEGY | `"chat_{YYYYMMDDHHmmss}.json"` | 会話エクスポート時のJSONファイル名。<br>**プレースホルダ:**<br>{YYYYMMDDHHmmss}: 現在のタイムスタンプ<br>{FIRST_PROMPT}: 最初のユーザープロンプト（先頭30文字） |
-| NEXT_PUBLIC_ASSISTANT_DISPLAY_NAME | `"Assistant"` | チャットUI上でアシスタント（LLM）の発言者として表示される名前。 |
+| :--- | :---: | :--- |
+| `NEXT_PUBLIC_ASSISTANT_PROCESSING_STYLE` | `streaming` | 応答生成中の表示。<br>`streaming`: 逐次表示。<br>`spinner`: 完了までスピナーを表示。<br>`read`: 完了まで「既読」を表示。<br>`instant`: 何も表示せず完了後に一括表示。 |
+| `NEXT_PUBLIC_ASSISTANT_RESPONSE_STYLE` | `bubble` | 応答メッセージのスタイル。<br>`bubble`: 吹き出し形式。<br>`flat`: フラット形式（将来の実装用）。 |
+
+### **その他・実験用**
+
+| 変数名 | デフォルト | 説明 |
+| :--- | :---: | :--- |
+| `NEXT_PUBLIC_AUTH_PASSWORD` | - | 設定すると、利用開始時にパスワード認証を要求します。 |
+| `NEXT_PUBLIC_ENABLED_EVENTS` | - | ログ送信するイベント（カンマ区切り）。例: `KEY_INPUT,CHAT_MESSAGE` |
+| `NEXT_PUBLIC_EVENT_ENDPOINT_URL` | - | イベントログの送信先URL。 |
+| `NEXT_PUBLIC_APP_TITLE` | `Chat UI` | アプリのタイトル。 |
+| `NEXT_PUBLIC_APP_DESCRIPTION` | - | アプリの説明文（HTML可）。 |
+| `NEXT_PUBLIC_REDIRECT_URL_ON_EXIT` | - | 終了時にリダイレクトするURL。 |
+| `NEXT_PUBLIC_EXPORT_FILENAME_STRATEGY` | `chat_{YYYYMMDDHHmmss}.json` | エクスポート時のファイル名形式。 |
+| `NEXT_PUBLIC_ASSISTANT_DISPLAY_NAME` | `Assistant` | アシスタントの表示名。 |
 

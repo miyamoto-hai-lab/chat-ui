@@ -28,14 +28,20 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     return {
       ...loaded,
       apiServerUrl: env.allowUserApiServer
-        ? loaded.apiServerUrl || env.defaultApiServer
-        : env.defaultApiServer,
-      apiKey: env.allowUserApiServer
-        ? loaded.apiKey || env.defaultApiKey
-        : env.defaultApiKey,
+        ? loaded.apiServerUrl || env.llmApiEndpoint
+        : env.llmApiEndpoint,
+      apiKey: env.allowUserApiKey
+        ? loaded.apiKey || env.llmApiKey
+        : env.llmApiKey,
       systemPrompt: env.allowUserSystemPrompt
-        ? loaded.systemPrompt || env.systemPrompt
-        : env.systemPrompt,
+        ? loaded.systemPrompt || env.llmSystemPrompt
+        : env.llmSystemPrompt,
+      modelName: env.allowUserModel
+        ? loaded.modelName || env.llmModel
+        : env.llmModel,
+      showThinking: env.allowUserShowThinking
+        ? loaded.showThinking ?? env.defaultShowThinking
+        : env.defaultShowThinking,
     };
   });
 
@@ -54,9 +60,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const resetSettings = () => {
     setSettings({
       ...defaultSettings,
-      apiServerUrl: env.defaultApiServer,
-      apiKey: env.defaultApiKey,
-      systemPrompt: env.systemPrompt,
+      apiServerUrl: env.llmApiEndpoint,
+      apiKey: env.llmApiKey,
+      systemPrompt: env.llmSystemPrompt,
     });
   };
 

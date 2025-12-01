@@ -5,6 +5,9 @@
     "cancel": "キャンセル",
     "close": "閉じる",
     "export": "エクスポート",
+    "import": "インポート",
+    "importSuccess": "インポートしました",
+    "importError": "インポートに失敗しました",
     "exit": "終了"
   },
   "chat": {
@@ -13,6 +16,9 @@
     "turnCounter": "{{current}} / {{max}}",
     "turnCounterNoLimit": "{{current}}",
     "limitReached": "会話のターン数制限に達しました",
+    "limitReachedTitle": "会話終了です",
+    "limitReachedBody": "ターン数が{{max}}回に達しました。\n以下の「チャットから退出」ボタンを押して次に進んでください。",
+    "exitChat": "チャットから退出",
     "assistant": "アシスタント"
   },
   "settings": {
