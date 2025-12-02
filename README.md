@@ -1,4 +1,4 @@
-<h1><img src="https://github.com/kei-mag/human-chat-completions/blob/main/docs/icon.jpg?raw=true" height="50" style="vertical-align: bottom;"> Chat UI <div style="text-align: right;">(<b><u>日本語</u><b> | <a href="README_en.md">English</a>)</div></h1>
+# <img src="https://github.com/miyamoto-hai-lab/chat-ui/blob/main/docs/icon.jpg?raw=true" height="50" style="vertical-align: bottom;"> Chat UI &nbsp; (<b><u>日本語</u></b> | <a href="README_en.md">English</a>)
 
 LLMなどの対話システムと対話するための、シンプルなフロントエンド・アプリケーションです。
 
