@@ -1,0 +1,50 @@
+{
+  "common": {
+    "settings": "Settings",
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "export": "Export",
+    "import": "Import",
+    "importSuccess": "Imported successfully",
+    "importError": "Failed to import",
+    "exit": "Exit"
+  },
+  "chat": {
+    "inputPlaceholder": "Type a message...",
+    "send": "Send",
+    "turnCounter": "{{current}} / {{max}}",
+    "turnCounterNoLimit": "{{current}}",
+    "limitReached": "Conversation turn limit reached",
+    "limitReachedTitle": "Conversation Ended",
+    "limitReachedBody": "Turn limit of {{max}} reached.\nPlease click the \"Exit Chat\" button below to proceed.",
+    "exitChat": "Exit Chat",
+    "assistant": "Assistant"
+  },
+  "settings": {
+    "title": "Settings",
+    "provider": "Provider",
+    "apiServer": "API Server URL",
+    "apiKey": "API Key",
+    "apiKeyError": "Please enter API Key",
+    "apiKeyHelp": "Check how to get API Key",
+    "modelName": "Model Name",
+    "systemPrompt": "System Prompt",
+    "showThinking": "Show Thinking Process (reasoning contents)",
+    "language": "Language"
+  },
+  "password": {
+    "title": "Password Authentication",
+    "placeholder": "Enter password",
+    "submit": "Authenticate"
+  },
+  "export": {
+    "success": "Chat history exported successfully",
+    "error": "Failed to export chat history"
+  },
+  "error": {
+    "apiError": "API error occurred",
+    "networkError": "Network error occurred",
+    "unknownError": "Unknown error occurred"
+  }
+}
