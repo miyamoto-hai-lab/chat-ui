@@ -2,16 +2,43 @@
 
 import { Button } from '@/components/ui/button';
 import { env } from '@/lib/env';
-import { Download, ExternalLink, Settings } from 'lucide-react';
+import { Download, LogOut, Settings, Upload } from 'lucide-react';
+import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
 interface ChatHeaderProps {
   onSettingsClick: () => void;
   onExportClick: () => void;
+  onImportClick?: (file: File) => void;
+  isLimitReached?: boolean;
 }
 
-export function ChatHeader({ onSettingsClick, onExportClick }: ChatHeaderProps) {
+export function ChatHeader({ onSettingsClick, onExportClick, onImportClick, isLimitReached }: ChatHeaderProps) { // Added onImportClick
   const { t } = useTranslation();
+  const fileInputRef = useRef<HTMLInputElement>(null); // Added useRef
+
+  const handleImportClick = () => { // Added handleImportClick
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => { // Added handleFileChange
+    const file = e.target.files?.[0];
+    if (file && onImportClick) {
+      onImportClick(file);
+    }
+    // Reset input value to allow selecting the same file again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  // 終了ボタンを表示するかどうか
+  const showExitButton = (() => {
+    if (env.allowUserExit === 'never') return false;
+    if (env.allowUserExit === 'always') return true;
+    if (env.allowUserExit === 'max') return !!isLimitReached;
+    return true;
+  })();
 
   return (
     <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -19,6 +46,27 @@ export function ChatHeader({ onSettingsClick, onExportClick }: ChatHeaderProps) 
         <h1 className="text-xl font-semibold">{env.appTitle}</h1>
         
         <div className="flex items-center gap-2">
+          {env.allowImport && (
+            <>
+              <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                accept=".json"
+                onChange={handleFileChange}
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleImportClick}
+                title={t('common.import') || 'インポート'}
+              >
+                <Upload className="h-4 w-4" />
+                <span className="ml-2 hidden sm:inline">{t('common.import') || 'インポート'}</span>
+              </Button>
+            </>
+          )}
+
           {env.allowExport && (
             <Button
               variant="ghost"
@@ -41,16 +89,21 @@ export function ChatHeader({ onSettingsClick, onExportClick }: ChatHeaderProps) 
             <span className="ml-2 hidden sm:inline">{t('common.settings')}</span>
           </Button>
 
-          {env.redirectUrlOnExit && (
+          {showExitButton && (
             <Button
-              variant="ghost"
+              variant="destructive"
               size="sm"
-              asChild
+              onClick={() => {
+                if (env.redirectUrlOnExit) {
+                  window.location.href = env.redirectUrlOnExit;
+                } else {
+                  window.location.reload();
+                }
+              }}
+              className="bg-red-500 hover:bg-red-600 text-white"
             >
-              <a href={env.redirectUrlOnExit} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="h-4 w-4" />
-                <span className="ml-2 hidden sm:inline">{t('common.exit')}</span>
-              </a>
+              <LogOut className="h-4 w-4" />
+              <span className="ml-2 hidden sm:inline">{t('common.exit')}</span>
             </Button>
           )}
         </div>

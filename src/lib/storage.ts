@@ -6,11 +6,11 @@ const PASSWORD_KEY = 'chatui-password';
 
 // デフォルト設定
 export const defaultSettings: ChatSettings = {
-  provider: 'openai',
-  apiServerUrl: env.defaultApiServer,
-  apiKey: env.defaultApiKey,
-  modelName: '',
-  systemPrompt: env.systemPrompt,
+  provider: (env.llmProvider as any) || 'openai',
+  apiServerUrl: env.llmApiEndpoint,
+  apiKey: env.llmApiKey,
+  modelName: env.llmModel,
+  systemPrompt: env.llmSystemPrompt,
   showThinking: env.allowUserShowThinking,
   language: 'ja',
 };
@@ -28,10 +28,36 @@ export function loadSettings(): ChatSettings {
     }
 
     const parsed = JSON.parse(stored);
-    return {
+    const settings = {
       ...defaultSettings,
       ...parsed,
     };
+
+    // 固定プロバイダーが設定されている場合は強制的に上書き
+    if (!env.allowUserProvider && env.llmProvider) {
+      settings.provider = env.llmProvider;
+    }
+
+    // Thinking表示が固定されている場合は強制的に上書き
+    if (!env.allowUserShowThinking) {
+      settings.showThinking = env.defaultShowThinking;
+    }
+
+    // その他の固定設定を強制的に上書き
+    if (!env.allowUserApiServer && env.llmApiEndpoint) {
+      settings.apiServerUrl = env.llmApiEndpoint;
+    }
+    if (!env.allowUserModel && env.llmModel) {
+      settings.modelName = env.llmModel;
+    }
+    if (!env.allowUserApiKey && env.llmApiKey) {
+      settings.apiKey = env.llmApiKey;
+    }
+    if (!env.allowUserSystemPrompt && env.llmSystemPrompt) {
+      settings.systemPrompt = env.llmSystemPrompt;
+    }
+
+    return settings;
   } catch (error) {
     console.error('Failed to load settings:', error);
     return defaultSettings;

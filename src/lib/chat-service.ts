@@ -149,6 +149,13 @@ export class ChatService {
       parts: [{ text: msg.content }]
     }));
 
+    // If messages are empty (e.g. startingRole is assistant), add a dummy user message to trigger generation
+    if (contents.length === 0) {
+      contents.push({
+        role: 'user',
+        parts: [{ text: 'Hello' }] // Dummy message to start conversation
+      });
+    }
 
     // Construct URL with API key
     // Base URL should be like https://generativelanguage.googleapis.com/v1beta/models/
@@ -165,7 +172,7 @@ export class ChatService {
     // The settings dialog trims it to .../models/, so we assume that format.
     
     const modelName = settings.modelName || providerConfig.defaultModel;
-    const method = env.assistantResponseMode === 'streaming' ? 'streamGenerateContent' : 'generateContent';
+    const method = env.assistantProcessingStyle === 'streaming' ? 'streamGenerateContent' : 'generateContent';
     const urlString = `${baseUrl}${modelName}:${method}`;
     
     const url = new URL(urlString);
@@ -298,6 +305,14 @@ export class ChatService {
         role: msg.role,
         content: msg.content
     })).filter(m => m.role !== 'system'); // System prompt is separate
+
+    // If messages are empty, add a dummy user message
+    if (requestMessages.length === 0) {
+        requestMessages.push({
+            role: 'user',
+            content: 'Hello'
+        });
+    }
 
     const systemMessage = settings.systemPrompt;
 

@@ -5,6 +5,9 @@
     "cancel": "キャンセル",
     "close": "閉じる",
     "export": "エクスポート",
+    "import": "インポート",
+    "importSuccess": "インポートしました",
+    "importError": "インポートに失敗しました",
     "exit": "終了"
   },
   "chat": {
@@ -13,18 +16,21 @@
     "turnCounter": "{{current}} / {{max}}",
     "turnCounterNoLimit": "{{current}}",
     "limitReached": "会話のターン数制限に達しました",
+    "limitReachedTitle": "会話終了です",
+    "limitReachedBody": "ターン数が{{max}}回に達しました。\n以下の「チャットから退出」ボタンを押して次に進んでください。",
+    "exitChat": "チャットから退出",
     "assistant": "アシスタント"
   },
   "settings": {
     "title": "設定",
     "provider": "プロバイダー",
-    "apiServer": "APIサーバーURL",
+    "apiServer": "APIエンドポイントURL",
     "apiKey": "APIキー",
     "apiKeyError": "APIキーを入力してください",
     "apiKeyHelp": "APIキーの取得方法を確認",
     "modelName": "モデル名",
     "systemPrompt": "システムプロンプト",
-    "showThinking": "Thinking（中間ステップ）を表示",
+    "showThinking": "思考過程(Thought)を表示",
     "language": "言語"
   },
   "password": {

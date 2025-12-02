@@ -11,7 +11,7 @@ export function usePasswordAuth() {
 
   useEffect(() => {
     // パスワード認証が無効の場合は常に認証済み
-    if (!env.enablePasswordAuth) {
+    if (!env.authPassword) {
       setIsAuthenticated(true);
       setIsLoading(false);
       return;
@@ -43,6 +43,6 @@ export function usePasswordAuth() {
     isLoading,
     authenticate,
     logout,
-    isEnabled: env.enablePasswordAuth,
+    isEnabled: !!env.authPassword,
   };
 }
