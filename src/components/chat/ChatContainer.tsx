@@ -52,7 +52,21 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
       },
     }));
 
-    // ... (useEffect for scroll)
+    // スクロール処理
+    const scrollToBottom = useCallback(() => {
+      if (scrollRef.current) {
+        const viewport = scrollRef.current.querySelector('[data-slot="scroll-area-viewport"]');
+        if (viewport) {
+          viewport.scrollTop = viewport.scrollHeight;
+        }
+      }
+    }, []);
+
+    // メッセージ更新時やストリーミング中にスクロール
+    // biome-ignore lint/correctness/useExhaustiveDependencies: メッセージ更新時にスクロールを実行するため
+    useEffect(() => {
+      scrollToBottom();
+    }, [messages, streamingContent, streamingReasoning, isLoading, scrollToBottom]);
 
     // ... (turn calculation)
 
