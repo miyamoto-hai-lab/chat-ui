@@ -1,4 +1,9 @@
 <h1><img src="https://github.com/kei-mag/human-chat-completions/blob/main/docs/icon.jpg?raw=true" height="50" style="vertical-align: bottom;"> Chat UI <div style="text-align: right;">(<a href="README.md">日本語</a> | <b><u>English</u></b>)</div></h1>
+<p>
+<img width="45%" alt="Chat Page" src="https://github.com/user-attachments/assets/98095304-9971-45c8-8562-03679db7506a" />
+<img width="45%" alt="Settings Page" src="https://github.com/user-attachments/assets/5bb2a856-3280-4e5f-9f26-442312221a7e" />
+</p>
+[![Sample website is available on GitHub Pages](https://github.com/miyamoto-hai-lab/chat-ui/actions/workflows/nextjs.yml/badge.svg)](http://miyamoto-hai-lab.github.io/chat-ui/)
 
 **A simple front-end application for interacting with dialogue systems, such as LLMs.**
 
