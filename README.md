@@ -3,6 +3,7 @@
 <img width="45%" alt="チャット画面" src="https://github.com/user-attachments/assets/98095304-9971-45c8-8562-03679db7506a" />
 <img width="45%" alt="設定画面" src="https://github.com/user-attachments/assets/5bb2a856-3280-4e5f-9f26-442312221a7e" />
 </p>
+
 [![サンプルWebサイトをGitHub Pagesで公開中です](https://github.com/miyamoto-hai-lab/chat-ui/actions/workflows/nextjs.yml/badge.svg)](http://miyamoto-hai-lab.github.io/chat-ui/)
 
 LLMなどの対話システムと対話するための、シンプルなフロントエンド・アプリケーションです。
