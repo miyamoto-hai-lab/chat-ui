@@ -9,13 +9,8 @@ on:
   push:
     branches: ["main"]
 
-  # Allows you to run this workflow manually from the Actions tab with any branch you specify
+  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-    inputs:
-      branch:
-        description: 'Branch to deploy'
-        required: false
-        default: 'main'
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -37,12 +32,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: ls current dir
-        run: ls -la
-      
-      - name: Print config.yml
-        run: cat ./config.yml
-        
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
@@ -54,12 +43,12 @@ jobs:
           cache: pnpm
       - name: Setup Pages
         uses: actions/configure-pages@v5
-        with:
+        # with:
           # Automatically inject basePath in your Next.js configuration file and disable
           # server side image optimization (https://nextjs.org/docs/api-reference/next/image#unoptimized).
           #
           # You may remove this line if you want to manage the configuration yourself.
-          static_site_generator: next
+          # static_site_generator: next
       - name: Restore cache
         uses: actions/cache@v4
         with:
