@@ -1,0 +1,133 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Chat UI Configuration",
+  "type": "object",
+  "properties": {
+    "base_path": {
+        "type": "string",
+        "description": "このアプリがホスティングされているパス",
+        "default": "/"
+    },
+    "app": {
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "ブラウザのタブやヘッダーに表示されるタイトル" },
+        "description": { "type": "string", "description": "画面に表示する説明文や指示（Markdown対応）" }
+      },
+      "required": ["title"]
+    },
+    "llm": {
+      "type": "object",
+      "properties": {
+        "defaults": {
+          "type": "object",
+          "properties": {
+            "provider": { "type": "string", "enum": ["openai", "azure", "anthropic", "google", "local"] },
+            "endpoint_url": { "type": "string" },
+            "model": { "type": "string" },
+            "api_key": { "type": "string" },
+            "system_prompt": { "type": "string" },
+            "enable_thinking": { "type": "boolean" }
+          },
+          "required": ["provider", "model"]
+        },
+        "permissions": {
+          "type": "object",
+          "properties": {
+            "allow_change_config": { "type": "boolean" },
+            "allow_change_system_prompt": { "type": "boolean" },
+            "allow_toggle_thinking": { "type": "boolean" }
+          },
+          "required": ["allow_change_config", "allow_change_system_prompt"]
+        }
+      },
+      "required": ["defaults", "permissions"]
+    },
+    "chat": {
+      "type": "object",
+      "properties": {
+        "initial_sender": { "type": "string", "enum": ["user", "assistant"] },
+        "max_turns": { "type": "integer", "minimum": 1 },
+        "on_limit_reached": {
+          "type": "object",
+          "properties": {
+            "action": { "type": "string", "enum": ["modal", "inline", "none"] },
+            "auto_exit_delay_sec": { "type": "integer", "minimum": 0 }
+          },
+          "required": ["action", "auto_exit_delay_sec"]
+        },
+        "exit_redirect_url": { "type": "string" }
+      },
+      "required": ["initial_sender", "max_turns", "on_limit_reached", "exit_redirect_url"]
+    },
+    "ui": {
+      "type": "object",
+      "properties": {
+        "styles": {
+          "type": "object",
+          "properties": {
+            "generation_style": { "type": "string", "enum": ["streaming", "spinner", "read", "instant"] },
+            "message_style": { "type": "string", "enum": ["bubble", "flat"] }
+          },
+          "required": ["generation_style", "message_style"]
+        },
+        "components": {
+          "type": "object",
+          "properties": {
+            "exit_button_visibility": { "type": "string", "enum": ["always", "on_limit", "never"] },
+            "allow_import": { "type": "boolean" },
+            "allow_export": { "type": "boolean" }
+          },
+          "required": ["exit_button_visibility", "allow_import", "allow_export"]
+        },
+        "turn_counter": {
+          "type": "object",
+          "properties": {
+            "style": { "type": "string", "enum": ["hidden", "fraction", "custom"] },
+            "custom_label": { "type": "string" }
+          },
+          "required": ["style"]
+        },
+        "export": {
+          "type": "object",
+          "properties": {
+            "filename_prefix": { "type": "string" }
+          },
+          "required": ["filename_prefix"]
+        }
+      },
+      "required": ["styles", "components", "turn_counter", "export"]
+    },
+    "system": {
+      "type": "object",
+      "properties": {
+        "security": {
+          "type": "object",
+          "properties": {
+            "password_auth_enabled": { "type": "boolean" },
+            "auth_server_url": { "type": "string" }
+          }
+        },
+        "logging": {
+          "type": "object",
+          "properties": {
+            "endpoint_url": { "type": "string" },
+            "target_events": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "heartbeat": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "interval_sec": { "type": "integer" },
+            "url": { "type": "string" },
+            "method": { "type": "string", "enum": ["GET", "POST", "PUT"] },
+            "headers": { "type": "object" },
+            "body": { "type": "string" }
+          }
+        }
+      }
+    }
+  },
+  "required": ["app", "llm", "chat", "ui"]
+}

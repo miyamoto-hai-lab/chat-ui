@@ -1,6 +1,5 @@
 'use client';
 
-import { env } from '@/lib/env';
 import { useTranslation } from 'react-i18next';
 
 interface ChatTurnCounterProps {
@@ -11,13 +10,13 @@ export function ChatTurnCounter({ currentTurns }: ChatTurnCounterProps) {
   const { t } = useTranslation();
 
   // OFFの場合は表示しない
-  if (env.displayChatTurns === 'OFF') {
+  if (__APP_CONFIG__.ui.turn_counter.style === 'hidden') {
     return null;
   }
 
   // MAXの場合
-  if (env.displayChatTurns === 'MAX') {
-    if (env.maxChatTurns === 0) {
+  if (__APP_CONFIG__.ui.turn_counter.style === 'fraction') {
+    if (__APP_CONFIG__.chat.max_turns === 0) {
       // 制限なしの場合は現在のターン数のみ表示
       return (
         <div className="text-sm text-muted-foreground">
@@ -28,7 +27,7 @@ export function ChatTurnCounter({ currentTurns }: ChatTurnCounterProps) {
     // 制限ありの場合は n / N 形式
     return (
       <div className="text-sm text-muted-foreground">
-        {t('chat.turnCounter', { current: currentTurns, max: env.maxChatTurns })}
+        {t('chat.turnCounter', { current: currentTurns, max: __APP_CONFIG__.chat.max_turns })}
       </div>
     );
   }
@@ -36,7 +35,7 @@ export function ChatTurnCounter({ currentTurns }: ChatTurnCounterProps) {
   // カスタム文字列の場合
   return (
     <div className="text-sm text-muted-foreground">
-      {currentTurns} / {env.displayChatTurns}
+      {currentTurns} / {__APP_CONFIG__.ui.turn_counter.custom_label || __APP_CONFIG__.chat.max_turns}
     </div>
   );
 }

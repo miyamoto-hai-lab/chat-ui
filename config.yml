@@ -1,0 +1,154 @@
+# yaml-language-server: $schema=config.schema.json
+# ======================================================================================================
+# Chat UI Configuration File
+#
+# すべての設定値は "file://<プロジェクトルートからのファイルパス>" を指定することでファイルから読み込むことも可能です。
+# ファイルから読み込む場合はUTF-8で，各ファイルには値のみを記載してください。
+# ======================================================================================================
+
+# このアプリがホスティングされているパス
+# 例：
+#   - htmlのルートフォルダにホスティングされている場合：
+#     base_path: "" もしくは base_path: "/" 
+#   - サブフォルダにホスティングされている場合：
+#     base_path: "/keimag/chat-ui"
+base_path: "/chat-ui"
+
+# ------------------------------------------
+# 1. アプリケーション基本情報 (App)
+# ------------------------------------------
+app:
+  # ブラウザのタブやヘッダーに表示されるタイトル
+  title: "Chat UI"
+  
+  # 画面に表示する説明文や被験者への指示（Markdown対応を想定）
+  # 空白の場合は表示されません
+  description: ""
+
+# ------------------------------------------
+# 2. LLM設定 (LLM)
+# ------------------------------------------
+llm:
+  # --- デフォルト設定 ---
+  # ユーザーが変更可能な項目において、ブラウザに保存された設定がない場合の初期値として機能します。
+  # ユーザー変更が不可（permissionsでfalse）の場合は、この設定が強制されます。
+  defaults:
+    provider: "openai" # options: openai, gemini, anthropic, grok, deepseek
+    endpoint_url: ""   # 空の場合は各プロバイダのデフォルトが使用されます
+    model: ""          # 空の場合は各プロバイダのデフォルトモデルが使用されます
+    api_key: ""        # 配布用などで埋め込む場合。空の場合はユーザー入力が必要
+    system_prompt: | # システムプロンプトをなしにしたい場合は""を指定するかコメントアウトしてください
+      あなたは有能なアシスタントです。ユーザーの質問に対して丁寧に答えてください。
+    enable_thinking: true # Thinking（思考プロセス）の表示/非表示
+
+  # --- ユーザー権限 (Permissions) ---
+  # ユーザーが設定画面で値を変更できるかどうかを制御します。
+  permissions:
+    allow_change_config: true    # プロバイダ、URL、モデル、APIキーの変更許可
+    allow_change_system_prompt: true
+    allow_toggle_thinking: true  # ユーザーがThinkingの表示/非表示を切り替えられるか
+
+# ------------------------------------------
+# 3. チャットの挙動と制限 (Chat Flow)
+# ------------------------------------------
+chat:
+  # 会話の開始者
+  # user: ユーザーが最初のメッセージを送る
+  # assistant: ページを開くと同時にLLMから挨拶などが生成される
+  initial_sender: "user" 
+
+  # 最大ターン数（往復で1ターンとカウントするか、発言数かは実装依存だが通常はペアで1ターン） 0: 無制限
+  max_turns: 0
+
+  # 最大ターン到達時の挙動 (Completion Behavior)
+  on_limit_reached:
+    # 到達時のアクション
+    # modal: 全画面でメッセージと退出ボタンを表示（操作不能にする）
+    # inline: チャットの最後にメッセージと退出ボタンを表示
+    # none: 何も表示しない（会話だけ止まる）
+    action: "modal"
+    
+    # 自動退出（秒数）
+    # 0: 自動退出しない
+    # n: n秒後に指定のリダイレクト先へ、またはタブを閉じる等の処理
+    auto_exit_delay_sec: 0
+  
+  exit_redirect_url: "" # 自動退出時のリダイレクト先URL（空の場合はChat UIを再読み込み）
+
+# ------------------------------------------
+# 4. ユーザーインターフェース (UI)
+# ------------------------------------------
+ui:
+  # --- スタイル設定 ---
+  styles:
+    # 返答生成中の表示スタイル
+    # streaming: 逐次表示（タイプライター）
+    # spinner: 完了するまでグルグルを表示
+    # instant: 瞬時に表示（APIの仕様によるが、待機後にパッと出る）
+    generation_style: "streaming"
+
+    # メッセージの吹き出しスタイル
+    # bubble: LINEのような吹き出しとアイコン
+    # flat: ChatGPTのようなアイコンと横並びのテキスト
+    message_style: "bubble"
+
+  # --- 表示コンポーネント ---
+  components:
+    # ヘッダー右上の退出ボタンの表示ルール
+    # always: 常に表示
+    # on_limit: 最大ターン数に達した時のみ表示
+    # never: 表示しない
+    exit_button_visibility: "on_limit"
+
+    # 設定画面でのインポート/エクスポートボタン
+    allow_import: true
+    allow_export: true
+
+  # --- ターン数の表示 ---
+  turn_counter:
+    # 表示形式
+    # hidden: 表示なし
+    # fraction: "n / N" 形式 (例: 5/10)
+    # custom: "n / 任意の文字列" 形式
+    style: "fraction"
+    
+    # styleが 'custom' の場合に使用されるサフィックス
+    # 例: "/ 10 (上限)" と設定すると "5 / 10 (上限)" と表示
+    # custom_label: ""
+
+  # --- ファイル出力 ---
+  export:
+    # ダウンロード時のファイル名プレフィックス
+    # 例: "chatlog" -> "chatlog_2023-10-01.json"
+    filename_prefix: "chatlog"
+
+# ------------------------------------------
+# 5. システム・ログ・認証 (System)
+# ------------------------------------------
+system:
+  # --- パスワード認証 ---
+  security:
+    password_auth_enabled: false
+    # 認証サーバーURL
+    auth_server_url: "https://api.your-server.com/auth"
+
+  # --- 操作ログ送信 ---
+  logging:
+    # ログ送信先URL
+    endpoint_url: "https://api.your-server.com/chatui-backend"
+    
+    # 送信するイベント（配列で複数指定）
+    # options: KEY_INPUT, CHAT_MESSAGE
+    target_events: []
+
+  # --- ハートビート (死活監視) ---
+  heartbeat:
+    enabled: false
+    interval_sec: 30
+    url: "https://api.your-server.com/heartbeat"
+    method: "POST"
+    headers:
+      "Content-Type": "application/json"
+      "X-Experiment-ID": "test-001"
+    # ボディ（JSON文字列としてパース可能な記述、または固定値）
+    body: '{"status": "alive"}'

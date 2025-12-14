@@ -1,4 +1,3 @@
-import { env } from '@/lib/env';
 import type { ChatSettings } from '@/types/chat';
 
 const STORAGE_KEY = 'chatui-settings';
@@ -6,12 +5,12 @@ const PASSWORD_KEY = 'chatui-password';
 
 // デフォルト設定
 export const defaultSettings: ChatSettings = {
-  provider: (env.llmProvider as any) || 'openai',
-  apiServerUrl: env.llmApiEndpoint,
-  apiKey: env.llmApiKey,
-  modelName: env.llmModel,
-  systemPrompt: env.llmSystemPrompt,
-  showThinking: env.allowUserShowThinking,
+  provider: __APP_CONFIG__.llm.defaults.provider || 'openai',
+  apiServerUrl: __APP_CONFIG__.llm.defaults.endpoint_url || '',
+  apiKey: __APP_CONFIG__.llm.defaults.api_key || '',
+  modelName: __APP_CONFIG__.llm.defaults.model,
+  systemPrompt: __APP_CONFIG__.llm.defaults.system_prompt || '',
+  showThinking: __APP_CONFIG__.llm.defaults.enable_thinking || false,
   language: 'ja',
 };
 
@@ -33,28 +32,40 @@ export function loadSettings(): ChatSettings {
       ...parsed,
     };
 
-    // 固定プロバイダーが設定されている場合は強制的に上書き
-    if (!env.allowUserProvider && env.llmProvider) {
-      settings.provider = env.llmProvider;
+    // LLM設定が許可されていない場合には固定値を強制的に上書き
+    if (!__APP_CONFIG__.llm.permissions.allow_change_config) {
+      if (!__APP_CONFIG__.llm.defaults.provider) {
+        // エラーにして動かないようにする
+        throw new Error('ユーザにLLM設定の変更が許可されていませんが，デフォルトで使用するプロバイダーが設定されていません。');
+      }
+      settings.provider = __APP_CONFIG__.llm.defaults.provider;
     }
 
     // Thinking表示が固定されている場合は強制的に上書き
-    if (!env.allowUserShowThinking) {
-      settings.showThinking = env.defaultShowThinking;
+    if (!__APP_CONFIG__.llm.permissions.allow_toggle_thinking) {
+      settings.showThinking = __APP_CONFIG__.llm.defaults.enable_thinking || false;
     }
 
     // その他の固定設定を強制的に上書き
-    if (!env.allowUserApiServer && env.llmApiEndpoint) {
-      settings.apiServerUrl = env.llmApiEndpoint;
+    if (!__APP_CONFIG__.llm.permissions.allow_change_config) {
+      settings.apiServerUrl = __APP_CONFIG__.llm.defaults.endpoint_url;
     }
-    if (!env.allowUserModel && env.llmModel) {
-      settings.modelName = env.llmModel;
+    if (!__APP_CONFIG__.llm.permissions.allow_change_config) {
+      if (!__APP_CONFIG__.llm.defaults.model) {
+        // エラーにして動かないようにする
+        throw new Error('ユーザにLLM設定の変更が許可されていませんが，デフォルトで使用するモデル名が設定されていません。');
+      }
+      settings.modelName = __APP_CONFIG__.llm.defaults.model;
     }
-    if (!env.allowUserApiKey && env.llmApiKey) {
-      settings.apiKey = env.llmApiKey;
+    if (!__APP_CONFIG__.llm.permissions.allow_change_config) {
+      if (!__APP_CONFIG__.llm.defaults.api_key) {
+        // エラーにして動かないようにする
+        throw new Error('ユーザにLLM設定の変更が許可されていませんが，デフォルトで使用するAPIキーが設定されていません。');
+      } 
+      settings.apiKey = __APP_CONFIG__.llm.defaults.api_key;
     }
-    if (!env.allowUserSystemPrompt && env.llmSystemPrompt) {
-      settings.systemPrompt = env.llmSystemPrompt;
+    if (!__APP_CONFIG__.llm.permissions.allow_change_config) {
+      settings.systemPrompt = __APP_CONFIG__.llm.defaults.system_prompt || '';
     }
 
     return settings;

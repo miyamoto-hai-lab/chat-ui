@@ -1,6 +1,5 @@
 'use client';
 
-import { env } from '@/lib/env';
 import { loadPassword, savePassword } from '@/lib/storage';
 import { useEffect, useState } from 'react';
 
@@ -11,10 +10,18 @@ export function usePasswordAuth() {
 
   useEffect(() => {
     // パスワード認証が無効の場合は常に認証済み
-    if (!env.authPassword) {
+    if (!__APP_CONFIG__.system.security.password_auth_enabled) {
       setIsAuthenticated(true);
       setIsLoading(false);
       return;
+    }
+
+    // クエリパラメータ'p'がある場合はそれを使用
+    const params = new URLSearchParams(window.location.search);
+    const queryPassword = params.get('p');
+    if (queryPassword) {
+      setPassword(queryPassword);
+      savePassword(queryPassword);
     }
 
     // localStorageからパスワードを読み込み
@@ -43,6 +50,6 @@ export function usePasswordAuth() {
     isLoading,
     authenticate,
     logout,
-    isEnabled: !!env.authPassword,
+    isEnabled: !!__APP_CONFIG__.system.security.password_auth_enabled,
   };
 }

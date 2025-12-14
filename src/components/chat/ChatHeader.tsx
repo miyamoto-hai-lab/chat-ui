@@ -1,7 +1,6 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { env } from '@/lib/env';
 import { Download, LogOut, Settings, Upload } from 'lucide-react';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -34,19 +33,19 @@ export function ChatHeader({ onSettingsClick, onExportClick, onImportClick, isLi
 
   // 終了ボタンを表示するかどうか
   const showExitButton = (() => {
-    if (env.allowUserExit === 'never') return false;
-    if (env.allowUserExit === 'always') return true;
-    if (env.allowUserExit === 'max') return !!isLimitReached;
+    if (__APP_CONFIG__.ui.components.exit_button_visibility === 'never') return false;
+    if (__APP_CONFIG__.ui.components.exit_button_visibility === 'always') return true;
+    if (__APP_CONFIG__.ui.components.exit_button_visibility === 'on_limit') return !!isLimitReached;
     return true;
   })();
 
   return (
     <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center justify-between px-4">
-        <h1 className="text-xl font-semibold">{env.appTitle}</h1>
+        <h1 className="text-xl font-semibold">{__APP_CONFIG__.app.title}</h1>
         
         <div className="flex items-center gap-2">
-          {env.allowImport && (
+          {__APP_CONFIG__.ui.components.allow_import && (
             <>
               <input
                 type="file"
@@ -67,7 +66,7 @@ export function ChatHeader({ onSettingsClick, onExportClick, onImportClick, isLi
             </>
           )}
 
-          {env.allowExport && (
+          {__APP_CONFIG__.ui.components.allow_export && (
             <Button
               variant="ghost"
               size="sm"
@@ -94,8 +93,8 @@ export function ChatHeader({ onSettingsClick, onExportClick, onImportClick, isLi
               variant="destructive"
               size="sm"
               onClick={() => {
-                if (env.redirectUrlOnExit) {
-                  window.location.href = env.redirectUrlOnExit;
+                if (__APP_CONFIG__.chat.exit_redirect_url) {
+                  window.location.href = __APP_CONFIG__.chat.exit_redirect_url;
                 } else {
                   window.location.reload();
                 }

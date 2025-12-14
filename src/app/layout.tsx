@@ -1,7 +1,6 @@
 import { I18nProvider } from '@/components/providers/I18nProvider';
 import { SettingsProvider } from '@/components/providers/SettingsProvider';
 import { Toaster } from '@/components/ui/sonner';
-import { env } from '@/lib/env';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
@@ -17,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: env.appTitle,
-  description: env.appDescription || 'Chat UI for LLM interactions',
+  title: __APP_CONFIG__.app.title || 'Chat UI',
+  description: __APP_CONFIG__.app.description || '',
 };
 
 export default function RootLayout({
