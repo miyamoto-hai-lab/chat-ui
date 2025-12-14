@@ -36,6 +36,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: ls current dir
+        run: ls -la
+      
+      - name: Print config.yml
+        run: cat ./config.yml
+        
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
