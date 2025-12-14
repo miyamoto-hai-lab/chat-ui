@@ -171,7 +171,10 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
 
     // アプリ説明の表示
     const rawDescription = __APP_CONFIG__.app.description || '';
-    const description = replacePlaceholders(rawDescription);
+    const description = replacePlaceholders(rawDescription, {
+      PASSWORD: password || '',
+      PASSWORD_BASE64: password ? btoa(password) : '',
+    });
     const showDescription = !!description;
 
     // 表示用メッセージリスト
@@ -205,7 +208,10 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
                 className="w-full sm:w-auto min-w-[200px]"
                 onClick={() => {
                   if (__APP_CONFIG__.chat.exit_redirect_url) {
-                    window.location.href = replacePlaceholders(__APP_CONFIG__.chat.exit_redirect_url);
+                    window.location.href = replacePlaceholders(__APP_CONFIG__.chat.exit_redirect_url, {
+                      PASSWORD: password || '',
+                      PASSWORD_BASE64: password ? btoa(password) : '',
+                    });
                   } else {
                     window.location.reload();
                   }

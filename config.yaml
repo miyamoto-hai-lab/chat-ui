@@ -33,6 +33,7 @@ llm:
   # ユーザーが変更可能な項目において、ブラウザに保存された設定がない場合の初期値として機能します。
   # ユーザー変更が不可（permissionsでfalse）の場合は、この設定が強制されます。
   defaults:
+    # endpoint_url, model, api_key, system_promptで${PASSWORD}, ${PASSWORD_BASE64}, ${PARAM.<key>}のプレースホルダが利用可能です
     provider: "openai" # options: openai, gemini, anthropic, grok, deepseek
     endpoint_url: ""   # 空の場合は各プロバイダのデフォルトが使用されます
     model: ""          # 空の場合は各プロバイダのデフォルトモデルが使用されます
@@ -73,7 +74,9 @@ chat:
     # n: n秒後に指定のリダイレクト先へ、またはタブを閉じる等の処理
     auto_exit_delay_sec: 0
   
-  exit_redirect_url: "https://www.google.com/search?q=${PASSWORD}" # 自動退出時のリダイレクト先URL（空の場合はChat UIを再読み込み）
+  # 自動退出時のリダイレクト先URL（空の場合はChat UIを再読み込み）
+  # ${PASSWORD}, ${PASSWORD_BASE64}, ${PARAM.<key>}のプレースホルダが利用可能です
+  exit_redirect_url: ""
 
 # ------------------------------------------
 # 4. ユーザーインターフェース (UI)
@@ -130,17 +133,14 @@ system:
   security:
     password_auth_enabled: true
     # 認証サーバーURL
-    # url, headers, bodyのどれかに${PASSWORD}プレースホルダで，ユーザが入力したパスワードを埋め込むことが可能．
+    # url, headers, bodyで${PASSWORD}, ${PASSWORD_BASE64}, ${PARAM.<key>}のプレースホルダが利用可能です
     auth_request: 
-      url: "http://localhost:8000/auth?from=${PARAM.source}&p=${PASSWORD}&pp=${PASSWORD_BASE64}&id=${PARAM.cwid}"
+      url: "https://api.your-server.com/auth"
       method: "POST" # GET or POST
       headers:
         "Content-Type": "application/json"
-        "Password": "${PASSWORD}"
-        "Password-Base64": "${PASSWORD_BASE64}"
-        "Source": "${PARAM.source}" 
         # ボディ（JSON文字列としてパース可能な記述、または固定値）
-        body: '{"password": "${PASSWORD}", "base64": "${PASSWORD_BASE64}", "source": "${PARAM.source}"}'
+        body: '{"password": "${PASSWORD}", "base64password": "${PASSWORD_BASE64}"}'
 
   # --- 操作ログ送信 ---
   logging:
@@ -153,13 +153,13 @@ system:
 
   # --- ハートビート (死活監視) ---
   heartbeat:
-    # url, headers, bodyのどれかに${PASSWORD}, 
+    # url, headers, bodyで${PASSWORD}, ${PASSWORD_BASE64}, ${PARAM.<key>}のプレースホルダが利用可能です
     enabled: false
     interval_sec: 30
     url: "https://api.your-server.com/heartbeat" # クエリパラメータも可能
     method: "POST" # "GET" or "POST"
     headers:
       "Content-Type": "application/json"
-      "X-Experiment-ID": "test-001"
+      "Password": "${PASSWORD}"
     # ボディ（JSON文字列としてパース可能な記述、または固定値）
     body: '{"status": "alive"}'

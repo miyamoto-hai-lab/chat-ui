@@ -1,7 +1,7 @@
 'use client';
 
 import { replacePlaceholders } from '@/lib/placeholder';
-import { defaultSettings, loadSettings, saveSettings } from '@/lib/storage';
+import { defaultSettings, loadPassword, loadSettings, saveSettings } from '@/lib/storage';
 import type { ChatSettings } from '@/types/chat';
 import {
   createContext,
@@ -15,6 +15,7 @@ interface SettingsContextType {
   settings: ChatSettings;
   updateSettings: (newSettings: Partial<ChatSettings>) => void;
   resetSettings: () => void;
+  refreshConfigDefaults: () => void;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(
@@ -57,6 +58,30 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     }));
   };
 
+  const refreshConfigDefaults = () => {
+    const pwd = loadPassword();
+    const variables = { 
+      PASSWORD: pwd, 
+      PASSWORD_BASE64: pwd ? btoa(pwd) : '' 
+    };
+
+    setSettings((prev) => ({
+      ...prev,
+      apiServerUrl: __APP_CONFIG__.llm.permissions.allow_change_config
+        ? prev.apiServerUrl || replacePlaceholders(__APP_CONFIG__.llm.defaults.endpoint_url || '', variables)
+        : replacePlaceholders(__APP_CONFIG__.llm.defaults.endpoint_url || '', variables),
+      apiKey: __APP_CONFIG__.llm.permissions.allow_change_config
+        ? prev.apiKey || replacePlaceholders(__APP_CONFIG__.llm.defaults.api_key || '', variables)
+        : replacePlaceholders(__APP_CONFIG__.llm.defaults.api_key || '', variables),
+      systemPrompt: __APP_CONFIG__.llm.permissions.allow_change_system_prompt
+        ? prev.systemPrompt || replacePlaceholders(__APP_CONFIG__.llm.defaults.system_prompt || '', variables)
+        : replacePlaceholders(__APP_CONFIG__.llm.defaults.system_prompt || '', variables),
+      modelName: __APP_CONFIG__.llm.permissions.allow_change_config
+        ? prev.modelName || replacePlaceholders(__APP_CONFIG__.llm.defaults.model || '', variables)
+        : replacePlaceholders(__APP_CONFIG__.llm.defaults.model || '', variables),
+    }));
+  };
+
   const resetSettings = () => {
     setSettings({
       ...defaultSettings,
@@ -68,7 +93,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
   return (
     <SettingsContext.Provider
-      value={{ settings, updateSettings, resetSettings }}
+      value={{ settings, updateSettings, resetSettings, refreshConfigDefaults }}
     >
       {children}
     </SettingsContext.Provider>

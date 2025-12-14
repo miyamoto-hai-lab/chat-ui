@@ -2,19 +2,28 @@
 
 import { ChatContainer, type ChatContainerHandle } from '@/components/chat/ChatContainer';
 import { ChatHeader } from '@/components/chat/ChatHeader';
+import { useSettings } from '@/components/providers/SettingsProvider';
 import { PasswordDialog } from '@/components/settings/PasswordDialog';
 import { SettingsDialog } from '@/components/settings/SettingsDialog';
 import { usePasswordAuth } from '@/hooks/use-password-auth';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 export default function Home() {
   const { t } = useTranslation();
   const { isAuthenticated, password, isLoading, error, authenticate } = usePasswordAuth();
+  const { refreshConfigDefaults } = useSettings();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [isLimitReached, setIsLimitReached] = useState(false);
   const chatContainerRef = useRef<ChatContainerHandle>(null);
+
+  // 認証時に設定のプレースホルダーを再評価（パスワードの適用）
+  useEffect(() => {
+    if (isAuthenticated) {
+      refreshConfigDefaults();
+    }
+  }, [isAuthenticated, refreshConfigDefaults]);
 
   const handleExport = () => {
     // エクスポート機能は今後の実装で追加
