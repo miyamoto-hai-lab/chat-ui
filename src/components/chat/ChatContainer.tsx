@@ -3,16 +3,17 @@
 import { useSettings } from '@/components/providers/SettingsProvider';
 import { Button } from '@/components/ui/button';
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChatService } from '@/lib/chat-service';
 import { logChatMessage } from '@/lib/event-logger';
+import { performAppExit } from '@/lib/navigation';
 import { replacePlaceholders } from '@/lib/placeholder';
 import { type ChatMessage } from '@/types/chat';
 import { Loader2, LogOut } from 'lucide-react';
@@ -207,14 +208,7 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
                 variant="destructive" 
                 className="w-full sm:w-auto min-w-[200px]"
                 onClick={() => {
-                  if (__APP_CONFIG__.chat.exit_redirect_url) {
-                    window.location.href = replacePlaceholders(__APP_CONFIG__.chat.exit_redirect_url, {
-                      PASSWORD: password || '',
-                      PASSWORD_BASE64: password ? btoa(password) : '',
-                    });
-                  } else {
-                    window.location.reload();
-                  }
+                  performAppExit(password);
                 }}
               >
                 <LogOut className="mr-2 h-4 w-4" />

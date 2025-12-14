@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { replacePlaceholders } from '@/lib/placeholder';
+import { performAppExit } from '@/lib/navigation';
 import { Download, LogOut, Settings, Upload } from 'lucide-react';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -95,14 +95,7 @@ export function ChatHeader({ onSettingsClick, onExportClick, onImportClick, isLi
               variant="destructive"
               size="sm"
               onClick={() => {
-                if (__APP_CONFIG__.chat.exit_redirect_url) {
-                  window.location.href = replacePlaceholders(__APP_CONFIG__.chat.exit_redirect_url, {
-                    PASSWORD: password || '',
-                    PASSWORD_BASE64: password ? btoa(password) : '',
-                  });
-                } else {
-                  window.location.reload();
-                }
+                performAppExit(password);
               }}
               className="bg-red-500 hover:bg-red-600 text-white"
             >

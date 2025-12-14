@@ -58,8 +58,8 @@ chat:
   # assistant: ページを開くと同時にLLMから挨拶などが生成される
   initial_sender: "user" 
 
-  # 最大ターン数（往復で1ターンとカウントするか、発言数かは実装依存だが通常はペアで1ターン） 0: 無制限
-  max_turns: 1
+  # 最大ターン数 (0: 無制限, ユーザとLLMの発話1回ずつで1ターンです)
+  max_turns: 0
 
   # 最大ターン到達時の挙動 (Completion Behavior)
   on_limit_reached:
@@ -135,7 +135,7 @@ system:
     # 認証サーバーURL
     # url, headers, bodyで${PASSWORD}, ${PASSWORD_BASE64}, ${PARAM.<key>}のプレースホルダが利用可能です
     auth_request: 
-      url: "http://localhost:8000/auth"
+      url: "https://api.your-server.com/auth"
       method: "POST" # GET or POST
       headers:
         "Content-Type": "application/json"
@@ -145,7 +145,7 @@ system:
   # --- 操作ログ送信 ---
   logging:
     # ログ送信先URL
-    endpoint_url: "https://api.your-server.com/chatui-backend"
+    endpoint_url: "https://api.your-server.com/logger"
     
     # 送信するイベント（配列で複数指定）
     # options: KEY_INPUT, CHAT_MESSAGE
