@@ -48,11 +48,11 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
-  webpack: (config, { isServer }) => {
+  webpack: (config, { webpack }) => {
     // 2. DefinePluginでグローバル変数を定義
     // 文字列化してから渡す
     config.plugins.push(
-      new (require("webpack").DefinePlugin)({
+      new (webpack.DefinePlugin)({
         // クライアント側で __APP_CONFIG__ として参照できるようになる
         "__APP_CONFIG__": JSON.stringify(appConfig),
       })
