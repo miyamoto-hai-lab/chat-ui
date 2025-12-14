@@ -69,8 +69,7 @@ jobs:
         env:
           NEXT_TELEMETRY_DISABLED: 1
         run: |
-          pnpm exec next build
-          pnpm exec next export
+          pnpm build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
