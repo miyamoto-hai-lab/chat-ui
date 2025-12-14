@@ -3,6 +3,7 @@
 <img width="45%" alt="Chat Page" src="https://github.com/user-attachments/assets/98095304-9971-45c8-8562-03679db7506a" />
 <img width="45%" alt="Settings Page" src="https://github.com/user-attachments/assets/5bb2a856-3280-4e5f-9f26-442312221a7e" />
 </p>
+
 [![Sample website is available on GitHub Pages](https://github.com/miyamoto-hai-lab/chat-ui/actions/workflows/nextjs.yml/badge.svg)](http://miyamoto-hai-lab.github.io/chat-ui/)
 
 **A simple front-end application for interacting with dialogue systems, such as LLMs.**
