@@ -36,7 +36,11 @@
   "password": {
     "title": "パスワード認証",
     "placeholder": "パスワードを入力",
-    "submit": "認証"
+    "submit": "認証",
+    "description": "認証が必要です",
+    "authError": "認証エラー",
+    "status": "ステータスコード",
+    "response": "レスポンス"
   },
   "export": {
     "success": "会話履歴をエクスポートしました",

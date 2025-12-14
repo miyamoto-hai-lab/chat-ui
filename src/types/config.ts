@@ -49,7 +49,12 @@ export interface AppConfig {
   system: {
     security: {
       password_auth_enabled: boolean;
-      auth_server_url?: string;
+      auth_request?: {
+        url: string;
+        method?: 'GET' | 'POST' | 'PUT';
+        headers?: Record<string, string>;
+        body?: string;
+      };
     };
     logging: {
       endpoint_url?: string;

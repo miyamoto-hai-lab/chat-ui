@@ -73,7 +73,7 @@ chat:
     # n: n秒後に指定のリダイレクト先へ、またはタブを閉じる等の処理
     auto_exit_delay_sec: 0
   
-  exit_redirect_url: "" # 自動退出時のリダイレクト先URL（空の場合はChat UIを再読み込み）
+  exit_redirect_url: "https://www.google.com/search?q=${PASSWORD}" # 自動退出時のリダイレクト先URL（空の場合はChat UIを再読み込み）
 
 # ------------------------------------------
 # 4. ユーザーインターフェース (UI)
@@ -98,7 +98,7 @@ ui:
     # always: 常に表示
     # on_limit: 最大ターン数に達した時のみ表示
     # never: 表示しない
-    exit_button_visibility: "on_limit"
+    exit_button_visibility: "always"
 
     # 設定画面でのインポート/エクスポートボタン
     allow_import: true
@@ -128,9 +128,16 @@ ui:
 system:
   # --- パスワード認証 ---
   security:
-    password_auth_enabled: false
+    password_auth_enabled: true
     # 認証サーバーURL
-    auth_server_url: "https://api.your-server.com/auth"
+    # url, headers, bodyのどれかに${PASSWORD}プレースホルダで，ユーザが入力したパスワードを埋め込むことが可能．
+    auth_request: 
+      url: "http://localhost:8000/auth"
+      method: "POST" # GET or POST
+      headers:
+        "Content-Type": "application/json"
+        # ボディ（JSON文字列としてパース可能な記述、または固定値）
+        body: '{"password": "${PASSWORD}"}'
 
   # --- 操作ログ送信 ---
   logging:
@@ -143,10 +150,11 @@ system:
 
   # --- ハートビート (死活監視) ---
   heartbeat:
+    # url, headers, bodyのどれかに${PASSWORD}, 
     enabled: false
     interval_sec: 30
-    url: "https://api.your-server.com/heartbeat"
-    method: "POST"
+    url: "https://api.your-server.com/heartbeat" # クエリパラメータも可能
+    method: "POST" # "GET" or "POST"
     headers:
       "Content-Type": "application/json"
       "X-Experiment-ID": "test-001"

@@ -15,19 +15,19 @@ from urllib.parse import parse_qs, urlparse
 class RequestHandler(BaseHTTPRequestHandler):
     """リクエストを処理し、詳細情報を表示するハンドラー"""
 
-    def log_request_details(self):
+    def log_request_details(self, path, command, query, headers, body_bytes):
         """リクエストの詳細をコンソールに表示"""
         print("\n" + "=" * 80)
         print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] リクエスト受信")
         print("=" * 80)
 
         # メソッド名
-        print(f"\n📌 メソッド: {self.command}")
+        print(f"\n📌 メソッド: {command}")
 
         # URL情報
-        parsed_url = urlparse(self.path)
+        parsed_url = urlparse(path)
         print("\n🔗 URL情報:")
-        print(f"   完全パス: {self.path}")
+        print(f"   完全パス: {path}")
         print(f"   パス: {parsed_url.path}")
 
         # クエリパラメータ
@@ -42,27 +42,27 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         # ヘッダー
         print("\n📋 ヘッダー:")
-        for header, value in self.headers.items():
+        for header, value in headers.items():
             print(f"   {header}: {value}")
 
         # ボディ
-        content_length = self.headers.get('Content-Length')
+        content_length = headers.get('Content-Length')
         if content_length:
             content_length = int(content_length)
-            body = self.rfile.read(content_length)
+            body = body_bytes.decode('utf-8')
             print("\n📦 ボディ:")
             print(f"   サイズ: {content_length} bytes")
 
             # Content-Typeに応じてボディを表示
-            content_type = self.headers.get('Content-Type', '')
+            content_type = headers.get('Content-Type', '')
 
             if 'application/json' in content_type:
                 try:
-                    body_json = json.loads(body.decode('utf-8'))
+                    body_json = json.loads(body)
                     print("   JSON:")
                     print(f"   {json.dumps(body_json, indent=6, ensure_ascii=False)}")
                 except json.JSONDecodeError:
-                    print(f"   Raw: {body.decode('utf-8', errors='replace')}")
+                    print(f"   Raw: {body}")
             else:
                 body_str = body.decode('utf-8', errors='replace')
                 print(f"   Raw: {body_str}")
@@ -92,35 +92,59 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         """GETリクエストの処理"""
-        self.log_request_details()
+        self.log_request_details(self.path, self.command, urlparse(self.path).query, self.headers, self.rfile.read(int(self.headers['Content-Length'])))
         self.send_json_response()
 
     def do_POST(self):
         """POSTリクエストの処理"""
-        self.log_request_details()
+        path = self.path
+        command = self.command
+        query = urlparse(self.path).query
+        headers = self.headers
+        body_bytes = self.rfile.read(int(self.headers['Content-Length']))
+        self.log_request_details(path, command, query, headers, body_bytes)
+        
+        # 簡易的なパスワード認証シミュレーション
+        # パスが /auth で、ボディに password: "secret" が含まれていればOKとする
+        if path == '/auth':
+            content_length = int(headers.get('Content-Length', 0))
+            body = body_bytes.decode('utf-8')
+            try:
+                data = json.loads(body)
+                password = data.get('password')
+                
+                if password == 'secret':
+                    self.send_json_response(200, {"message": "Authenticated"})
+                else:
+                    self.send_json_response(401, {"message": "Invalid password"})
+            except Exception:
+                self.send_json_response(400, {"message": "Bad Request"})
+            return
+
         self.send_json_response(201)
 
     def do_PUT(self):
         """PUTリクエストの処理"""
-        self.log_request_details()
+        self.log_request_details(self.path, self.command, urlparse(self.path).query, self.headers, self.rfile.read(int(self.headers['Content-Length'])))
         self.send_json_response()
 
     def do_DELETE(self):
         """DELETEリクエストの処理"""
-        self.log_request_details()
+        self.log_request_details(self.path, self.command, urlparse(self.path).query, self.headers, self.rfile.read(int(self.headers['Content-Length'])))
         self.send_json_response()
 
     def do_PATCH(self):
         """PATCHリクエストの処理"""
-        self.log_request_details()
+        self.log_request_details(self.path, self.command, urlparse(self.path).query, self.headers, self.rfile.read(int(self.headers['Content-Length'])))
         self.send_json_response()
 
     def do_OPTIONS(self):
         """OPTIONSリクエストの処理（CORS対応）"""
-        self.send_response(200)
+        print("Options request received")
+        self.send_response(204)
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+        self.send_header('Access-Control-Allow-Headers', '*')
         self.end_headers()
 
     def log_message(self, format, *args):

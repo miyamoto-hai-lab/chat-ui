@@ -10,7 +10,7 @@
 
 You can freely configure the API server URL, API key, and system prompt from the UI.
 
-By setting environment variables at build time, you can customize the application's behavior for various use cases, such as:
+By setting `config.yaml` at build time, you can customize the application's behavior for various use cases, such as:
 
 * Requiring password authentication for participants in crowdsourcing experiments.  
 * Fixing the API server URL and system prompt for internal company use.  

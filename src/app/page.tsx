@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 
 export default function Home() {
   const { t } = useTranslation();
-  const { isAuthenticated, password, isLoading, authenticate } = usePasswordAuth();
+  const { isAuthenticated, password, isLoading, error, authenticate } = usePasswordAuth();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [isLimitReached, setIsLimitReached] = useState(false);
   const chatContainerRef = useRef<ChatContainerHandle>(null);
@@ -45,8 +45,19 @@ export default function Home() {
   };
 
   // パスワード認証が必要な場合
-  if (__APP_CONFIG__.system.security.password_auth_enabled && !isAuthenticated && !isLoading) {
-    return <PasswordDialog open={true} onAuthenticate={authenticate} />;
+  if (__APP_CONFIG__.system.security.password_auth_enabled && !isAuthenticated) {
+    // isLoading中はローディング表示を挟まず、Dialog側でローディング制御する
+    // ただし初期チェック中(isLoading=trueかつisAuthenticated=false)は何も表示しないか、ローディングを出す
+    if (isLoading && !password) return null; // 初期ロード中
+
+    return (
+      <PasswordDialog 
+        open={true} 
+        onAuthenticate={authenticate} 
+        error={error}
+        isLoading={isLoading}
+      />
+    );
   }
 
   return (
