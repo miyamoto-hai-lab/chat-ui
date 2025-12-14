@@ -5,7 +5,7 @@ import path from "path";
 import type { AppConfig } from './src/types/config';
 
 // 1. YAMLファイルを読み込んでJSオブジェクトに変換
-const configPath = path.join(__dirname, process.env.CONFIG_FILE || "config.yml");
+const configPath = path.join(__dirname, "config.yml");
 console.error(`--- DEBUG: Loading config from ${configPath} ---`);
 if (fs.existsSync(configPath)) {
   const rawContent = fs.readFileSync(configPath, "utf8");
