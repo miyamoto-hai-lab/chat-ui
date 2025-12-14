@@ -6,6 +6,14 @@ import type { AppConfig } from './src/types/config';
 
 // 1. YAMLファイルを読み込んでJSオブジェクトに変換
 const configPath = path.join(__dirname, process.env.CONFIG_FILE || "config.yml");
+console.log(`--- DEBUG: Loading config from ${configPath} ---`);
+if (fs.existsSync(configPath)) {
+  const rawContent = fs.readFileSync(configPath, "utf8");
+  console.log("File content length:", rawContent.length);
+  console.log("File content preview:\n", rawContent); // 中身を全部出す
+} else {
+  console.error("!!! FATAL: Config file does not exist !!!");
+}
 const fileContents = fs.readFileSync(configPath, "utf8");
 const appConfig = yaml.load(fileContents) as AppConfig;
 
