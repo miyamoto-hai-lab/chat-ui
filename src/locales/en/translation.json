@@ -36,7 +36,11 @@
   "password": {
     "title": "Password Authentication",
     "placeholder": "Enter password",
-    "submit": "Authenticate"
+    "submit": "Authenticate",
+    "description": "Authentication required",
+    "authError": "Authentication Error",
+    "status": "Status Code",
+    "response": "Response"
   },
   "export": {
     "success": "Chat history exported successfully",

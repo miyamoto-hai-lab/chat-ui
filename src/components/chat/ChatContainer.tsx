@@ -13,6 +13,8 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChatService } from '@/lib/chat-service';
 import { logChatMessage } from '@/lib/event-logger';
+import { performAppExit } from '@/lib/navigation';
+import { replacePlaceholders } from '@/lib/placeholder';
 import { type ChatMessage } from '@/types/chat';
 import { Loader2, LogOut } from 'lucide-react';
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
@@ -169,7 +171,12 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
     };
 
     // アプリ説明の表示
-    const showDescription = !!__APP_CONFIG__.app.description;
+    const rawDescription = __APP_CONFIG__.app.description || '';
+    const description = replacePlaceholders(rawDescription, {
+      PASSWORD: password || '',
+      PASSWORD_BASE64: password ? btoa(password) : '',
+    });
+    const showDescription = !!description;
 
     // 表示用メッセージリスト
     const displayMessages = [...messages];
@@ -201,11 +208,7 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
                 variant="destructive" 
                 className="w-full sm:w-auto min-w-[200px]"
                 onClick={() => {
-                  if (__APP_CONFIG__.chat.exit_redirect_url) {
-                    window.location.href = __APP_CONFIG__.chat.exit_redirect_url;
-                  } else {
-                    window.location.reload();
-                  }
+                  performAppExit(password);
                 }}
               >
                 <LogOut className="mr-2 h-4 w-4" />
@@ -220,7 +223,7 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
           <div
             className="p-4 border-b bg-muted/30"
             // biome-ignore lint/security/noDangerouslySetInnerHtml: 環境変数から設定されたHTMLを表示
-            dangerouslySetInnerHTML={{ __html: __APP_CONFIG__.app.description || ''}}
+            dangerouslySetInnerHTML={{ __html: description }}
           />
         )}
 

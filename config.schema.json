@@ -105,8 +105,18 @@
           "type": "object",
           "properties": {
             "password_auth_enabled": { "type": "boolean" },
-            "auth_server_url": { "type": "string" }
-          }
+            "auth_request": {
+              "type": "object",
+              "properties": {
+                "url": { "type": "string" },
+                "method": { "type": "string", "enum": ["GET", "POST", "PUT"] },
+                "headers": { "type": "object" },
+                "body": { "type": "string" }
+              },
+              "required": ["url"]
+            }
+          },
+          "required": ["password_auth_enabled"]
         },
         "logging": {
           "type": "object",

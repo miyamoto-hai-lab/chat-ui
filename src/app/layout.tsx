@@ -1,3 +1,4 @@
+import { HeartbeatManager } from '@/components/HeartbeatManager';
 import { I18nProvider } from '@/components/providers/I18nProvider';
 import { SettingsProvider } from '@/components/providers/SettingsProvider';
 import { Toaster } from '@/components/ui/sonner';
@@ -33,6 +34,7 @@ export default function RootLayout({
         <I18nProvider>
           <SettingsProvider>
             {children}
+            <HeartbeatManager />
             <Toaster />
           </SettingsProvider>
         </I18nProvider>

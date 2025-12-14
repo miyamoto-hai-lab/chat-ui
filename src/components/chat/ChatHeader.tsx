@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { performAppExit } from '@/lib/navigation';
 import { Download, LogOut, Settings, Upload } from 'lucide-react';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -10,9 +11,10 @@ interface ChatHeaderProps {
   onExportClick: () => void;
   onImportClick?: (file: File) => void;
   isLimitReached?: boolean;
+  password?: string;
 }
 
-export function ChatHeader({ onSettingsClick, onExportClick, onImportClick, isLimitReached }: ChatHeaderProps) { // Added onImportClick
+export function ChatHeader({ onSettingsClick, onExportClick, onImportClick, isLimitReached, password }: ChatHeaderProps) { // Added onImportClick
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null); // Added useRef
 
@@ -93,11 +95,7 @@ export function ChatHeader({ onSettingsClick, onExportClick, onImportClick, isLi
               variant="destructive"
               size="sm"
               onClick={() => {
-                if (__APP_CONFIG__.chat.exit_redirect_url) {
-                  window.location.href = __APP_CONFIG__.chat.exit_redirect_url;
-                } else {
-                  window.location.reload();
-                }
+                performAppExit(password);
               }}
               className="bg-red-500 hover:bg-red-600 text-white"
             >

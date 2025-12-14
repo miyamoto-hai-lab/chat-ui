@@ -33,6 +33,7 @@ llm:
   # ユーザーが変更可能な項目において、ブラウザに保存された設定がない場合の初期値として機能します。
   # ユーザー変更が不可（permissionsでfalse）の場合は、この設定が強制されます。
   defaults:
+    # endpoint_url, model, api_key, system_promptで${PASSWORD}, ${PASSWORD_BASE64}, ${PARAM.<key>}のプレースホルダが利用可能です
     provider: "openai" # options: openai, gemini, anthropic, grok, deepseek
     endpoint_url: ""   # 空の場合は各プロバイダのデフォルトが使用されます
     model: ""          # 空の場合は各プロバイダのデフォルトモデルが使用されます
@@ -57,7 +58,7 @@ chat:
   # assistant: ページを開くと同時にLLMから挨拶などが生成される
   initial_sender: "user" 
 
-  # 最大ターン数（往復で1ターンとカウントするか、発言数かは実装依存だが通常はペアで1ターン） 0: 無制限
+  # 最大ターン数 (0: 無制限, ユーザとLLMの発話1回ずつで1ターンです)
   max_turns: 0
 
   # 最大ターン到達時の挙動 (Completion Behavior)
@@ -73,7 +74,9 @@ chat:
     # n: n秒後に指定のリダイレクト先へ、またはタブを閉じる等の処理
     auto_exit_delay_sec: 0
   
-  exit_redirect_url: "" # 自動退出時のリダイレクト先URL（空の場合はChat UIを再読み込み）
+  # 自動退出時のリダイレクト先URL（空の場合はChat UIを再読み込み）
+  # ${PASSWORD}, ${PASSWORD_BASE64}, ${PARAM.<key>}のプレースホルダが利用可能です
+  exit_redirect_url: ""
 
 # ------------------------------------------
 # 4. ユーザーインターフェース (UI)
@@ -98,7 +101,7 @@ ui:
     # always: 常に表示
     # on_limit: 最大ターン数に達した時のみ表示
     # never: 表示しない
-    exit_button_visibility: "on_limit"
+    exit_button_visibility: "always"
 
     # 設定画面でのインポート/エクスポートボタン
     allow_import: true
@@ -130,12 +133,19 @@ system:
   security:
     password_auth_enabled: false
     # 認証サーバーURL
-    auth_server_url: "https://api.your-server.com/auth"
+    # url, headers, bodyで${PASSWORD}, ${PASSWORD_BASE64}, ${PARAM.<key>}のプレースホルダが利用可能です
+    auth_request: 
+      url: "https://api.your-server.com/auth"
+      method: "POST" # GET or POST
+      headers:
+        "Content-Type": "application/json"
+        # ボディ（JSON文字列としてパース可能な記述、または固定値）
+        body: '{"password": "${PASSWORD}", "base64password": "${PASSWORD_BASE64}"}'
 
   # --- 操作ログ送信 ---
   logging:
     # ログ送信先URL
-    endpoint_url: "https://api.your-server.com/chatui-backend"
+    endpoint_url: "https://api.your-server.com/logger"
     
     # 送信するイベント（配列で複数指定）
     # options: KEY_INPUT, CHAT_MESSAGE
@@ -143,12 +153,13 @@ system:
 
   # --- ハートビート (死活監視) ---
   heartbeat:
+    # url, headers, bodyで${PASSWORD}, ${PASSWORD_BASE64}, ${PARAM.<key>}のプレースホルダが利用可能です
     enabled: false
     interval_sec: 30
-    url: "https://api.your-server.com/heartbeat"
-    method: "POST"
+    url: "https://api.your-server.com/heartbeat" # クエリパラメータも可能
+    method: "POST" # "GET" or "POST"
     headers:
       "Content-Type": "application/json"
-      "X-Experiment-ID": "test-001"
+      "Password": "${PASSWORD}"
     # ボディ（JSON文字列としてパース可能な記述、または固定値）
     body: '{"status": "alive"}'
