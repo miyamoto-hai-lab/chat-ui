@@ -5,15 +5,7 @@ import path from "path";
 import type { AppConfig } from './src/types/config';
 
 // 1. YAMLファイルを読み込んでJSオブジェクトに変換
-const configPath = path.join(__dirname, process.env.CONFIG_FILE || "config.yml");
-console.error(`--- DEBUG: Loading config from ${configPath} ---`);
-if (fs.existsSync(configPath)) {
-  const rawContent = fs.readFileSync(configPath, "utf8");
-  console.error("File content length:", rawContent.length);
-  console.error("File content preview:\n", rawContent); // 中身を全部出す
-} else {
-  console.error("!!! FATAL: Config file does not exist !!!");
-}
+const configPath = path.join(__dirname, process.env.CONFIG_FILE || "config.yaml");
 const fileContents = fs.readFileSync(configPath, "utf8");
 const appConfig = yaml.load(fileContents) as AppConfig;
 
@@ -48,11 +40,11 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
-  webpack: (config, { isServer }) => {
+  webpack: (config, { webpack }) => {
     // 2. DefinePluginでグローバル変数を定義
     // 文字列化してから渡す
     config.plugins.push(
-      new (require("webpack").DefinePlugin)({
+      new (webpack.DefinePlugin)({
         // クライアント側で __APP_CONFIG__ として参照できるようになる
         "__APP_CONFIG__": JSON.stringify(appConfig),
       })

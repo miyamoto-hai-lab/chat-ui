@@ -1,4 +1,4 @@
-import { AppConfig } from "./config"; // 前回提案したAppConfig型をimport
+import { AppConfig } from "./config";
 
 declare global {
   // Webpackによって置換されるグローバル定数の定義
