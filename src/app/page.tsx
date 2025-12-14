@@ -76,6 +76,7 @@ export default function Home() {
         onExportClick={handleExport}
         onImportClick={handleImport}
         isLimitReached={isLimitReached}
+        password={password}
       />
       <main className="flex-1 overflow-hidden min-h-0">
         <ChatContainer 

@@ -19,11 +19,11 @@ base_path: "/chat-ui"
 # ------------------------------------------
 app:
   # ブラウザのタブやヘッダーに表示されるタイトル
-  title: "Chat UI ${PASSWORD}"
+  title: "Chat UI"
   
   # 画面に表示する説明文や被験者への指示（Markdown対応を想定）
   # 空白の場合は表示されません
-  description: "Welcome from ${PARAM.source} with ${PASSWORD}"
+  description: ""
 
 # ------------------------------------------
 # 2. LLM設定 (LLM)
@@ -59,7 +59,7 @@ chat:
   initial_sender: "user" 
 
   # 最大ターン数（往復で1ターンとカウントするか、発言数かは実装依存だが通常はペアで1ターン） 0: 無制限
-  max_turns: 0
+  max_turns: 1
 
   # 最大ターン到達時の挙動 (Completion Behavior)
   on_limit_reached:
@@ -131,11 +131,11 @@ ui:
 system:
   # --- パスワード認証 ---
   security:
-    password_auth_enabled: true
+    password_auth_enabled: false
     # 認証サーバーURL
     # url, headers, bodyで${PASSWORD}, ${PASSWORD_BASE64}, ${PARAM.<key>}のプレースホルダが利用可能です
     auth_request: 
-      url: "https://api.your-server.com/auth"
+      url: "http://localhost:8000/auth"
       method: "POST" # GET or POST
       headers:
         "Content-Type": "application/json"
