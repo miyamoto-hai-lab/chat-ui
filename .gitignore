@@ -44,4 +44,4 @@ next-env.d.ts
 pnpm-workspace.yaml
 
 # local config file
-config.yml
+config.yaml
