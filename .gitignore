@@ -40,5 +40,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Unnecessary pnpm files
+pnpm-workspace.yaml
+
 # local config file
-./config.yml
+config.yml
