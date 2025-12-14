@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChatService } from '@/lib/chat-service';
-import { env } from '@/lib/env';
 import { logChatMessage } from '@/lib/event-logger';
 import { type ChatMessage } from '@/types/chat';
 import { Loader2, LogOut } from 'lucide-react';
@@ -76,7 +75,7 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
     const currentTurns = Math.floor(
       messages.filter((m) => m.role !== 'system').length / 2
     );
-    const isLimitReached = env.maxChatTurns > 0 && currentTurns >= env.maxChatTurns;
+    const isLimitReached = __APP_CONFIG__.chat.max_turns > 0 && currentTurns >= __APP_CONFIG__.chat.max_turns;
 
     // メッセージ送信の実行ロジック
     const executeSendMessage = useCallback(async (newMessages: ChatMessage[]) => {
@@ -130,11 +129,11 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
       }
     }, [settings, password, currentTurns]);
 
-    // 初期メッセージ生成 (startingRole === 'assistant' の場合)
+    // LLMが先に発話する場合の初期メッセージ生成
     useEffect(() => {
       if (
         !hasInitialized.current &&
-        env.startingRole === 'assistant' &&
+        __APP_CONFIG__.chat.initial_sender === 'assistant' &&
         messages.length === 0 &&
         !isLoading
       ) {
@@ -170,7 +169,7 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
     };
 
     // アプリ説明の表示
-    const showDescription = !!env.appDescription;
+    const showDescription = !!__APP_CONFIG__.app.description;
 
     // 表示用メッセージリスト
     const displayMessages = [...messages];
@@ -185,16 +184,16 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
 
     return (
       <div className="flex flex-col h-full relative">
-        {/* ターン数制限到達時のポップアップ (messageモード) */}
-        <Dialog open={isLimitReached && env.onMaxChatTurns === 'message'}>
+        {/* ターン数制限到達時のポップアップ (modalモード) */}
+        <Dialog open={isLimitReached && __APP_CONFIG__.chat.on_limit_reached.action === 'modal'}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle className="text-center text-xl font-bold text-destructive">
                 {t('chat.limitReachedTitle') || '会話終了です'}
               </DialogTitle>
               <DialogDescription className="text-center text-base pt-4 whitespace-pre-wrap">
-                {t('chat.limitReachedBody', { max: env.maxChatTurns }) || 
-                 `ターン数が${env.maxChatTurns}回に達しました。\n以下の「チャットから退出」ボタンを押して次に進んでください。`}
+                {t('chat.limitReachedBody', { max: __APP_CONFIG__.chat.max_turns }) || 
+                 `ターン数が${__APP_CONFIG__.chat.max_turns}回に達しました。\n以下の「チャットから退出」ボタンを押して次に進んでください。`}
               </DialogDescription>
             </DialogHeader>
             <DialogFooter className="sm:justify-center pt-4">
@@ -202,8 +201,8 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
                 variant="destructive" 
                 className="w-full sm:w-auto min-w-[200px]"
                 onClick={() => {
-                  if (env.redirectUrlOnExit) {
-                    window.location.href = env.redirectUrlOnExit;
+                  if (__APP_CONFIG__.chat.exit_redirect_url) {
+                    window.location.href = __APP_CONFIG__.chat.exit_redirect_url;
                   } else {
                     window.location.reload();
                   }
@@ -221,7 +220,7 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
           <div
             className="p-4 border-b bg-muted/30"
             // biome-ignore lint/security/noDangerouslySetInnerHtml: 環境変数から設定されたHTMLを表示
-            dangerouslySetInnerHTML={{ __html: env.appDescription }}
+            dangerouslySetInnerHTML={{ __html: __APP_CONFIG__.app.description || ''}}
           />
         )}
 
@@ -245,12 +244,11 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
               const showSpinner =
                 message.id === 'streaming' &&
                 isLoading &&
-                env.assistantProcessingStyle === 'spinner';
+                __APP_CONFIG__.ui.styles.generation_style === 'spinner';
 
               // 既読マークを表示するかどうか（最後のユーザーメッセージでローディング中、かつreadモード）
               const showReadMark =
-                isLastUserMessage && env.assistantProcessingStyle === 'read';
-
+                isLastUserMessage && __APP_CONFIG__.ui.styles.generation_style === 'read';
               return (
                 <ChatMessageComponent
                   key={message.id}
@@ -259,7 +257,7 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
                   reasoning={message.reasoning}
                   isStreaming={
                     message.id === 'streaming' &&
-                    env.assistantProcessingStyle === 'streaming'
+                    __APP_CONFIG__.ui.styles.generation_style === 'streaming'
                   }
                   showSpinner={showSpinner}
                   showReadMark={showReadMark}
@@ -269,7 +267,7 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
 
             {/* ローディング表示（非ストリーミングモードでスピナー） */}
             {isLoading &&
-              env.assistantProcessingStyle === 'spinner' &&
+              __APP_CONFIG__.ui.styles.generation_style === 'spinner' &&
               !streamingContent && (
                 <div className="flex gap-3 mb-4">
                   <div className="flex-shrink-0">

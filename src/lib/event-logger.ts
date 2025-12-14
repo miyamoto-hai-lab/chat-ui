@@ -1,17 +1,16 @@
 import type { EventData, EventType } from '@/types/chat';
-import { env } from './env';
 
 export async function logEvent(
   eventType: EventType,
   data: Record<string, any>
 ): Promise<void> {
   // イベントが有効化されていない場合は何もしない
-  if (!env.enabledEvents.includes(eventType)) {
+  if (!__APP_CONFIG__.system.logging.target_events.includes(eventType)) {
     return;
   }
 
   // エンドポイントが設定されていない場合は何もしない
-  if (!env.eventEndpointUrl) {
+  if (!__APP_CONFIG__.system.logging.endpoint_url) {
     return;
   }
 
@@ -22,7 +21,7 @@ export async function logEvent(
   };
 
   try {
-    await fetch(env.eventEndpointUrl, {
+    await fetch(__APP_CONFIG__.system.logging.endpoint_url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

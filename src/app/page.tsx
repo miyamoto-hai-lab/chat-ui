@@ -5,7 +5,6 @@ import { ChatHeader } from '@/components/chat/ChatHeader';
 import { PasswordDialog } from '@/components/settings/PasswordDialog';
 import { SettingsDialog } from '@/components/settings/SettingsDialog';
 import { usePasswordAuth } from '@/hooks/use-password-auth';
-import { env } from '@/lib/env';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -46,7 +45,7 @@ export default function Home() {
   };
 
   // パスワード認証が必要な場合
-  if (env.authPassword && !isAuthenticated && !isLoading) {
+  if (__APP_CONFIG__.system.security.password_auth_enabled && !isAuthenticated && !isLoading) {
     return <PasswordDialog open={true} onAuthenticate={authenticate} />;
   }
 

@@ -12,7 +12,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { env } from '@/lib/env';
 import { PROVIDER_CONFIG } from '@/lib/provider-config';
 import { HelpCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -79,9 +78,9 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
         
         <div className="space-y-4">
           {/* APIサーバー設定 */}
-          {env.allowUserApiServer && (
+          {__APP_CONFIG__.llm.permissions.allow_change_config && (
             <>
-              {env.allowUserProvider && (
+              {__APP_CONFIG__.llm.permissions.allow_change_config && (
               <div className="space-y-2">
                 <Label htmlFor="provider">{t('settings.provider')}</Label>
                 <select
@@ -104,6 +103,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   <option value="anthropic">Anthropic Claude</option>
                   <option value="grok">xAI Grok</option>
                   <option value="deepseek">DeepSeek</option>
+                  <option value="ollama">Ollama</option>
                 </select>
               </div>
               )}
@@ -202,7 +202,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
           )}
 
           {/* システムプロンプト */}
-          {env.allowUserSystemPrompt && (
+          {__APP_CONFIG__.llm.permissions.allow_change_system_prompt && (
             <div className="space-y-2">
               <Label htmlFor="systemPrompt">{t('settings.systemPrompt')}</Label>
               <Textarea
@@ -221,7 +221,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
           )}
 
           {/* Thinking表示設定 */}
-          {env.allowUserShowThinking && (
+          {__APP_CONFIG__.llm.permissions.allow_toggle_thinking && (
             <div className="flex items-center justify-between">
               <Label htmlFor="showThinking">{t('settings.showThinking')}</Label>
               <Switch

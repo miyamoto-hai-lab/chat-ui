@@ -1,14 +1,13 @@
 'use client';
 
-import { env } from '@/lib/env';
 import { defaultSettings, loadSettings, saveSettings } from '@/lib/storage';
 import type { ChatSettings } from '@/types/chat';
 import {
-    createContext,
-    type ReactNode,
-    useContext,
-    useEffect,
-    useState,
+  createContext,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useState,
 } from 'react';
 
 interface SettingsContextType {
@@ -27,21 +26,21 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     const loaded = loadSettings();
     return {
       ...loaded,
-      apiServerUrl: env.allowUserApiServer
-        ? loaded.apiServerUrl || env.llmApiEndpoint
-        : env.llmApiEndpoint,
-      apiKey: env.allowUserApiKey
-        ? loaded.apiKey || env.llmApiKey
-        : env.llmApiKey,
-      systemPrompt: env.allowUserSystemPrompt
-        ? loaded.systemPrompt || env.llmSystemPrompt
-        : env.llmSystemPrompt,
-      modelName: env.allowUserModel
-        ? loaded.modelName || env.llmModel
-        : env.llmModel,
-      showThinking: env.allowUserShowThinking
-        ? loaded.showThinking ?? env.defaultShowThinking
-        : env.defaultShowThinking,
+      apiServerUrl: __APP_CONFIG__.llm.permissions.allow_change_config
+        ? loaded.apiServerUrl || __APP_CONFIG__.llm.defaults.endpoint_url
+        : __APP_CONFIG__.llm.defaults.endpoint_url,
+      apiKey: __APP_CONFIG__.llm.permissions.allow_change_config
+        ? loaded.apiKey || __APP_CONFIG__.llm.defaults.api_key
+        : __APP_CONFIG__.llm.defaults.api_key,
+      systemPrompt: __APP_CONFIG__.llm.permissions.allow_change_system_prompt
+        ? loaded.systemPrompt || __APP_CONFIG__.llm.defaults.system_prompt
+        : __APP_CONFIG__.llm.defaults.system_prompt,
+      modelName: __APP_CONFIG__.llm.permissions.allow_change_config
+        ? loaded.modelName || __APP_CONFIG__.llm.defaults.model
+        : __APP_CONFIG__.llm.defaults.model,
+      showThinking: __APP_CONFIG__.llm.permissions.allow_toggle_thinking
+        ? loaded.showThinking ?? __APP_CONFIG__.llm.defaults.enable_thinking
+        : __APP_CONFIG__.llm.defaults.enable_thinking,
     };
   });
 
@@ -60,9 +59,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const resetSettings = () => {
     setSettings({
       ...defaultSettings,
-      apiServerUrl: env.llmApiEndpoint,
-      apiKey: env.llmApiKey,
-      systemPrompt: env.llmSystemPrompt,
+      apiServerUrl: __APP_CONFIG__.llm.defaults.endpoint_url || '',
+      apiKey: __APP_CONFIG__.llm.defaults.api_key || '',
+      systemPrompt: __APP_CONFIG__.llm.defaults.system_prompt || '',
     });
   };
 

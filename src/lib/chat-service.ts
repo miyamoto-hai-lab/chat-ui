@@ -1,4 +1,3 @@
-import { env } from '@/lib/env';
 import { PROVIDER_CONFIG } from '@/lib/provider-config';
 import type { ChatMessage, ChatSettings } from '@/types/chat';
 
@@ -172,7 +171,7 @@ export class ChatService {
     // The settings dialog trims it to .../models/, so we assume that format.
     
     const modelName = settings.modelName || providerConfig.defaultModel;
-    const method = env.assistantProcessingStyle === 'streaming' ? 'streamGenerateContent' : 'generateContent';
+    const method = __APP_CONFIG__.ui.styles.generation_style === 'streaming' ? 'streamGenerateContent' : 'generateContent';
     const urlString = `${baseUrl}${modelName}:${method}`;
     
     const url = new URL(urlString);
