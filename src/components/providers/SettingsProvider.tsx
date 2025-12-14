@@ -1,5 +1,6 @@
 'use client';
 
+import { replacePlaceholders } from '@/lib/placeholder';
 import { defaultSettings, loadSettings, saveSettings } from '@/lib/storage';
 import type { ChatSettings } from '@/types/chat';
 import {
@@ -27,17 +28,17 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     return {
       ...loaded,
       apiServerUrl: __APP_CONFIG__.llm.permissions.allow_change_config
-        ? loaded.apiServerUrl || __APP_CONFIG__.llm.defaults.endpoint_url || ''
-        : __APP_CONFIG__.llm.defaults.endpoint_url || '',
+        ? loaded.apiServerUrl || replacePlaceholders(__APP_CONFIG__.llm.defaults.endpoint_url || '')
+        : replacePlaceholders(__APP_CONFIG__.llm.defaults.endpoint_url || ''),
       apiKey: __APP_CONFIG__.llm.permissions.allow_change_config
-        ? loaded.apiKey || __APP_CONFIG__.llm.defaults.api_key || ''
-        : __APP_CONFIG__.llm.defaults.api_key || '',
+        ? loaded.apiKey || replacePlaceholders(__APP_CONFIG__.llm.defaults.api_key || '')
+        : replacePlaceholders(__APP_CONFIG__.llm.defaults.api_key || ''),
       systemPrompt: __APP_CONFIG__.llm.permissions.allow_change_system_prompt
-        ? loaded.systemPrompt || __APP_CONFIG__.llm.defaults.system_prompt || ''
-        : __APP_CONFIG__.llm.defaults.system_prompt || '',
+        ? loaded.systemPrompt || replacePlaceholders(__APP_CONFIG__.llm.defaults.system_prompt || '')
+        : replacePlaceholders(__APP_CONFIG__.llm.defaults.system_prompt || ''),
       modelName: __APP_CONFIG__.llm.permissions.allow_change_config
-        ? loaded.modelName || __APP_CONFIG__.llm.defaults.model || ''
-        : __APP_CONFIG__.llm.defaults.model || '',
+        ? loaded.modelName || replacePlaceholders(__APP_CONFIG__.llm.defaults.model || '')
+        : replacePlaceholders(__APP_CONFIG__.llm.defaults.model || ''),
       showThinking: __APP_CONFIG__.llm.permissions.allow_toggle_thinking
         ? loaded.showThinking ?? __APP_CONFIG__.llm.defaults.enable_thinking ?? false
         : __APP_CONFIG__.llm.defaults.enable_thinking ?? false,
@@ -59,9 +60,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const resetSettings = () => {
     setSettings({
       ...defaultSettings,
-      apiServerUrl: __APP_CONFIG__.llm.defaults.endpoint_url || '',
-      apiKey: __APP_CONFIG__.llm.defaults.api_key || '',
-      systemPrompt: __APP_CONFIG__.llm.defaults.system_prompt || '',
+      apiServerUrl: replacePlaceholders(__APP_CONFIG__.llm.defaults.endpoint_url || ''),
+      apiKey: replacePlaceholders(__APP_CONFIG__.llm.defaults.api_key || ''),
+      systemPrompt: replacePlaceholders(__APP_CONFIG__.llm.defaults.system_prompt || ''),
     });
   };
 

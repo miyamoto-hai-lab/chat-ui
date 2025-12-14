@@ -7,6 +7,7 @@ GET, POST, PUT, DELETE, PATCHなどのHTTPメソッドを受け付け、
 """
 
 import json
+import re
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qs, urlparse
@@ -106,12 +107,13 @@ class RequestHandler(BaseHTTPRequestHandler):
         
         # 簡易的なパスワード認証シミュレーション
         # パスが /auth で、ボディに password: "secret" が含まれていればOKとする
-        if path == '/auth':
+        if re.sub('\?.*', '', path) == '/auth':
             content_length = int(headers.get('Content-Length', 0))
             body = body_bytes.decode('utf-8')
             try:
                 data = json.loads(body)
                 password = data.get('password')
+                print(f"{password=}")
                 
                 if password == 'secret':
                     self.send_json_response(200, {"message": "Authenticated"})

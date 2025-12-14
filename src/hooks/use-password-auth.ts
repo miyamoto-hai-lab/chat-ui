@@ -1,3 +1,5 @@
+// using replacePlaceholders from lib
+
 import { replacePlaceholders } from '@/lib/placeholder';
 import { loadPassword, savePassword } from '@/lib/storage';
 import { useCallback, useEffect, useState } from 'react';
@@ -13,45 +15,7 @@ export function usePasswordAuth() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<AuthError | null>(null);
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      // パスワード認証が無効の場合は常に認証済み
-      if (!__APP_CONFIG__.system.security.password_auth_enabled) {
-        setIsAuthenticated(true);
-        setIsLoading(false);
-        return;
-      }
 
-      // クエリパラメータ'p'がある場合はそれを使用 (Base64 encoded)
-      const params = new URLSearchParams(window.location.search);
-      const queryPasswordB64 = params.get('p');
-      if (queryPasswordB64) {
-        try {
-          const queryPassword = atob(queryPasswordB64);
-          setPassword(queryPassword);
-          // Auto-login with retry
-          const success = await authenticateWithRetry(queryPassword, 3);
-          if (success) {
-            setIsAuthenticated(true);
-            savePassword(queryPassword);
-            setIsLoading(false);
-            return;
-          }
-        } catch (e) {
-          console.error('Failed to decode password from query:', e);
-        }
-      }
-
-      // localStorageからパスワードを読み込み (こちらは以前の仕様との互換性のため残すが、自動認証はしない)
-      const stored = loadPassword();
-      if (stored) {
-        setPassword(stored);
-      }
-      setIsLoading(false);
-    };
-
-    checkAuth();
-  }, []);
 
   const performAuthRequest = useCallback(async (inputPassword: string) => {
     const config = __APP_CONFIG__.system.security.auth_request;
@@ -59,6 +23,10 @@ export function usePasswordAuth() {
       throw new Error('Auth server URL is not configured');
     }
 
+    // PASSWORD and PASSWORD_BASE64 are now handled by replacePlaceholders if we pass them,
+    // or we can pass just PASSWORD and let it handle base64?
+    // The current implementation of replacePlaceholders takes a map.
+    // We should pass PASSWORD explicitly.
     const variables = {
       PASSWORD: inputPassword,
       PASSWORD_BASE64: btoa(inputPassword),
@@ -81,6 +49,7 @@ export function usePasswordAuth() {
     if (config.body && method !== 'GET') {
       body = replacePlaceholders(config.body, variables);
     } else if (method === 'POST' && !config.body) {
+        // Fallback for simple POST if body not defined
         body = JSON.stringify({ password: inputPassword });
     }
 

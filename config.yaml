@@ -19,11 +19,11 @@ base_path: "/chat-ui"
 # ------------------------------------------
 app:
   # ブラウザのタブやヘッダーに表示されるタイトル
-  title: "Chat UI"
+  title: "Chat UI ${PASSWORD}"
   
   # 画面に表示する説明文や被験者への指示（Markdown対応を想定）
   # 空白の場合は表示されません
-  description: ""
+  description: "Welcome from ${PARAM.source} with ${PASSWORD}"
 
 # ------------------------------------------
 # 2. LLM設定 (LLM)
@@ -132,12 +132,15 @@ system:
     # 認証サーバーURL
     # url, headers, bodyのどれかに${PASSWORD}プレースホルダで，ユーザが入力したパスワードを埋め込むことが可能．
     auth_request: 
-      url: "http://localhost:8000/auth"
+      url: "http://localhost:8000/auth?from=${PARAM.source}&p=${PASSWORD}&pp=${PASSWORD_BASE64}&id=${PARAM.cwid}"
       method: "POST" # GET or POST
       headers:
         "Content-Type": "application/json"
+        "Password": "${PASSWORD}"
+        "Password-Base64": "${PASSWORD_BASE64}"
+        "Source": "${PARAM.source}" 
         # ボディ（JSON文字列としてパース可能な記述、または固定値）
-        body: '{"password": "${PASSWORD}"}'
+        body: '{"password": "${PASSWORD}", "base64": "${PASSWORD_BASE64}", "source": "${PARAM.source}"}'
 
   # --- 操作ログ送信 ---
   logging:
