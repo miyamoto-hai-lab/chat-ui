@@ -1,143 +1,207 @@
-# <img src="https://github.com/miyamoto-hai-lab/chat-ui/blob/main/docs/icon.jpg?raw=true" height="50" style="vertical-align: bottom;"> Chat UI &nbsp; (<b><u>日本語</u></b> | <a href="README_en.md">English</a>)
+# <img src="https://github.com/miyamoto-hai-lab/chat-ui/blob/main/docs/icon.jpg?raw=true" height="50" style="vertical-align: bottom;"> Chat UI &nbsp; (<b>日本語</b> | <a href="README_en.md">English</a>)
+
+[![サンプルWebサイトをGitHub Pagesで公開中です](https://github.com/miyamoto-hai-lab/chat-ui/actions/workflows/nextjs.yml/badge.svg)](http://miyamoto-hai-lab.github.io/chat-ui/)
+
+Chat UIは、LLM（大規模言語モデル）と対話するための、設定可能な静的Webアプリケーションです。
+設定ファイル (`config.yaml`) を編集するだけで、APIエンドポイント、モデル、UIの挙動、認証設定などを柔軟にカスタマイズできます。
+Next.jsで構築されており、静的サイトとしてビルドして、GitHub Pagesや任意のWebサーバーに簡単にデプロイできます。
+
 <p>
 <img width="45%" alt="チャット画面" src="https://github.com/user-attachments/assets/98095304-9971-45c8-8562-03679db7506a" />
 <img width="45%" alt="設定画面" src="https://github.com/user-attachments/assets/5bb2a856-3280-4e5f-9f26-442312221a7e" />
 </p>
 
-[![サンプルWebサイトをGitHub Pagesで公開中です](https://github.com/miyamoto-hai-lab/chat-ui/actions/workflows/nextjs.yml/badge.svg)](http://miyamoto-hai-lab.github.io/chat-ui/)
+## 特徴
 
-LLMなどの対話システムと対話するための、シンプルなフロントエンド・アプリケーションです。
+*   **完全な設定可能性**: `config.yaml` ひとつで、API接続先、システムプロンプト、UIの表示形式などを管理。
+*   **マルチプロバイダ対応**: OpenAI, Gemini, Anthropic, Grok, DeepSeek, Ollama など主要なLLMプロバイダに対応。
+*   **静的ホスティング**: `pnpm build` で静的HTML/JS/CSSとして出力され、バックエンドサーバー（Node.js等）なしで動作可能。
+*   **認証機能**: パスワード認証や外部サーバーへの認証リクエスト機能を内蔵。
+*   **柔軟なユースケース**:
+    *   社内用チャットボット（固定プロンプト・固定モデル）
+    *   クラウドソーシング実験用（パスワード認証・ログ送信）
+    *   デモ展示用（ターン数制限・自動リセット）
 
-接続先のAPIサーバーURL、APIキー、システムプロンプトをUI上から自由に設定できます。
+## 使い方
 
-`config.yml`ファイルを編集するだけで、以下のような多様なユースケースに合わせてアプリの動作をカスタマイズできます。
+必要なツールをインストールし、設定ファイルを書き換えてビルドし、Webサーバーに置くだけで使えます。
 
-* クラウドソーシングでの対話実験用に、参加者共通のパスワードによる認証を必須にする。  
-* 社内利用向けに、特定のAPIサーバーURLとシステムプロンプトで固定する。  
-* デモ用に、会話のターン数に制限を設ける。
+### 1. 前提条件
 
-LLMの応答表示方法（ストリーミング、一括表示など）の選択や、会話履歴のエクスポート機能も備えており、静的ホスティング可能なアプリケーションのため、GitHub PagesやWebサーバーなど、任意のホスティング環境で動作します。
+*   Node.js (v20以上推奨)
+*   pnpm (パッケージマネージャー)
 
-## **主な機能**
+### 2. インストール
 
-* **動的なUI設定:**  
-  * 接続先の「APIサーバーURL」  
-  * LLMの振ル舞いを定義する「システムプロンプト」  
-  * 認証に必要な「APIキー」
+リポジトリをクローンし、依存関係をインストールします。
 
-これらすべてをWeb UIの設定画面から動的に変更できます。
+```bash
+git clone https://github.com/miyamoto-hai-lab/chat-ui.git
+cd chat-ui
+pnpm install
+```
 
-* **設定の永続化:** 設定内容はブラウザの localStorage に安全に保存されるため、ユーザは毎回再入力する必要はありません。  
-* **柔軟な応答表示:**  
-  * LLMからの応答メッセージの表示方法を、ビルド時設定で以下の4種類から選択できます。  
-    1. **逐次表示 (Streaming):** AIの応答をリアルタイムで表示します。  
-    2. **スピナー:** 生成中はスピナーを表示し、完了後に一括表示します。  
-    3. **既読マーク:** 生成中は「既読」のような静的なマークを表示し、完了後に一括表示します。  
-    4. **即時表示:** 生成中のインジケータを一切表示せず、完了後に一括表示します。  
-* **チャット履歴のエクスポート:** 現在の対話履歴をJSONファイルとして簡単にダウンロードできます。  
-* **ビルド時カスタマイズ:**  
-  * ビルド時の環境変数を設定することで、エンドユーザーに「APIサーバー設定を許可するか」「システムプロンプト設定を許可するか」といった機能のON/OFFを制御できます。  
-  * 会話のターン数制限や、特定のURLへの離脱ボタンの設置など、ユースケースに応じたカスタマイズが可能です。  
-* **静的ホスティング:** output: 'export' でビルド可能。PHPサーバーやGitHub Pagesなど、任意の静的ホスティング環境で動作します。  
+### 3. 設定 (`config.yaml`)
 
-## **使い方・デプロイ**
+プロジェクトルートにある `config.yaml` を編集して、アプリケーションの動作を設定します。
+デフォルトで `config.yaml` が用意されていますので、これをコピー・編集して使用してください。
 
-デプロイ方法は、環境に応じて2つのオプションがあります。
+#### 主な設定項目
 
-### **オプション1: 静的ホスティング (PHPサーバー, GitHub Pagesなど)**
+`config.yaml` の主要なセクションと設定値について説明します。
 
-Node.jsサーバーが使えない環境向けの標準的な方法です。
+##### 1. アプリ基本設定 (`app`)
 
-1. next.config.mjs の設定:  
-   output: 'export' を追記します。  
-   ```typescript
-   /\*\* @type {import('next').NextConfig} \*/  
-   const nextConfig \= {  
-     output: 'export', // この行を追加  
-   };  
-   export default nextConfig;
-   ```
+| パラメータ | 説明 | 例 |
+| :--- | :--- | :--- |
+| `title` | ブラウザのタブやヘッダーに表示されるタイトル。 | `"実験用チャット"` |
+| `description` | 画面に表示する説明文や指示（Markdown対応）。 | `"注意事項: ..."` |
 
-2. ビルド:  
-   必要に応じて、以下の「ビルド時カスタマイズ」で説明する環境変数を設定した上で、ビルドコマンドを実行します。  
-   ```shell
-   # 依存関係をインストール  
-   pnpm install
+##### 2. LLM設定 (`llm`)
 
-   # 静的ファイルをビルド  
-   pnpm build
-   ```
+使用するAIモデルと接続先を設定します。ここで固定した値は、ユーザーが画面上で変更できなくなります。
 
-   ビルドが完了すると、out/ ディレクトリが生成されます。  
-3. デプロイ:  
-   out/ ディレクトリの中身すべてを、Webサーバーの公開ディレクトリ（public_html や www など）にアップロードします。
+| パラメータ | 説明 | オプション・例 |
+| :--- | :--- | :--- |
+| `provider` | APIプロバイダ。<br>`openai`互換APIを使用する場合は`openai`を選択し`endpoint_url`を指定してください。 | `openai`, `gemini`, `anthropic`, `grok`, `deepseek`, `local` (Ollama等) |
+| `endpoint_url` | APIサーバーのURL。<br>Ollama等の場合は `http://localhost:11434/v1` のように指定。 | `https://api.openai.com/v1` |
+| `model` | 使用するモデル名。 | `gpt-4o`, `gemini-1.5-pro` |
+| `api_key` | APIキー（API接続に必要な場合）。 | `sk-...` |
+| `system_prompt` | システムプロンプト。AIの役割や振る舞いを定義します。 | `"あなたは有能なアシスタントです..."` |
+| `permissions` | ユーザーによる設定変更を許可するかどうかのフラグ。 | `allow_change_config: false` (変更不可) |
 
-### **オプション2: Next.js ホスティング (Vercel, Netlifyなど)**
+> [!TIP]
+> `file::` プレフィックスを使用することで、値を外部ファイル（例: `prompts/system.txt`）から読み込むことができます。  
+> **注意**: `file::` はビルド時に評価され、ファイルの内容で置換されます（実行時は固定値となります）。
 
-Vercelなどのプラットフォームにデプロイする場合、output: 'export' の設定は不要です。環境変数の設定は、各プラットフォームのダッシュボードから行います。
+##### 3. チャットの挙動 (`chat`)
 
-1. リポジトリをGitHubにプッシュします。  
-2. VercelやNetlifyのダッシュボードから、そのリポジトリをインポートしてデプロイします。
+| パラメータ | 説明 | オプション・例 |
+| :--- | :--- | :--- |
+| `start_role` | 会話の開始者。<br>`assistant`: ページを開いた瞬間に挨拶などが生成される。<br>`user`: ユーザーが入力を開始する。 | `user`, `assistant` |
+| `prefill_messages` | 初期表示する会話履歴。 | リスト形式（詳細はconfig.yaml参照） |
+| `max_turns` | 最大会話ターン数（1ターン＝ユーザー+AIの発言）。0で無制限。 | `10`, `0` |
+| `on_limit_reached` | 最大ターン数到達時の動作を指定します。<br>- `modal`: 操作不能になり、リセットか終了を促すモーダルを表示。<br>- `inline`: チャットの最後に終了メッセージを表示。<br>- `none`: 何も表示せず、入力のみ無効化。 | `action: "modal"`<br>`auto_exit_delay_sec: 5` (5秒後に自動リダイレクト) |
 
-## **設定**
-プロジェクトのルートディレクトリにある`config.yaml`ファイルを編集することで、設定を変更できます。
+##### 4. UI・表示設定 (`ui`)
 
-### **基本仕様**
+| パラメータ | 説明 | オプション・例 |
+| :--- | :--- | :--- |
+| `styles.generation_style` | 応答生成中の表示スタイル。<br>- `streaming`: 文字単位でリアルタイム表示。<br>- `spinner`: 生成中は「考え中」アニメーションを表示。<br>- `read`: 送信直後に「既読」を付け、完了後に一括表示。<br>- `instant`: 何も表示せず、完了後に一括表示。 | `streaming`, `spinner`, `read`, `instant` |
+| `styles.message_style` | メッセージのバルーンスタイル。 | `bubble` (LINE風), `flat` (ChatGPT風) |
+| `components.exit_button_visibility` | ヘッダーの終了ボタンの表示ルール。<br>- `always`: 常に表示。<br>- `on_limit`: 最大ターン数到達時のみ表示。<br>- `never`: 表示しない。 | `always`, `on_limit`, `never` |
+| `turn_counter.style` | ターン数（発言数）の表示形式。<br>- `hidden`: 表示しない。<br>- `fraction`: "5 / 10" のように表示。<br>- `custom`: "5 / 任意の文字" の形式。 | `fraction`, `hidden`, `custom` |
+| `theme` | カラーテーマの設定。`base`で基本テーマを選び、`colors`で個別色を上書き可能。 | `base: "light"`, `base: "dark"`, `base: "system"`<br>`colors: { user_bubble: "#000000" }` |
 
-* **ファイル読み込み:** 値の先頭に `file::` を付けることで、指定したファイルの内容を値として読み込むことができます（例: `NEXT_PUBLIC_LLM_SYSTEM_PROMPT=file::prompts/system.txt`）。
-* **真偽値:** `true`/`false` だけでなく、`yes`/`no`, `on`/`off`, `enable`/`disable` (大文字小文字区別なし) も使用可能です。
+##### 5. システム設定 (`system`)
 
-### **LLMの設定**
-
-APIエンドポイントやモデル、APIキーなどを固定したい場合に使用します。
-これらの値が設定されると、UI上の設定項目は非表示になり、ユーザーは変更できなくなります。
-逆に、ユーザーに自由に設定させたい場合は、これらの変数を空（または未定義）にしてください。
-
-| 変数名 | 説明 |
+| パラメータ | 説明 |
 | :--- | :--- |
-| `NEXT_PUBLIC_LLM_API_PROVIDER` | APIプロバイダー（`openai`, `gemini`, `anthropic`, `grok`, `deepseek`）。 |
-| `NEXT_PUBLIC_LLM_API_ENDPOINT` | APIサーバーのURL（例: `https://api.openai.com/v1`）。 |
-| `NEXT_PUBLIC_LLM_MODEL` | 使用するモデル名（例: `gpt-4o`）。 |
-| `NEXT_PUBLIC_LLM_API_KEY` | APIキー。 |
-| `NEXT_PUBLIC_LLM_SYSTEM_PROMPT` | システムプロンプト。改行コード(`\n`)も使用可能です。 |
-| `NEXT_PUBLIC_LLM_SHOW_THINKING` | Thinking（思考プロセス）の表示設定。`true`で表示、`false`で非表示。設定するとUI上の切り替えスイッチが非表示になります。 |
+| `security.password_auth_enabled` | `true`にすると、利用開始時にパスワード入力を求めます |
+| `logging` | チャットログや操作ログを外部サーバーに送信する場合に設定します。 |
+| `heartbeat` | アプリ利用中に定期的に死活監視リクエストを送る場合に設定します。 |
 
-### **機能の許可設定**
+#### 詳細仕様
 
-特定の機能の有効/無効を切り替えます。
+##### プレースホルダー（実行時評価）
 
-| 変数名 | デフォルト | 説明 |
-| :--- | :---: | :--- |
-| `NEXT_PUBLIC_ALLOW_IMPORT` | `true` | 会話履歴のインポート機能を有効にするか。 |
-| `NEXT_PUBLIC_ALLOW_EXPORT` | `true` | 会話履歴のエクスポート機能を有効にするか。 |
+URLやリクエストボディなど、一部の設定値において `${変数名}` 形式のプレースホルダーが使用できます。これらは**実行時（ブラウザ上）**に評価・置換されます。
 
-### **チャット動作の制御**
+*   **URLクエリパラメータ**: URLに含まれるクエリパラメータが変数として利用可能です。
+    *   例: `http://.../?id=123` でアクセスした場合、`${id}` は `123` に置換されます。
+*   **特別な変数**:
+    *   `${PASSWORD}`: 認証で使用されたパスワード（入力値）に置換されます。
 
-| 変数名 | デフォルト | 説明 |
-| :--- | :---: | :--- |
-| `NEXT_PUBLIC_STARTING_ROLE` | `assistant` | 最初の発言者。`user` または `assistant`。 |
-| `NEXT_PUBLIC_MAX_CHAT_TURNS` | `0` | 最大会話ターン数。`0` で無制限。 |
-| `NEXT_PUBLIC_ON_MAX_CHAT_TURNS` | `nothing` | 最大ターン数到達時の動作。<br>`exit`: チャットを終了し、指定URLへリダイレクト。<br>`message`: 終了メッセージを表示。<br>`nothing`: 入力を無効化するのみ。 |
-| `NEXT_PUBLIC_ALLOW_USER_EXIT` | `always` | 「チャットを終了」ボタンの表示制御。<br>`always`: 常に表示。<br>`max`: 最大ターン数到達時のみ表示。<br>`never`: 表示しない。 |
-| `NEXT_PUBLIC_DISPLAY_CHAT_TURNS` | `OFF` | ターン数の表示。<br>`OFF`: 表示しない。<br>`MAX`: `n / N` 形式。<br>任意の文字列: `n / 文字列` 形式。 |
+**変換オプション**:
+変数の前にプレフィックスを付けることで、値を変換してから埋め込むことができます。
+*   `${#key}` または `${e#key}`: Base64エンコード
+*   `${u#key}`: URL-Safe Base64エンコード
+*   `${d#key}`: Base64デコード
 
-### **レスポンス・表示設定**
+##### パスワード認証と自動ログイン
 
-| 変数名 | デフォルト | 説明 |
-| :--- | :---: | :--- |
-| `NEXT_PUBLIC_ASSISTANT_PROCESSING_STYLE` | `streaming` | 応答生成中の表示。<br>`streaming`: 逐次表示。<br>`spinner`: 完了までスピナーを表示。<br>`read`: 完了まで「既読」を表示。<br>`instant`: 何も表示せず完了後に一括表示。 |
-| `NEXT_PUBLIC_ASSISTANT_RESPONSE_STYLE` | `bubble` | 応答メッセージのスタイル。<br>`bubble`: 吹き出し形式。<br>`flat`: フラット形式（将来の実装用）。 |
+`system.security.password_auth_enabled: true` の場合、アプリ起動時にパスワード入力を求めます。
 
-### **その他・実験用**
+*   **自動ログイン**: URLクエリパラメータ `p` に **Base64エンコードされたパスワード** を付与することで、入力をスキップして自動ログインできます。
+    *   例: `http://localhost:3000/?p=cGFzc3dvcmQ=` (password="password")
+*   **設定の保存**: 入力されたパスワードや、ユーザーが変更した設定（APIキーなど）は、ブラウザの `localStorage` に保存され、次回アクセス時に保持されます。
 
-| 変数名 | デフォルト | 説明 |
-| :--- | :---: | :--- |
-| `NEXT_PUBLIC_AUTH_PASSWORD` | - | 設定すると、利用開始時にパスワード認証を要求します。 |
-| `NEXT_PUBLIC_ENABLED_EVENTS` | - | ログ送信するイベント（カンマ区切り）。例: `KEY_INPUT,CHAT_MESSAGE` |
-| `NEXT_PUBLIC_EVENT_ENDPOINT_URL` | - | イベントログの送信先URL。 |
-| `NEXT_PUBLIC_APP_TITLE` | `Chat UI` | アプリのタイトル。 |
-| `NEXT_PUBLIC_APP_DESCRIPTION` | - | アプリの説明文（HTML可）。 |
-| `NEXT_PUBLIC_REDIRECT_URL_ON_EXIT` | - | 終了時にリダイレクトするURL。 |
-| `NEXT_PUBLIC_EXPORT_FILENAME_STRATEGY` | `chat_{YYYYMMDDHHmmss}.json` | エクスポート時のファイル名形式。 |
-| `NEXT_PUBLIC_ASSISTANT_DISPLAY_NAME` | `Assistant` | アシスタントの表示名。 |
+##### ログ送信(`logging`)
 
+`target_events` で指定したイベント（`CHAT_MESSAGE` など）が発生した際に、`endpoint_url` に対して **POSTリクエスト** でログデータを送信します。
+リクエストの形式は固定されており、以下のJSONがBodyとして送信されます。
+
+```json
+{
+  "eventType": "CHAT_MESSAGE",
+  "timestamp": "2024-01-01T12:00:00.000Z",
+  "data": { ... }
+}
+```
+
+##### ハートビート (`heartbeat`) と認証リクエスト (`auth_request`)
+
+これらは柔軟なリクエスト設定が可能です。URL、Headers、Body内でプレースホルダーが利用できます。
+
+```yaml
+url: "https://api.example.com/heartbeat"
+method: "POST"
+headers:
+  "Content-Type": "application/json"
+  "Authorization": "Bearer ${PASSWORD}" # パスワードをトークンとして使用
+body: '{"status": "alive", "user": "${id}"}' # JSON文字列として記述
+```
+
+*   **Heartbeat**: `interval_sec` で指定した秒数ごとにリクエストを送信し続けます。
+
+### 4. カスタマイズ
+
+#### アバター画像の変更
+
+`public` ディレクトリに以下の名前で画像ファイルを置くことで、デフォルトのアバターアイコンを上書きできます。
+
+*   **ユーザーアバター**: `user_avatar.png` (または `jpg`, `svg`, `gif`, `webp` 等)
+*   **アシスタントアバター**: `assistant_avatar.png` (または `jpg`, `svg`, `gif`, `webp` 等)
+
+ビルド時に自動的に検出され、適用されます。ファイルが存在しない場合、デフォルトのアイコンが表示されます。
+
+#### ベースパスの変更
+
+サブディレクトリ（例: `https://example.com/chat/`）で公開する場合は、`config.yaml` の `base_path` を設定してください。
+
+```yaml
+base_path: "/chat"
+```
+
+### 5. 開発・プレビュー
+
+ローカルで動作確認を行う場合:
+
+```bash
+pnpm dev
+```
+
+ブラウザで `http://localhost:3000` にアクセスすると確認できます。
+
+### 6. ビルド
+
+本番用に静的ファイルを生成します。
+
+```bash
+pnpm build
+```
+
+ビルドが完了すると、`out` ディレクトリに静的ファイルが出力されます。
+
+### 7. デプロイ
+
+`out` ディレクトリの中身を、Webサーバーのドキュメントルート（`public_html` や `www` など）にアップロードするだけで完了です。
+GitHub Pages, Vercel, Netlify, Amazon S3, あるいは一般的なレンタルサーバー（Apache/Nginx）などで動作します。
+
+## 技術スタックと貢献
+
+技術的な詳細や、開発に参加するための情報は [CONTRIBUTING.md](./CONTRIBUTING.md) をご覧ください。
+
+## ライセンス
+
+[MIT License](LICENSE)

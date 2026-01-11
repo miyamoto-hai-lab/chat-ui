@@ -1,158 +1,203 @@
-<h1><img src="https://github.com/kei-mag/human-chat-completions/blob/main/docs/icon.jpg?raw=true" height="50" style="vertical-align: bottom;"> Chat UI <div style="text-align: right;">(<a href="README.md">日本語</a> | <b><u>English</u></b>)</div></h1>
-<p>
-<img width="45%" alt="Chat Page" src="https://github.com/user-attachments/assets/98095304-9971-45c8-8562-03679db7506a" />
-<img width="45%" alt="Settings Page" src="https://github.com/user-attachments/assets/5bb2a856-3280-4e5f-9f26-442312221a7e" />
-</p>
+# <img src="https://github.com/miyamoto-hai-lab/chat-ui/blob/main/docs/icon.jpg?raw=true" height="50" style="vertical-align: bottom;"> Chat UI &nbsp; (<a href="README.md">日本語</a> | <b>English</b>)
 
 [![Sample website is available on GitHub Pages](https://github.com/miyamoto-hai-lab/chat-ui/actions/workflows/nextjs.yml/badge.svg)](http://miyamoto-hai-lab.github.io/chat-ui/)
 
-**A simple front-end application for interacting with dialogue systems, such as LLMs.**
+Chat UI is a configurable static web application for interacting with LLMs (Large Language Models). By simply editing the configuration file (`config.yaml`), you can flexibly customize API endpoints, models, UI behavior, authentication settings, and more. Built with Next.js, it can be built as a static site and easily deployed to GitHub Pages or any web server.
 
-You can freely configure the API server URL, API key, and system prompt from the UI.
+<p>
+<img width="45%" alt="Chat UI Screenshot" src="https://github.com/user-attachments/assets/98095304-9971-45c8-8562-03679db7506a" />
+<img width="45%" alt="Settings Screenshot" src="https://github.com/user-attachments/assets/5bb2a856-3280-4e5f-9f26-442312221a7e" />
+</p>
 
-By setting `config.yaml` at build time, you can customize the application's behavior for various use cases, such as:
+## Features
 
-* Requiring password authentication for participants in crowdsourcing experiments.  
-* Fixing the API server URL and system prompt for internal company use.  
-* Setting a limit on the number of conversation turns for demos.
+*   **Fully Configurable**: Manage API connections, system prompts, UI display styles, and more with just `config.yaml`.
+*   **Multi-Provider Support**: Supports major LLM providers such as OpenAI, Gemini, Anthropic, Grok, DeepSeek, and Ollama.
+*   **Static Hosting**: Outputs static HTML/JS/CSS with `pnpm build`, allowing it to run without a backend server (Node.js, etc.).
+*   **Authentication**: Built-in password authentication and external server authentication request capabilities.
+*   **Flexible Use Cases**:
+    *   Internal chatbots (fixed prompts/models)
+    *   Crowdsourcing experiments (password authentication, log transmission)
+    *   Demo exhibitions (turn limits, auto-reset)
 
-It features options for LLM response display methods (streaming, instant, etc.), chat history export, and supports flexible deployment from static hosting (like PHP servers) to Vercel.
+## Usage
 
-## **Features**
+Simply install the necessary tools, edit the configuration file, build, and place it on a web server.
 
-* **Dynamic UI Configuration:**  
-  * "API Server URL" to connect to.  
-  * "System Prompt" to define the LLM's behavior.  
-  * "API Key" required for authentication.
+### 1. Prerequisites
 
-All of these can be dynamically changed from the web UI's settings screen.
+*   Node.js (v20 or higher recommended)
+*   pnpm (package manager)
 
-* **Settings Persistence:** Settings are securely saved in the browser's localStorage, eliminating the need to re-enter them every time.  
-* **Flexible Response Display:**  
-  * You can choose from four different display methods for LLM responses via the build-time setting (NEXT_PUBLIC_ASSISTANT_RESPONSE_MODE):  
-    1. **Streaming:** Displays the AI's response in real-time.  
-    2. **Spinner:** Shows a spinner during generation, then displays the full response at once.  
-    3. **Read Mark:** Shows a static "read" mark during generation, then displays the full response.  
-    4. **Instant:** Displays no indicator during generation and shows the full response upon completion.  
-* **History Export:** Easily download the current conversation history as a JSON file.  
-* **Build-Time Customization:**  
-  * By setting environment variables at build time, you can control whether end-users can "set the API server" or "set the system prompt."  
-  * Allows for use-case-specific customizations, such as limiting conversation turns or adding an exit button to a specific URL.  
-* **Flexible Deployment:**  
-  * **Static Hosting:** Can be built with output: 'export'. Works in any static hosting environment, such as PHP servers or GitHub Pages.  
-  * **Hybrid:** Can also be deployed to Next.js-compatible platforms like Vercel and Netlify.
+### 2. Installation
 
-## **Tech Stack**
+Clone the repository and install dependencies.
 
-This project is built with the following modern front-end technologies:
+```bash
+git clone https://github.com/miyamoto-hai-lab/chat-ui.git
+cd chat-ui
+pnpm install
+```
 
-* **Framework:** [Next.js](https://nextjs.org/) (App Router)  
-* **UI Library:** [React](https://react.dev/)  
-* **UI Components:** [shadcn/ui](https://ui.shadcn.com/) \- A stylish and accessible UI component library.  
-* **LLM UI/State:** [Vercel AI SDK](https://sdk.vercel.ai/) (useChat hook)  
-* **Compiler:** [React Compiler](https://react.dev/learn/react-compiler) (Experimental)  
-* **Build Tool:** [Turbopack](https://turbo.build/pack)  
-* **Styling:** [Tailwind CSS](https://tailwindcss.com/)  
-* **Linter / Formatter:** [Biome](https://biomejs.dev/)
+### 3. Configuration (`config.yaml`)
 
-## **Usage & Deployment**
+Edit `config.yaml` in the project root to configure the application's behavior. A default `config.yaml` is provided; please copy and edit it.
 
-There are two deployment options depending on your environment.
+#### Key Settings
 
-### **Option 1: Static Hosting (PHP Server, GitHub Pages, etc.)**
+Here are the main sections and settings in `config.yaml`.
 
-This is the standard method for environments where a Node.js server cannot be used.
+##### 1. App Basic Info (`app`)
 
-1. Configure next.config.ts:  
-   ```typescript
-   Add output: 'export'.  
-   /\*\* @type {import('next').NextConfig} \*/  
-   const nextConfig \= {  
-     output: 'export', // Add this line  
-   };  
-   export default nextConfig;
-   ```
+| Parameter | Description | Example |
+| :--- | :--- | :--- |
+| `title` | Title displayed in the browser tab or header. | `"Experimental Chat"` |
+| `description` | Description or instructions displayed on the screen (Markdown supported). | `"Note: ..."` |
 
-2. Build:  
-   As needed, set the environment variables described in "Build-Time Customization" below, then run the build command.  
-   ```shell
-   # Install dependencies  
-   pnpm install
+##### 2. LLM Settings (`llm`)
 
-   # Build static files  
-   pnpm build
-   ```
+Configure the AI model and connection settings. Values fixed here cannot be changed by the user in the UI.
 
-   Once the build is complete, an `out/` directory will be generated.  
-3. Deploy:  
-   Upload the entire contents of the `out/` directory to your web server's public directory (public_html, www, etc.).
+| Parameter | Description | Options/Example |
+| :--- | :--- | :--- |
+| `provider` | API provider.<br>Select `openai` to use OpenAI-compatible APIs. | `openai`, `gemini`, `anthropic`, `grok`, `deepseek`, `local` (e.g. Ollama) |
+| `endpoint_url` | API server URL.<br>For Ollama: `http://localhost:11434/v1` | `https://api.openai.com/v1` |
+| `model` | Model name to use. | `gpt-4o`, `gemini-1.5-pro` |
+| `api_key` | API key (if required for connection). | `sk-...` |
+| `system_prompt` | System prompt defining the AI's role and behavior. | `"You are a helpful assistant..."` |
+| `permissions` | Flags to allow or deny user configuration changes. | `allow_change_config: false` (Display only) |
 
-### **Option 2: Next.js Hosting (Vercel, Netlify, etc.)**
+> [!TIP]
+> You can use the `file::` prefix to load values from external files (e.g., `prompts/system.txt`).  
+> **Note**: `file::` is evaluated at **build time**, replacing the value with the file content (it becomes a fixed value at runtime).
 
-When deploying to platforms like Vercel, the output: 'export' setting is not required. Environment variables should be set from each platform's dashboard.
+##### 3. Chat Behavior (`chat`)
 
-1.  Push the repository to GitHub.  
-2.  Import and deploy the repository from your Vercel or Netlify dashboard.
+| Parameter | Description | Options/Example |
+| :--- | :--- | :--- |
+| `start_role` | Who starts the conversation.<br>`assistant`: A greeting is generated immediately upon opening.<br>`user`: The user initiates input. | `user`, `assistant` |
+| `prefill_messages` | History of conversation to display initially. | List format (see comments in `config.yaml`) |
+| `max_turns` | Maximum number of conversation turns (1 turn = user + AI). 0 for unlimited. | `10`, `0` |
+| `on_limit_reached` | Action when the maximum turns are reached.<br>- `modal`: Shows a modal forcing reset/exit.<br>- `inline`: Shows an exit message at the end of chat.<br>- `none`: Disables input, no message. | `action: "modal"`<br>`auto_exit_delay_sec: 5` (Redirect after 5s) |
 
-## **Configuration**
+##### 4. UI Settings (`ui`)
 
-You can customize the application behavior by creating a `.env.local` file or setting environment variables.
+| Parameter | Description | Options/Example |
+| :--- | :--- | :--- |
+| `styles.generation_style` | Display style during response generation.<br>- `streaming`: Real-time character streaming.<br>- `spinner`: Shows animated spinner until complete.<br>- `read`: Shows "Read" receipt instantly, then full text.<br>- `instant`: Shows nothing until complete, then full text. | `streaming`, `spinner`, `read`, `instant` |
+| `styles.message_style` | Chat bubble style. | `bubble` (Messaging App), `flat` (ChatGPT-like) |
+| `components.exit_button_visibility` | Rule for displaying the exit button.<br>- `always`: Always visible.<br>- `on_limit`: Visible only when limit reached.<br>- `never`: Never visible. | `always`, `on_limit`, `never` |
+| `turn_counter.style` | Style of the turn counter.<br>- `hidden`: No counter.<br>- `fraction`: Show like "5 / 10".<br>- `custom`: Show like "5 / text". | `fraction`, `hidden`, `custom` |
+| `theme` | Color theme settings. Choose a `base` theme and optionally override `colors`. | `base: "light"`, `base: "dark"`, `base: "system"`<br>`colors: { user_bubble: "#000000" }` |
 
-### **Basic Usage**
+##### 5. System Settings (`system`)
 
-*   **File Loading:** You can load the content of a file as a value by prefixing the value with `file::` (e.g., `NEXT_PUBLIC_LLM_SYSTEM_PROMPT=file::prompts/system.txt`).
-*   **Boolean Values:** In addition to `true`/`false`, you can use `yes`/`no`, `on`/`off`, `enable`/`disable` (case-insensitive).
-
-### **LLM Settings**
-
-Use these variables to fix the API endpoint, model, API key, etc.
-When these values are set, the corresponding settings in the UI will be hidden, and users will not be able to change them.
-Conversely, if you want to allow users to configure them freely, leave these variables empty (or undefined).
-
-| Variable | Description |
+| Parameter | Description |
 | :--- | :--- |
-| `NEXT_PUBLIC_LLM_API_PROVIDER` | API Provider (`openai`, `gemini`, `anthropic`, `grok`, `deepseek`). |
-| `NEXT_PUBLIC_LLM_API_ENDPOINT` | API Server URL (e.g., `https://api.openai.com/v1`). |
-| `NEXT_PUBLIC_LLM_MODEL` | Model name (e.g., `gpt-4o`). |
-| `NEXT_PUBLIC_LLM_API_KEY` | API Key. |
-| `NEXT_PUBLIC_LLM_SYSTEM_PROMPT` | System Prompt. Newlines (`\n`) are supported. |
-| `NEXT_PUBLIC_LLM_SHOW_THINKING` | Thinking process display setting. `true` to show, `false` to hide. If set, the toggle switch in the UI will be hidden. |
+| `security.password_auth_enabled` | If `true`, requires password entry upon start. |
+| `logging` | Configure to send chat/operation logs to an external server. |
+| `heartbeat` | Configure to send periodic heartbeat requests during app usage. |
 
-### **Feature Toggles**
+#### Advanced Specifications
 
-Enable or disable specific features.
+##### Placeholders (Runtime Evaluation)
 
-| Variable | Default | Description |
-| :--- | :---: | :--- |
-| `NEXT_PUBLIC_ALLOW_IMPORT` | `true` | Enable chat history import feature. |
-| `NEXT_PUBLIC_ALLOW_EXPORT` | `true` | Enable chat history export feature. |
+You can use placeholders in the format `${variable_name}` in certain settings (like URLs or request bodies). These are evaluated and replaced **at runtime (in the browser)**.
 
-### **Chat Behavior Control**
+*   **URL Query Parameters**: Any query parameter in the current URL can be used as a variable.
+    *   Example: Accessing `http://.../?id=123` will replace `${id}` with `123`.
+*   **Special Variables**:
+    *   `${PASSWORD}`: Replaced with the password used for authentication.
 
-| Variable | Default | Description |
-| :--- | :---: | :--- |
-| `NEXT_PUBLIC_STARTING_ROLE` | `assistant` | The first speaker. `user` or `assistant`. |
-| `NEXT_PUBLIC_MAX_CHAT_TURNS` | `0` | Maximum number of chat turns. `0` for unlimited. |
-| `NEXT_PUBLIC_ON_MAX_CHAT_TURNS` | `nothing` | Behavior when max turns reached.<br>`exit`: End chat and redirect to specified URL.<br>`message`: Show completion message.<br>`nothing`: Just disable input. |
-| `NEXT_PUBLIC_ALLOW_USER_EXIT` | `always` | "End Chat" button visibility.<br>`always`: Always visible.<br>`max`: Visible only when max turns reached.<br>`never`: Never visible. |
-| `NEXT_PUBLIC_DISPLAY_CHAT_TURNS` | `OFF` | Turn count display.<br>`OFF`: Hidden.<br>`MAX`: `n / N` format.<br>Any string: `n / String` format. |
+**Transformation Options**:
+Prefixing the variable name enables value transformation.
+*   `${#key}` or `${e#key}`: Base64 encode
+*   `${u#key}`: URL-Safe Base64 encode
+*   `${d#key}`: Base64 decode
 
-### **Response & Display Settings**
+##### Password Authentication & Auto-Login
 
-| Variable | Default | Description |
-| :--- | :---: | :--- |
-| `NEXT_PUBLIC_ASSISTANT_PROCESSING_STYLE` | `streaming` | Response generation display.<br>`streaming`: Real-time streaming.<br>`spinner`: Show spinner until complete.<br>`read`: Show "Read" mark until complete.<br>`instant`: Show nothing until complete. |
-| `NEXT_PUBLIC_ASSISTANT_RESPONSE_STYLE` | `bubble` | Response message style.<br>`bubble`: Bubble style.<br>`flat`: Flat style (for future use). |
+When `system.security.password_auth_enabled: true`, the app requires a password on startup.
 
-### **Misc & Experimental**
+*   **Auto-Login**: You can skip the password entry screen by providing a **Base64 encoded password** in the `p` URL query parameter.
+    *   Example: `http://localhost:3000/?p=cGFzc3dvcmQ=` (password="password")
+*   **Persistence**: The entered password and any user-changed settings (like API keys) are saved in the browser's `localStorage` and persist across sessions.
 
-| Variable | Default | Description |
-| :--- | :---: | :--- |
-| `NEXT_PUBLIC_AUTH_PASSWORD` | - | If set, requires password authentication before use. |
-| `NEXT_PUBLIC_ENABLED_EVENTS` | - | Events to log (comma separated). e.g., `KEY_INPUT,CHAT_MESSAGE` |
-| `NEXT_PUBLIC_EVENT_ENDPOINT_URL` | - | API endpoint URL for event logging. |
-| `NEXT_PUBLIC_APP_TITLE` | `Chat UI` | Application title. |
-| `NEXT_PUBLIC_APP_DESCRIPTION` | - | Application description (HTML supported). |
-| `NEXT_PUBLIC_REDIRECT_URL_ON_EXIT` | - | URL to redirect when exiting. |
-| `NEXT_PUBLIC_EXPORT_FILENAME_STRATEGY` | `chat_{YYYYMMDDHHmmss}.json` | Export filename format. |
-| `NEXT_PUBLIC_ASSISTANT_DISPLAY_NAME` | `Assistant` | Assistant display name. |
+##### Logging (`logging`)
+
+Sends log data via a **POST request** to the `endpoint_url` whenever events specified in `target_events` (e.g., `CHAT_MESSAGE`) occur.
+The request format is fixed, and the following JSON is sent as the body:
+
+```json
+{
+  "eventType": "CHAT_MESSAGE",
+  "timestamp": "2024-01-01T12:00:00.000Z",
+  "data": { ... }
+}
+```
+
+##### Heartbeat (`heartbeat`) & Auth Request (`auth_request`)
+
+These features allow flexible request configuration. Placeholders are supported in the URL, Headers, and Body.
+
+```yaml
+url: "https://api.example.com/heartbeat"
+method: "POST"
+headers:
+  "Content-Type": "application/json"
+  "Authorization": "Bearer ${PASSWORD}" # Use password as token
+body: '{"status": "alive", "user": "${id}"}' # Write as JSON string
+```
+
+*   **Heartbeat**: Sends requests continuously at intervals specified by `interval_sec`.
+
+### 4. Customization
+
+#### changing Avatar Images
+
+You can override the default avatar icons by placing image files with specific names in the `public` directory.
+
+*   **User Avatar**: `user_avatar.png` (or `jpg`, `svg`, `gif`, `webp`, etc.)
+*   **Assistant Avatar**: `assistant_avatar.png` (or `jpg`, `svg`, `gif`, `webp`, etc.)
+
+These are automatically detected and applied at build time. If files do not exist, default icons are used.
+
+#### Changing Base Path
+
+If hosting in a subdirectory (e.g., `https://example.com/chat/`), set `base_path` in `config.yaml`.
+
+```yaml
+base_path: "/chat"
+```
+
+### 5. Development & Preview
+
+To verify operation locally:
+
+```bash
+pnpm dev
+```
+
+Access `http://localhost:3000` in your browser.
+
+### 6. Build
+
+Generate static files for production.
+
+```bash
+pnpm build
+```
+
+When the build is complete, static files will be output to the `out` directory.
+
+### 7. Deployment
+
+Upload the contents of the `out` directory to your web server's document root (e.g., `public_html`, `www`). It runs on GitHub Pages, Vercel, Netlify, Amazon S3, or standard web servers (Apache/Nginx).
+
+## Tech Stack & Contributing
+
+For technical details and information on how to contribute, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+## License
+
+[MIT License](LICENSE)
