@@ -31,6 +31,8 @@ export interface AppConfig {
       role: 'user' | 'assistant';
       text: string;
     }[];
+    user_name?: string;
+    assistant_name?: string;
   };
   ui: {
     styles: {
