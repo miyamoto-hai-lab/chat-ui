@@ -150,8 +150,26 @@ If `system.security.password_auth_enabled: true`, an `Authorization` header is i
 
 *   `eventType`: Type of event (`KEY_INPUT` or `CHAT_MESSAGE`)
 *   `timestamp`: ISO 8601 timestamp
-*   `data`: Event specific data
+*   `data`: Event specific data (see below)
 *   `parameters`: URL query parameters from the browser (all parameters are included here)
+
+**`data` content per event:**
+
+*   **`CHAT_MESSAGE`** (When message is sent/received):
+    ```json
+    {
+      "role": "user",       // "user" or "assistant"
+      "content": "Hello",   // Message content
+      "turnNumber": 1       // Turn number (starts from 1)
+    }
+    ```
+*   **`KEY_INPUT`** (When typing in the input area):
+    ```json
+    {
+      "inputValue": "He",   // Current value of the input area
+      "inputLength": 2      // Character count
+    }
+    ```
 
 ##### Heartbeat (`heartbeat`) & Auth Request (`auth_request`)
 

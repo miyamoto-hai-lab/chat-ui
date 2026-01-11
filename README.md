@@ -153,8 +153,26 @@ URLやリクエストボディなど、一部の設定値において `${変数�
 
 *   `eventType`: イベントの種類 (`KEY_INPUT` または `CHAT_MESSAGE`)
 *   `timestamp`: ISO 8601形式のタイムスタンプ
-*   `data`: イベント固有のデータ
+*   `data`: イベント固有のデータ（後述）
 *   `parameters`: ブラウザのURLクエリパラメータ（全てのパラメータがここに含まれます）
+
+**イベントごとの `data` の内容:**
+
+*   **`CHAT_MESSAGE`** (メッセージ送信/受信時):
+    ```json
+    {
+      "role": "user",       // "user" または "assistant"
+      "content": "こんにちは", // メッセージ本文
+      "turnNumber": 1       // ターン数 (1から開始)
+    }
+    ```
+*   **`KEY_INPUT`** (テキスト入力エリアへの入力時):
+    ```json
+    {
+      "inputValue": "こんに", // 入力エリアの現在の値
+      "inputLength": 3      // 文字数
+    }
+    ```
 
 ##### ハートビート (`heartbeat`) と認証リクエスト (`auth_request`)
 
