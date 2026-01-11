@@ -5,13 +5,13 @@ const PASSWORD_KEY = 'chatui-password';
 
 // デフォルト設定
 export const defaultSettings: ChatSettings = {
-  provider: __APP_CONFIG__.llm.defaults.provider || 'openai',
-  apiServerUrl: __APP_CONFIG__.llm.defaults.endpoint_url || '',
-  apiKey: __APP_CONFIG__.llm.defaults.api_key || '',
-  modelName: __APP_CONFIG__.llm.defaults.model,
-  systemPrompt: __APP_CONFIG__.llm.defaults.system_prompt || '',
-  showThinking: __APP_CONFIG__.llm.defaults.enable_thinking || false,
-  thinkingTags: __APP_CONFIG__.llm.defaults.thinking_tags || [],
+  provider: __APP_CONFIG__.llm.provider || 'openai',
+  apiServerUrl: __APP_CONFIG__.llm.endpoint_url || '',
+  apiKey: __APP_CONFIG__.llm.api_key || '',
+  modelName: __APP_CONFIG__.llm.model,
+  systemPrompt: __APP_CONFIG__.llm.system_prompt || '',
+  showThinking: __APP_CONFIG__.llm.enable_thinking || false,
+  thinkingTags: __APP_CONFIG__.llm.thinking_tags || [],
   language: 'ja',
 };
 
@@ -35,41 +35,44 @@ export function loadSettings(): ChatSettings {
 
     // LLM設定が許可されていない場合には固定値を強制的に上書き
     if (!__APP_CONFIG__.llm.permissions.allow_change_config) {
-      if (!__APP_CONFIG__.llm.defaults.provider) {
-        // エラーにして動かないようにする
-        throw new Error('ユーザにLLM設定の変更が許可されていませんが，デフォルトで使用するプロバイダーが設定されていません。');
+      if (!__APP_CONFIG__.llm.provider) {
+        settings.provider = 'openai';
+      } else {
+        // デフォルト設定がある場合はそれを使用（以前の設定値が不正な場合などのフォールバック）
+        settings.provider = __APP_CONFIG__.llm.provider;
       }
-      settings.provider = __APP_CONFIG__.llm.defaults.provider;
     }
 
     // Thinking表示が固定されている場合は強制的に上書き
     if (!__APP_CONFIG__.llm.permissions.allow_toggle_thinking) {
-      settings.showThinking = __APP_CONFIG__.llm.defaults.enable_thinking || false;
+      settings.showThinking = __APP_CONFIG__.llm.enable_thinking || false;
     }
 
     // その他の固定設定を強制的に上書き
     if (!__APP_CONFIG__.llm.permissions.allow_change_config) {
-      settings.apiServerUrl = __APP_CONFIG__.llm.defaults.endpoint_url;
+      settings.apiServerUrl = __APP_CONFIG__.llm.endpoint_url;
     }
     if (!__APP_CONFIG__.llm.permissions.allow_change_config) {
-      if (!__APP_CONFIG__.llm.defaults.model) {
-        // エラーにして動かないようにする
-        throw new Error('ユーザにLLM設定の変更が許可されていませんが，デフォルトで使用するモデル名が設定されていません。');
+      if (!__APP_CONFIG__.llm.model) {
+        // デフォルトがない場合は何もしない（あるいは固定のデフォルトを設定）
+      } else {
+        // デフォルト設定を使用
+        settings.modelName = __APP_CONFIG__.llm.model;
       }
-      settings.modelName = __APP_CONFIG__.llm.defaults.model;
     }
     if (!__APP_CONFIG__.llm.permissions.allow_change_config) {
-      if (!__APP_CONFIG__.llm.defaults.api_key) {
-        // エラーにして動かないようにする
-        throw new Error('ユーザにLLM設定の変更が許可されていませんが，デフォルトで使用するAPIキーが設定されていません。');
-      } 
-      settings.apiKey = __APP_CONFIG__.llm.defaults.api_key;
+      if (!__APP_CONFIG__.llm.api_key) {
+        // デフォルトがない場合は何もしない
+      } else {
+        // デフォルト設定を使用
+        settings.apiKey = __APP_CONFIG__.llm.api_key;
+      }
     }
     if (!__APP_CONFIG__.llm.permissions.allow_change_config) {
-      settings.systemPrompt = __APP_CONFIG__.llm.defaults.system_prompt || '';
+      settings.systemPrompt = __APP_CONFIG__.llm.system_prompt || '';
     }
     if (!__APP_CONFIG__.llm.permissions.allow_change_config) {
-      settings.thinkingTags = __APP_CONFIG__.llm.defaults.thinking_tags || [];
+      settings.thinkingTags = __APP_CONFIG__.llm.thinking_tags || [];
     }
 
     return settings;

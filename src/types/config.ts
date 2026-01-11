@@ -10,15 +10,13 @@ export interface AppConfig {
     description?: string;
   };
   llm: {
-    defaults: {
-      provider: 'openai' | 'gemini' | 'anthropic' | 'grok' | 'deepseek';
-      endpoint_url?: string;
-      model: string;
-      api_key?: string;
-      system_prompt?: string;
-      enable_thinking?: boolean;
-      thinking_tags?: ThinkingTag[];
-    };
+    provider: 'openai' | 'gemini' | 'anthropic' | 'grok' | 'deepseek';
+    endpoint_url?: string;
+    model: string;
+    api_key?: string;
+    system_prompt?: string;
+    enable_thinking?: boolean;
+    thinking_tags?: ThinkingTag[];
     permissions: {
       allow_change_config: boolean;
       allow_change_system_prompt: boolean;
