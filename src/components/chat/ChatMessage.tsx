@@ -1,6 +1,7 @@
 'use client';
 
 import { useSettings } from '@/components/providers/SettingsProvider';
+import { useAvatarImages } from '@/hooks/useAvatarImages';
 import { cn } from '@/lib/utils';
 import { Bot, Loader2, User } from 'lucide-react';
 
@@ -22,6 +23,7 @@ export function ChatMessage({
   showReadMark,
 }: ChatMessageProps) {
   const { settings } = useSettings();
+  const { userAvatarUrl, assistantAvatarUrl } = useAvatarImages();
 
   if (role === 'system') {
     return null;
@@ -34,8 +36,12 @@ export function ChatMessage({
       {/* Assistantのアイコン（左側） */}
       {!isUser && (
         <div className="flex-shrink-0">
-          <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
-            <Bot className="w-5 h-5 text-secondary-foreground" />
+          <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center overflow-hidden">
+            {assistantAvatarUrl ? (
+              <img src={assistantAvatarUrl} alt="Assistant" className="w-full h-full object-cover" />
+            ) : (
+              <Bot className="w-5 h-5 text-secondary-foreground" />
+            )}
           </div>
         </div>
       )}
@@ -118,8 +124,12 @@ export function ChatMessage({
       {/* ユーザーのアイコン（右側） */}
       {isUser && (
         <div className="flex-shrink-0">
-          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-            <User className="w-5 h-5 text-primary-foreground" />
+          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center overflow-hidden">
+            {userAvatarUrl ? (
+              <img src={userAvatarUrl} alt="User" className="w-full h-full object-cover" />
+            ) : (
+              <User className="w-5 h-5 text-primary-foreground" />
+            )}
           </div>
         </div>
       )}
