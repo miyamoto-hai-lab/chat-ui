@@ -23,13 +23,9 @@ export function usePasswordAuth() {
       throw new Error('Auth server URL is not configured');
     }
 
-    // PASSWORD and PASSWORD_BASE64 are now handled by replacePlaceholders if we pass them,
-    // or we can pass just PASSWORD and let it handle base64?
-    // The current implementation of replacePlaceholders takes a map.
-    // We should pass PASSWORD explicitly.
+    // register PASSWORD to placeholder variables
     const variables = {
       PASSWORD: inputPassword,
-      PASSWORD_BASE64: btoa(inputPassword),
     };
 
     const url = replacePlaceholders(config.url, variables);

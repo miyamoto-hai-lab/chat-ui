@@ -27,7 +27,7 @@ export function replacePlaceholders(
     let value: string | null = null;
 
     if (key in variables) {
-      value = variables[key];
+      value = variables[key] ?? '';
     } else if (typeof window !== 'undefined') {
       // ブラウザ環境の場合、クエリパラメータを確認
       const params = new URLSearchParams(window.location.search);

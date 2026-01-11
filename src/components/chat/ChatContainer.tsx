@@ -173,8 +173,7 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
     // アプリ説明の表示
     const rawDescription = __APP_CONFIG__.app.description || '';
     const description = replacePlaceholders(rawDescription, {
-      PASSWORD: password || '',
-      PASSWORD_BASE64: password ? btoa(password) : '',
+      PASSWORD: password ?? '',
     });
     const showDescription = !!description;
 
