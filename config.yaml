@@ -31,7 +31,7 @@
 #     base_path: "" もしくは base_path: "/" 
 #   - サブフォルダにホスティングされている場合：
 #     base_path: "/chat"
-base_path: ""
+base_path: "/chat-ui"
 
 # ------------------------------------------
 # 1. アプリケーション基本情報 (App)
@@ -162,13 +162,13 @@ system:
     password_auth_enabled: false
     # 認証サーバーURL
     # url, headers, bodyでプレースホルダが利用可能です
-    auth_request: 
-      url: "https://api.your-server.com/auth"
-      method: "POST" # GET or POST
-      headers:
-        "Content-Type": "application/json"
-        # ボディ（JSON文字列としてパース可能な記述、または固定値）
-        body: '{"password": "${PASSWORD}", "base64password": "${#PASSWORD}"}'
+    # auth_request: 
+      # url: "https://api.your-server.?com/auth"
+      # method: "POST" # GET or POST
+      # headers:
+      #   "Content-Type": "application/json"
+      # ボディ（JSON文字列としてパース可能な記述、または固定値）
+      # body: '{"password": "${PASSWORD}", "base64password": "${#PASSWORD}"}'
 
   # --- 操作ログ送信 ---
   logging:
@@ -183,11 +183,11 @@ system:
   heartbeat:
     # url, headers, bodyでプレースホルダが利用可能です
     enabled: false
-    interval_sec: 30
-    url: "https://api.your-server.com/heartbeat" # クエリパラメータも可能
-    method: "POST" # "GET" or "POST"
-    headers:
-      "Content-Type": "application/json"
-      "Authorization": "Bearer ${PASSWORD}"
+    # interval_sec: 30
+    # url: "https://api.your-server.com/heartbeat" # クエリパラメータも可能
+    # method: "POST" # "GET" or "POST"
+    # headers:
+    #   "Content-Type": "application/json"
+    #   "Authorization": "Bearer ${PASSWORD}"
     # ボディ（JSON文字列としてパース可能な記述、または固定値）
-    body: '{"status": "alive"}'
+    # body: '{"status": "alive"}'
