@@ -129,15 +129,32 @@ URLやリクエストボディなど、一部の設定値において `${変数�
 ##### ログ送信(`logging`)
 
 `target_events` で指定したイベント（`CHAT_MESSAGE` など）が発生した際に、`endpoint_url` に対して **POSTリクエスト** でログデータを送信します。
-リクエストの形式は固定されており、以下のJSONがBodyとして送信されます。
+リクエストの形式は固定されています。
+
+**ヘッダー:**
+`system.security.password_auth_enabled: true` の場合、`Authorization` ヘッダーが付与されます。
+
+*   `Content-Type`: `application/json`
+*   `Authorization`: `Bearer <Base64 Encoded Password>` (パスワード認証有効時のみ)
+
+**ボディ (JSON):**
 
 ```json
 {
   "eventType": "CHAT_MESSAGE",
   "timestamp": "2024-01-01T12:00:00.000Z",
-  "data": { ... }
+  "data": { ... },
+  "parameters": {
+    "key1": "value1",
+    "key2": "value2"
+  }
 }
 ```
+
+*   `eventType`: イベントの種類 (`KEY_INPUT` または `CHAT_MESSAGE`)
+*   `timestamp`: ISO 8601形式のタイムスタンプ
+*   `data`: イベント固有のデータ
+*   `parameters`: ブラウザのURLクエリパラメータ（全てのパラメータがここに含まれます）
 
 ##### ハートビート (`heartbeat`) と認証リクエスト (`auth_request`)
 

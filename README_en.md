@@ -126,15 +126,32 @@ When `system.security.password_auth_enabled: true`, the app requires a password 
 ##### Logging (`logging`)
 
 Sends log data via a **POST request** to the `endpoint_url` whenever events specified in `target_events` (e.g., `CHAT_MESSAGE`) occur.
-The request format is fixed, and the following JSON is sent as the body:
+The request format is fixed.
+
+**Headers:**
+If `system.security.password_auth_enabled: true`, an `Authorization` header is included.
+
+*   `Content-Type`: `application/json`
+*   `Authorization`: `Bearer <Base64 Encoded Password>` (Only when password auth is enabled)
+
+**Body (JSON):**
 
 ```json
 {
   "eventType": "CHAT_MESSAGE",
   "timestamp": "2024-01-01T12:00:00.000Z",
-  "data": { ... }
+  "data": { ... },
+  "parameters": {
+    "key1": "value1",
+    "key2": "value2"
+  }
 }
 ```
+
+*   `eventType`: Type of event (`KEY_INPUT` or `CHAT_MESSAGE`)
+*   `timestamp`: ISO 8601 timestamp
+*   `data`: Event specific data
+*   `parameters`: URL query parameters from the browser (all parameters are included here)
 
 ##### Heartbeat (`heartbeat`) & Auth Request (`auth_request`)
 

@@ -25,6 +25,7 @@ export interface EventData {
   eventType: EventType;
   timestamp: string;
   data: Record<string, any>;
+  parameters?: Record<string, string>;
 }
 
 export interface PasswordAuthState {
