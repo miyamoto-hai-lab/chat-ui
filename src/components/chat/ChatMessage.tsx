@@ -4,6 +4,7 @@ import { useSettings } from '@/components/providers/SettingsProvider';
 import { useAvatarImages } from '@/hooks/useAvatarImages';
 import { cn } from '@/lib/utils';
 import { Bot, Loader2, User } from 'lucide-react';
+import { MarkdownRenderer } from './MarkdownRenderer';
 
 interface ChatMessageProps {
   role: 'user' | 'assistant' | 'system';
@@ -69,8 +70,8 @@ export function ChatMessage({
             <summary className="cursor-pointer hover:text-foreground transition-colors font-medium">
               思考過程
             </summary>
-            <div className="mt-1 pl-2 border-l-2 border-muted-foreground/20 whitespace-pre-wrap">
-              {reasoning}
+            <div className="mt-1 pl-2 border-l-2 border-muted-foreground/20">
+              <MarkdownRenderer content={reasoning} />
             </div>
           </details>
         )
@@ -87,16 +88,17 @@ export function ChatMessage({
         {content.length > 0 && (
           <div
             className={cn(
-              'relative rounded-2xl px-4 py-2.5 shadow-sm whitespace-pre-wrap',
+              'relative rounded-2xl px-4 py-2.5 shadow-sm',
               isUser
                 ? 'bg-primary text-primary-foreground rounded-tr-sm'
                 : 'bg-muted rounded-tl-sm'
             )}
           >
-            {content}
-            {isStreaming && (
-              <span className="inline-block w-2 h-4 ml-1 bg-current animate-pulse" />
-            )}
+            <MarkdownRenderer 
+              content={content} 
+              isStreaming={isStreaming && !isUser} /* Userのメッセージはストリーミングしない */
+              className={isUser ? "text-primary-foreground" : ""}
+            />
           </div>
         )}
         
