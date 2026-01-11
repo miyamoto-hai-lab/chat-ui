@@ -135,7 +135,7 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
     useEffect(() => {
       if (
         !hasInitialized.current &&
-        __APP_CONFIG__.chat.initial_sender === 'assistant' &&
+        __APP_CONFIG__.chat.start_role === 'assistant' &&
         messages.length === 0 &&
         !isLoading
       ) {

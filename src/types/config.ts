@@ -20,7 +20,7 @@ export interface AppConfig {
     };
   };
   chat: {
-    initial_sender: 'user' | 'assistant';
+    start_role: 'user' | 'assistant';
     max_turns: number;
     on_limit_reached: {
       action: 'modal' | 'inline' | 'none';

@@ -46,7 +46,7 @@
     "chat": {
       "type": "object",
       "properties": {
-        "initial_sender": { "type": "string", "enum": ["user", "assistant"] },
+        "start_role": { "type": "string", "enum": ["user", "assistant"] },
         "max_turns": { "type": "integer", "minimum": 1 },
         "on_limit_reached": {
           "type": "object",
@@ -56,9 +56,28 @@
           },
           "required": ["action", "auto_exit_delay_sec"]
         },
-        "exit_redirect_url": { "type": "string" }
+        "exit_redirect_url": { "type": "string" },
+        "prefill_messages": {
+          "type": "array",
+          "description": "初期表示されるメッセージのリスト",
+          "items": {
+            "type": "object",
+            "required": ["role", "text"],
+            "properties": {
+              "role": {
+                "type": "string",
+                "enum": ["user", "assistant"],
+                "description": "メッセージの送信者ロール"
+              },
+              "text": {
+                "type": "string",
+                "description": "メッセージの本文"
+              }
+            }
+          }
+        }
       },
-      "required": ["initial_sender", "max_turns", "on_limit_reached", "exit_redirect_url"]
+      "required": ["start_role", "max_turns", "on_limit_reached", "exit_redirect_url"]
     },
     "ui": {
       "type": "object",
