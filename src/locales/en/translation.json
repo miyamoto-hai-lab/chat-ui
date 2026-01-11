@@ -31,6 +31,11 @@
     "modelName": "Model Name",
     "systemPrompt": "System Prompt",
     "showThinking": "Show Thinking Process (reasoning contents)",
+    "thinkingTags": "Thinking Tag Filter",
+    "thinkingTagsDescription": "Extract content within tags as thinking process",
+    "startTag": "Start Tag",
+    "endTag": "End Tag",
+    "addTag": "Add Tag",
     "language": "Language"
   },
   "password": {

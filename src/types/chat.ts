@@ -5,6 +5,7 @@ export interface ChatSettings {
   modelName: string;
   systemPrompt: string;
   showThinking: boolean;
+  thinkingTags: { start: string; end: string }[];
   language: string;
 }
 
@@ -24,6 +25,7 @@ export interface EventData {
   eventType: EventType;
   timestamp: string;
   data: Record<string, any>;
+  parameters?: Record<string, string>;
 }
 
 export interface PasswordAuthState {

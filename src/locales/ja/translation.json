@@ -31,6 +31,11 @@
     "modelName": "モデル名",
     "systemPrompt": "システムプロンプト",
     "showThinking": "思考過程(Thought)を表示",
+    "thinkingTags": "思考タグフィルタ",
+    "thinkingTagsDescription": "応答に含まれるタグを思考過程として抽出します",
+    "startTag": "開始タグ",
+    "endTag": "終了タグ",
+    "addTag": "タグを追加",
     "language": "言語"
   },
   "password": {

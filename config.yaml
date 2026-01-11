@@ -51,15 +51,20 @@ llm:
   # --- デフォルト設定 ---
   # ユーザーが変更可能な項目において、ブラウザに保存された設定がない場合の初期値として機能します。
   # ユーザー変更が不可（permissionsでfalse）の場合は、この設定が強制されます。
-  defaults:
-    # endpoint_url, model, api_key, system_promptでプレースホルダが利用可能です
-    provider: "openai" # options: openai, gemini, anthropic, grok, deepseek
-    endpoint_url: ""   # 空の場合は各プロバイダのデフォルトが使用されます
-    model: ""          # 空の場合は各プロバイダのデフォルトモデルが使用されます
-    api_key: ""        # 配布用などで埋め込む場合。空の場合はユーザー入力が必要
-    system_prompt: | # システムプロンプトをなしにしたい場合は""を指定するかコメントアウトしてください
-      あなたは有能なアシスタントです。ユーザーの質問に対して丁寧に答えてください。
-    enable_thinking: true # Thinking（思考プロセス）の表示/非表示
+  # endpoint_url, model, api_key, system_promptでプレースホルダが利用可能です
+  provider: "openai" # options: openai, gemini, anthropic, grok, deepseek
+  endpoint_url: ""   # 空の場合は各プロバイダのデフォルトが使用されます
+  model: ""          # 空の場合は各プロバイダのデフォルトモデルが使用されます
+  api_key: ""        # 配布用などで埋め込む場合。空の場合はユーザー入力が必要
+  system_prompt: | # システムプロンプトをなしにしたい場合は""を指定するかコメントアウトしてください
+    あなたは有能なアシスタントです。ユーザーの質問に対して丁寧に答えてください。
+  enable_thinking: true # Thinking（思考プロセス）の表示/非表示
+  
+  # 思考過程として扱うタグ（開始タグと終了タグのペア）
+  # 応答本文から該当タグで囲まれた部分を抽出し、思考過程として表示します
+  # thinking_tags:
+    # - start: "<think>"
+    #   end: "</think>"
 
   # --- ユーザー権限 (Permissions) ---
   # ユーザーが設定画面で値を変更できるかどうかを制御します。
@@ -183,7 +188,7 @@ system:
     # 認証サーバーURL
     # url, headers, bodyでプレースホルダが利用可能です
     # auth_request: 
-      # url: "https://api.your-server.?com/auth"
+      # url: "https://api.your-server.com/auth"
       # method: "POST" # GET or POST
       # headers:
       #   "Content-Type": "application/json"

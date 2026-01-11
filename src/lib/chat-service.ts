@@ -1,4 +1,5 @@
 import { PROVIDER_CONFIG } from '@/lib/provider-config';
+import { createInitialState, finalizeStreaming, processStreamingChunk } from '@/lib/thinking-tag-filter';
 import type { ChatMessage, ChatSettings } from '@/types/chat';
 
 export interface ChatRequestOptions {
@@ -92,8 +93,8 @@ export class ChatService {
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
-    let accumulatedContent = '';
     let accumulatedReasoning = '';
+    let filterState = createInitialState();
 
     try {
       while (true) {
@@ -115,19 +116,27 @@ export class ChatService {
               const reasoning = delta?.reasoning_content || ''; // DeepSeek specific
 
               if (content) {
-                accumulatedContent += content;
+                // Apply thinking tag filter for streaming
+                filterState = processStreamingChunk(content, settings.thinkingTags || [], filterState);
               }
               if (reasoning) {
                 accumulatedReasoning += reasoning;
               }
               
-              onUpdate(accumulatedContent, accumulatedReasoning);
+              // Combine API reasoning with extracted reasoning from tags
+              const combinedReasoning = accumulatedReasoning + (filterState.streamingReasoning ? '\n' + filterState.streamingReasoning : '');
+              onUpdate(filterState.displayedContent, combinedReasoning.trim() || undefined);
             } catch {
               // Ignore parse errors
             }
           }
         }
       }
+      
+      // Finalize streaming - flush any remaining buffer
+      const final = finalizeStreaming(filterState);
+      const combinedReasoning = accumulatedReasoning + (final.reasoning ? '\n' + final.reasoning : '');
+      onUpdate(final.content, combinedReasoning.trim() || undefined);
     } finally {
       reader.releaseLock();
     }
@@ -210,9 +219,9 @@ export class ChatService {
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
-    let accumulatedContent = '';
     let accumulatedReasoning = '';
     let buffer = '';
+    let filterState = createInitialState();
 
     try {
       while (true) {
@@ -266,13 +275,16 @@ export class ChatService {
                       if (part.thought) {
                         accumulatedReasoning += part.text;
                       } else {
-                        accumulatedContent += part.text;
+                        // Apply thinking tag filter for streaming
+                        filterState = processStreamingChunk(part.text, settings.thinkingTags || [], filterState);
                       }
                     }
-                    onUpdate(accumulatedContent, accumulatedReasoning);
+                    // Combine API reasoning with extracted reasoning from tags
+                    const combinedReasoning = accumulatedReasoning + (filterState.streamingReasoning ? '\n' + filterState.streamingReasoning : '');
+                    onUpdate(filterState.displayedContent, combinedReasoning.trim() || undefined);
                   }
-                } catch (e) {
-                  // console.error('JSON parse error', e);
+                } catch {
+                  // Ignore JSON parse error
                 }
                 processedIndex = i + 1;
               }
@@ -285,6 +297,11 @@ export class ChatService {
           buffer = buffer.substring(processedIndex);
         }
       }
+      
+      // Finalize streaming - flush any remaining buffer
+      const final = finalizeStreaming(filterState);
+      const combinedReasoning = accumulatedReasoning + (final.reasoning ? '\n' + final.reasoning : '');
+      onUpdate(final.content, combinedReasoning.trim() || undefined);
     } finally {
       reader.releaseLock();
     }
@@ -344,7 +361,7 @@ export class ChatService {
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
-    let accumulatedContent = '';
+    let filterState = createInitialState();
 
     try {
       while (true) {
@@ -362,13 +379,18 @@ export class ChatService {
                 try {
                     const parsed = JSON.parse(data);
                     if (parsed.type === 'content_block_delta') {
-                        accumulatedContent += parsed.delta.text;
-                        onUpdate(accumulatedContent);
+                        // Apply thinking tag filter for streaming
+                        filterState = processStreamingChunk(parsed.delta.text, settings.thinkingTags || [], filterState);
+                        onUpdate(filterState.displayedContent, filterState.streamingReasoning.trim() || undefined);
                     }
                 } catch {}
             }
         }
       }
+      
+      // Finalize streaming - flush any remaining buffer
+      const final = finalizeStreaming(filterState);
+      onUpdate(final.content, final.reasoning || undefined);
     } finally {
       reader.releaseLock();
     }

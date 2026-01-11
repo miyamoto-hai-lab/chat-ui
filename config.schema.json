@@ -19,17 +19,23 @@
     "llm": {
       "type": "object",
       "properties": {
-        "defaults": {
-          "type": "object",
-          "properties": {
-            "provider": { "type": "string", "enum": ["openai", "azure", "anthropic", "google", "local"] },
-            "endpoint_url": { "type": "string" },
-            "model": { "type": "string" },
-            "api_key": { "type": "string" },
-            "system_prompt": { "type": "string" },
-            "enable_thinking": { "type": "boolean" }
-          },
-          "required": ["provider", "model"]
+        "provider": { "type": "string", "enum": ["openai", "azure", "anthropic", "google", "local"] },
+        "endpoint_url": { "type": "string" },
+        "model": { "type": "string" },
+        "api_key": { "type": "string" },
+        "system_prompt": { "type": "string" },
+        "enable_thinking": { "type": "boolean" },
+        "thinking_tags": {
+          "type": "array",
+          "description": "思考過程として扱うタグのペア",
+          "items": {
+            "type": "object",
+            "required": ["start", "end"],
+            "properties": {
+              "start": { "type": "string", "description": "開始タグ" },
+              "end": { "type": "string", "description": "終了タグ" }
+            }
+          }
         },
         "permissions": {
           "type": "object",
@@ -41,7 +47,7 @@
           "required": ["allow_change_config", "allow_change_system_prompt"]
         }
       },
-      "required": ["defaults", "permissions"]
+      "required": ["provider", "model", "permissions"]
     },
     "chat": {
       "type": "object",
