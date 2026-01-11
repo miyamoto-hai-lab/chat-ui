@@ -87,7 +87,7 @@ export function ChatMessage({
         {content.length > 0 && (
           <div
             className={cn(
-              'relative rounded-2xl px-4 py-2.5 shadow-sm',
+              'relative rounded-2xl px-4 py-2.5 shadow-sm whitespace-pre-wrap',
               isUser
                 ? 'bg-primary text-primary-foreground rounded-tr-sm'
                 : 'bg-muted rounded-tl-sm'
