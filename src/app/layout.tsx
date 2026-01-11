@@ -2,6 +2,7 @@ import { HeartbeatManager } from '@/components/HeartbeatManager';
 import { AuthProvider } from '@/components/providers/AuthProvider';
 import { I18nProvider } from '@/components/providers/I18nProvider';
 import { SettingsProvider } from '@/components/providers/SettingsProvider';
+import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { Toaster } from '@/components/ui/sonner';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
@@ -32,15 +33,17 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <I18nProvider>
-          <SettingsProvider>
-            <AuthProvider>
-              {children}
-              <HeartbeatManager />
-              <Toaster />
-            </AuthProvider>
-          </SettingsProvider>
-        </I18nProvider>
+        <ThemeProvider>
+          <I18nProvider>
+            <SettingsProvider>
+              <AuthProvider>
+                {children}
+                <HeartbeatManager />
+                <Toaster />
+              </AuthProvider>
+            </SettingsProvider>
+          </I18nProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

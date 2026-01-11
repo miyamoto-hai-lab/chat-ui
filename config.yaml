@@ -77,7 +77,21 @@ chat:
   # assistant: ページを開くと同時にLLMから挨拶などが生成される
   start_role: "user" 
 
+  # 表示名（アバターの横、吹き出しの上に表示）
+  # 空文字または未定義の場合は名前を表示しません
+  # user_name: "あなた"
+  # assistant_name: "アシスタント"
+
+  # 初期メッセージ
+  # ユーザがページを開いた時にあらかじめ表示され、このメッセージの後から対話がスタートします
+  # prefill_messages:
+  # - role: "user"
+  #   text: "こんにちは！"
+  # - role: "assistant"
+  #   text: "こんにちは！何かお手伝いできることはありますか？"
+
   # 最大ターン数 (0: 無制限, ユーザとLLMの発話1回ずつで1ターンです)
+  # prefill_messagesも含めたターン数を設定してください。
   max_turns: 0
 
   # 最大ターン到達時の挙動 (Completion Behavior)
@@ -97,13 +111,6 @@ chat:
   # プレースホルダが利用可能です
   exit_redirect_url: ""
 
-  # 初期メッセージ
-  # ユーザがページを開いた時にあらかじめ表示され、このメッセージの後から対話がスタートします
-  # prefill_messages:
-  # - role: "user"
-  #   text: "こんにちは！"
-  # - role: "assistant"
-  #   text: "こんにちは！何かお手伝いできることはありますか？"
 
 # ------------------------------------------
 # 4. ユーザーインターフェース (UI)
@@ -118,9 +125,9 @@ ui:
     # instant: 生成が完了したら一括表示
     generation_style: "streaming"
 
-    # メッセージの吹き出しスタイル
-    # bubble: LINEのような吹き出しとアイコン
-    # flat: ChatGPTのようなアイコンと横並びのテキスト
+    # assistantメッセージの表示スタイル
+    # bubble: LINEのようにassistantの返答は吹き出し内に書かれます。
+    # flat: ChatGPTのようにassistantの返答はそのまま書かれます。
     message_style: "bubble"
 
   # --- 表示コンポーネント ---
@@ -152,6 +159,19 @@ ui:
     # ダウンロード時のファイル名プレフィックス
     # 例: "chatlog" -> "chatlog_2026-01-01_12-00-00.json"
     filename_prefix: "chatlog"
+
+  # --- テーマ設定 ---
+  # theme:
+    # ベーステーマ: light, dark, system (ブラウザ設定に従う)
+    # base: "light"
+    # カスタムカラー（色名、#RRGGBB、rgb(r,g,b)形式で指定）
+    # 未指定の場合はChatGPT風のデフォルト色が使用されます
+    # colors:
+      # background: "#ffffff"             # 全体の背景色
+      # user_bubble: "#000000"            # ユーザー吹き出しの色
+      # user_bubble_text: "#ffffff"       # ユーザー吹き出しの文字色
+      # assistant_bubble: "#f7f7f8"       # アシスタント吹き出しの色
+      # assistant_bubble_text: "#374151"  # アシスタント吹き出しの文字色
 
 # ------------------------------------------
 # 5. システム・ログ・認証 (System)

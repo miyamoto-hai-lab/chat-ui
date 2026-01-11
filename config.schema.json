@@ -75,6 +75,14 @@
               }
             }
           }
+        },
+        "user_name": {
+          "type": "string",
+          "description": "ユーザーの表示名（吹き出しの上に表示）"
+        },
+        "assistant_name": {
+          "type": "string",
+          "description": "アシスタントの表示名（吹き出しの上に表示）"
         }
       },
       "required": ["start_role", "max_turns", "on_limit_reached", "exit_redirect_url"]
@@ -113,6 +121,28 @@
             "filename_prefix": { "type": "string" }
           },
           "required": ["filename_prefix"]
+        },
+        "theme": {
+          "type": "object",
+          "description": "テーマ設定",
+          "properties": {
+            "base": {
+              "type": "string",
+              "enum": ["light", "dark", "system"],
+              "description": "ベーステーマ"
+            },
+            "colors": {
+              "type": "object",
+              "description": "カスタムカラー設定",
+              "properties": {
+                "background": { "type": "string", "description": "全体の背景色" },
+                "user_bubble": { "type": "string", "description": "ユーザー吹き出しの色" },
+                "user_bubble_text": { "type": "string", "description": "ユーザー吹き出しの文字色" },
+                "assistant_bubble": { "type": "string", "description": "アシスタント吹き出しの色" },
+                "assistant_bubble_text": { "type": "string", "description": "アシスタント吹き出しの文字色" }
+              }
+            }
+          }
         }
       },
       "required": ["styles", "components", "turn_counter", "export"]

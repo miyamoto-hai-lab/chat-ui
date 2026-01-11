@@ -51,6 +51,16 @@ export interface AppConfig {
     export: {
       filename_prefix: string;
     };
+    theme?: {
+      base?: 'light' | 'dark' | 'system';
+      colors?: {
+        background?: string;
+        user_bubble?: string;
+        user_bubble_text?: string;
+        assistant_bubble?: string;
+        assistant_bubble_text?: string;
+      };
+    };
   };
   system: {
     security: {
