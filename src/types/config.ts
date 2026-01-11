@@ -27,6 +27,10 @@ export interface AppConfig {
       auto_exit_delay_sec: number;
     };
     exit_redirect_url: string;
+    prefill_messages?: {
+      role: 'user' | 'assistant';
+      text: string;
+    }[];
   };
   ui: {
     styles: {

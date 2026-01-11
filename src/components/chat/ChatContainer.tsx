@@ -38,7 +38,21 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
     const { settings } = useSettings();
     const scrollRef = useRef<HTMLDivElement>(null);
     const [input, setInput] = useState('');
-    const [messages, setMessages] = useState<ChatMessage[]>([]);
+    const [messages, setMessages] = useState<ChatMessage[]>(() => {
+      // 初期メッセージのロード
+      if (
+        __APP_CONFIG__.chat.prefill_messages &&
+        __APP_CONFIG__.chat.prefill_messages.length > 0
+      ) {
+        return __APP_CONFIG__.chat.prefill_messages.map((msg, index) => ({
+          id: `prefill-${index}`,
+          role: msg.role,
+          content: msg.text,
+          createdAt: new Date(),
+        }));
+      }
+      return [];
+    });
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<Error | undefined>(undefined);
     const [streamingContent, setStreamingContent] = useState('');
@@ -136,13 +150,18 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
       if (
         !hasInitialized.current &&
         __APP_CONFIG__.chat.start_role === 'assistant' &&
-        messages.length === 0 &&
         !isLoading
       ) {
+        // prefill_messagesがある場合はそれを踏まえて発話（=既存メッセージとして渡す）
+        // prefill_messagesがない場合は空配列で発話開始
+        // ここでのmessagesは初期化済みなのでそのまま渡せばOK
+        // ただし、もしユーザーが既に何か入力してしまった後（レアケース）は避けるため
+        // messagesのlengthチェックは外すが、hasInitializedで制御
+        
         hasInitialized.current = true;
-        executeSendMessage([]);
+        executeSendMessage(messages);
       }
-    }, [messages.length, isLoading, executeSendMessage]);
+    }, [messages, isLoading, executeSendMessage]);
 
     // 入力変更ハンドラー
     const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
