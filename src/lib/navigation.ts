@@ -13,8 +13,7 @@ export function performAppExit(password?: string): void {
 
   if (__APP_CONFIG__.chat.exit_redirect_url) {
     window.location.href = replacePlaceholders(__APP_CONFIG__.chat.exit_redirect_url, {
-      PASSWORD: password || '',
-      PASSWORD_BASE64: password ? btoa(password) : '',
+      PASSWORD: password ?? '',
     });
   } else {
     window.location.reload();

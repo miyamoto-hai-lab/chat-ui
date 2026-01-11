@@ -32,6 +32,25 @@ if (appConfig.base_path === "/") {
   appConfig.base_path = "";
 }
 
+// カスタムアバター画像の検出
+const supportedAvatarExtensions = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'ico', 'avif'];
+const publicDir = path.join(__dirname, 'public');
+
+const findAvatarImage = (prefix: string): string | null => {
+  for (const ext of supportedAvatarExtensions) {
+    const filePath = path.join(publicDir, `${prefix}.${ext}`);
+    if (fs.existsSync(filePath)) {
+      return `${prefix}.${ext}`;
+    }
+  }
+  return null;
+};
+
+const avatarConfig = {
+  userAvatar: findAvatarImage('user_avatar'),
+  assistantAvatar: findAvatarImage('assistant_avatar'),
+};
+
 const nextConfig: NextConfig = {
   output: 'export',
   basePath: appConfig.base_path || '',
@@ -41,12 +60,14 @@ const nextConfig: NextConfig = {
     unoptimized: true,
   },
   webpack: (config, { webpack }) => {
-    // 2. DefinePluginでグローバル変数を定義
+    // DefinePluginでグローバル変数を定義
     // 文字列化してから渡す
     config.plugins.push(
       new (webpack.DefinePlugin)({
         // クライアント側で __APP_CONFIG__ として参照できるようになる
         "__APP_CONFIG__": JSON.stringify(appConfig),
+        // カスタムアバター設定
+        "__AVATAR_CONFIG__": JSON.stringify(avatarConfig),
       })
     );
 

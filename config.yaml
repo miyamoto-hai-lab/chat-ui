@@ -6,12 +6,31 @@
 # ファイルから読み込む場合はUTF-8で，各ファイルには値のみを記載してください。
 # ======================================================================================================
 
+# ------------------------------------------------------------------------------------------------------
+# プレースホルダー（変数）について
+# 設定値の一部では、${キー名} の形式で値を動的に埋め込むことが可能です。
+#
+# ■ 基本的な挙動
+# URLクエリパラメータの値が埋め込まれます。（例: ?id=123 → ${id} は 123 に置換）
+#
+# ■ 特殊な変数: ${PASSWORD}
+# `password_auth` が有効な場合、入力されたパスワードに置換されます。
+# （パスワードが未入力の時点では '' (空文字列) となります。）
+# ※競合や意図しない動作を防ぐため、URLクエリパラメータのキー名には "PASSWORD" を使用しないでください。
+#
+# ■ 変換オプション
+# キー名の前に記号をつけることで、値をBase64変換できます。
+# - ${#key} または ${e#key}     : Base64エンコード（失敗時は置換されない）
+# - ${u#key}                   : URL-Safe Base64エンコード（失敗時は置換されない）
+# - ${d#key}                   : Base64デコード（失敗時は生の値を返す）
+# ------------------------------------------------------------------------------------------------------
+
 # このアプリがホスティングされているパス
 # 例：
 #   - htmlのルートフォルダにホスティングされている場合：
 #     base_path: "" もしくは base_path: "/" 
 #   - サブフォルダにホスティングされている場合：
-#     base_path: "/keimag/chat-ui"
+#     base_path: "/chat"
 base_path: "/chat-ui"
 
 # ------------------------------------------
@@ -33,7 +52,7 @@ llm:
   # ユーザーが変更可能な項目において、ブラウザに保存された設定がない場合の初期値として機能します。
   # ユーザー変更が不可（permissionsでfalse）の場合は、この設定が強制されます。
   defaults:
-    # endpoint_url, model, api_key, system_promptで${PASSWORD}, ${PASSWORD_BASE64}, ${PARAM.<key>}のプレースホルダが利用可能です
+    # endpoint_url, model, api_key, system_promptでプレースホルダが利用可能です
     provider: "openai" # options: openai, gemini, anthropic, grok, deepseek
     endpoint_url: ""   # 空の場合は各プロバイダのデフォルトが使用されます
     model: ""          # 空の場合は各プロバイダのデフォルトモデルが使用されます
@@ -56,9 +75,23 @@ chat:
   # 会話の開始者
   # user: ユーザーが最初のメッセージを送る
   # assistant: ページを開くと同時にLLMから挨拶などが生成される
-  initial_sender: "user" 
+  start_role: "user" 
+
+  # 表示名（アバターの横、吹き出しの上に表示）
+  # 空文字または未定義の場合は名前を表示しません
+  # user_name: "あなた"
+  # assistant_name: "アシスタント"
+
+  # 初期メッセージ
+  # ユーザがページを開いた時にあらかじめ表示され、このメッセージの後から対話がスタートします
+  # prefill_messages:
+  # - role: "user"
+  #   text: "こんにちは！"
+  # - role: "assistant"
+  #   text: "こんにちは！何かお手伝いできることはありますか？"
 
   # 最大ターン数 (0: 無制限, ユーザとLLMの発話1回ずつで1ターンです)
+  # prefill_messagesも含めたターン数を設定してください。
   max_turns: 0
 
   # 最大ターン到達時の挙動 (Completion Behavior)
@@ -74,9 +107,10 @@ chat:
     # n: n秒後に指定のリダイレクト先へ、またはタブを閉じる等の処理
     auto_exit_delay_sec: 0
   
-  # 自動退出時のリダイレクト先URL（空の場合はChat UIを再読み込み）
-  # ${PASSWORD}, ${PASSWORD_BASE64}, ${PARAM.<key>}のプレースホルダが利用可能です
+  # 退出時のリダイレクト先URL（空の場合はChat UIを再読み込み）
+  # プレースホルダが利用可能です
   exit_redirect_url: ""
+
 
 # ------------------------------------------
 # 4. ユーザーインターフェース (UI)
@@ -85,14 +119,15 @@ ui:
   # --- スタイル設定 ---
   styles:
     # 返答生成中の表示スタイル
-    # streaming: 逐次表示（タイプライター）
-    # spinner: 完了するまでグルグルを表示
-    # instant: 瞬時に表示（APIの仕様によるが、待機後にパッと出る）
+    # streaming: 逐次表示 (stream: true を使用します)
+    # spinner: 生成が完了するまでアニメーションを表示 -> 完了後に一括表示
+    # read: メッセージ送信直後に既読マーク表示 -> 生成完了後に一括表示
+    # instant: 生成が完了したら一括表示
     generation_style: "streaming"
 
-    # メッセージの吹き出しスタイル
-    # bubble: LINEのような吹き出しとアイコン
-    # flat: ChatGPTのようなアイコンと横並びのテキスト
+    # assistantメッセージの表示スタイル
+    # bubble: LINEのようにassistantの返答は吹き出し内に書かれます。
+    # flat: ChatGPTのようにassistantの返答はそのまま書かれます。
     message_style: "bubble"
 
   # --- 表示コンポーネント ---
@@ -122,8 +157,21 @@ ui:
   # --- ファイル出力 ---
   export:
     # ダウンロード時のファイル名プレフィックス
-    # 例: "chatlog" -> "chatlog_2023-10-01.json"
+    # 例: "chatlog" -> "chatlog_2026-01-01_12-00-00.json"
     filename_prefix: "chatlog"
+
+  # --- テーマ設定 ---
+  # theme:
+    # ベーステーマ: light, dark, system (ブラウザ設定に従う)
+    # base: "light"
+    # カスタムカラー（色名、#RRGGBB、rgb(r,g,b)形式で指定）
+    # 未指定の場合はChatGPT風のデフォルト色が使用されます
+    # colors:
+      # background: "#ffffff"             # 全体の背景色
+      # user_bubble: "#000000"            # ユーザー吹き出しの色
+      # user_bubble_text: "#ffffff"       # ユーザー吹き出しの文字色
+      # assistant_bubble: "#f7f7f8"       # アシスタント吹き出しの色
+      # assistant_bubble_text: "#374151"  # アシスタント吹き出しの文字色
 
 # ------------------------------------------
 # 5. システム・ログ・認証 (System)
@@ -133,14 +181,14 @@ system:
   security:
     password_auth_enabled: false
     # 認証サーバーURL
-    # url, headers, bodyで${PASSWORD}, ${PASSWORD_BASE64}, ${PARAM.<key>}のプレースホルダが利用可能です
-    auth_request: 
-      url: "https://api.your-server.com/auth"
-      method: "POST" # GET or POST
-      headers:
-        "Content-Type": "application/json"
-        # ボディ（JSON文字列としてパース可能な記述、または固定値）
-        body: '{"password": "${PASSWORD}", "base64password": "${PASSWORD_BASE64}"}'
+    # url, headers, bodyでプレースホルダが利用可能です
+    # auth_request: 
+      # url: "https://api.your-server.?com/auth"
+      # method: "POST" # GET or POST
+      # headers:
+      #   "Content-Type": "application/json"
+      # ボディ（JSON文字列としてパース可能な記述、または固定値）
+      # body: '{"password": "${PASSWORD}", "base64password": "${#PASSWORD}"}'
 
   # --- 操作ログ送信 ---
   logging:
@@ -153,13 +201,13 @@ system:
 
   # --- ハートビート (死活監視) ---
   heartbeat:
-    # url, headers, bodyで${PASSWORD}, ${PASSWORD_BASE64}, ${PARAM.<key>}のプレースホルダが利用可能です
+    # url, headers, bodyでプレースホルダが利用可能です
     enabled: false
-    interval_sec: 30
-    url: "https://api.your-server.com/heartbeat" # クエリパラメータも可能
-    method: "POST" # "GET" or "POST"
-    headers:
-      "Content-Type": "application/json"
-      "Password": "${PASSWORD}"
+    # interval_sec: 30
+    # url: "https://api.your-server.com/heartbeat" # クエリパラメータも可能
+    # method: "POST" # "GET" or "POST"
+    # headers:
+    #   "Content-Type": "application/json"
+    #   "Authorization": "Bearer ${PASSWORD}"
     # ボディ（JSON文字列としてパース可能な記述、または固定値）
-    body: '{"status": "alive"}'
+    # body: '{"status": "alive"}'

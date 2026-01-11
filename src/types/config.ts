@@ -20,13 +20,19 @@ export interface AppConfig {
     };
   };
   chat: {
-    initial_sender: 'user' | 'assistant';
+    start_role: 'user' | 'assistant';
     max_turns: number;
     on_limit_reached: {
       action: 'modal' | 'inline' | 'none';
       auto_exit_delay_sec: number;
     };
     exit_redirect_url: string;
+    prefill_messages?: {
+      role: 'user' | 'assistant';
+      text: string;
+    }[];
+    user_name?: string;
+    assistant_name?: string;
   };
   ui: {
     styles: {
@@ -44,6 +50,16 @@ export interface AppConfig {
     };
     export: {
       filename_prefix: string;
+    };
+    theme?: {
+      base?: 'light' | 'dark' | 'system';
+      colors?: {
+        background?: string;
+        user_bubble?: string;
+        user_bubble_text?: string;
+        assistant_bubble?: string;
+        assistant_bubble_text?: string;
+      };
     };
   };
   system: {

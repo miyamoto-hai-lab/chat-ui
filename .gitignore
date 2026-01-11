@@ -45,3 +45,6 @@ pnpm-workspace.yaml
 
 # local config file
 config.yaml
+
+public/*
+!public/README.md

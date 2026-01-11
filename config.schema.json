@@ -46,7 +46,7 @@
     "chat": {
       "type": "object",
       "properties": {
-        "initial_sender": { "type": "string", "enum": ["user", "assistant"] },
+        "start_role": { "type": "string", "enum": ["user", "assistant"] },
         "max_turns": { "type": "integer", "minimum": 1 },
         "on_limit_reached": {
           "type": "object",
@@ -56,9 +56,36 @@
           },
           "required": ["action", "auto_exit_delay_sec"]
         },
-        "exit_redirect_url": { "type": "string" }
+        "exit_redirect_url": { "type": "string" },
+        "prefill_messages": {
+          "type": "array",
+          "description": "初期表示されるメッセージのリスト",
+          "items": {
+            "type": "object",
+            "required": ["role", "text"],
+            "properties": {
+              "role": {
+                "type": "string",
+                "enum": ["user", "assistant"],
+                "description": "メッセージの送信者ロール"
+              },
+              "text": {
+                "type": "string",
+                "description": "メッセージの本文"
+              }
+            }
+          }
+        },
+        "user_name": {
+          "type": "string",
+          "description": "ユーザーの表示名（吹き出しの上に表示）"
+        },
+        "assistant_name": {
+          "type": "string",
+          "description": "アシスタントの表示名（吹き出しの上に表示）"
+        }
       },
-      "required": ["initial_sender", "max_turns", "on_limit_reached", "exit_redirect_url"]
+      "required": ["start_role", "max_turns", "on_limit_reached", "exit_redirect_url"]
     },
     "ui": {
       "type": "object",
@@ -94,6 +121,28 @@
             "filename_prefix": { "type": "string" }
           },
           "required": ["filename_prefix"]
+        },
+        "theme": {
+          "type": "object",
+          "description": "テーマ設定",
+          "properties": {
+            "base": {
+              "type": "string",
+              "enum": ["light", "dark", "system"],
+              "description": "ベーステーマ"
+            },
+            "colors": {
+              "type": "object",
+              "description": "カスタムカラー設定",
+              "properties": {
+                "background": { "type": "string", "description": "全体の背景色" },
+                "user_bubble": { "type": "string", "description": "ユーザー吹き出しの色" },
+                "user_bubble_text": { "type": "string", "description": "ユーザー吹き出しの文字色" },
+                "assistant_bubble": { "type": "string", "description": "アシスタント吹き出しの色" },
+                "assistant_bubble_text": { "type": "string", "description": "アシスタント吹き出しの文字色" }
+              }
+            }
+          }
         }
       },
       "required": ["styles", "components", "turn_counter", "export"]

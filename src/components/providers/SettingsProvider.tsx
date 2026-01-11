@@ -61,8 +61,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const refreshConfigDefaults = () => {
     const pwd = loadPassword();
     const variables = { 
-      PASSWORD: pwd, 
-      PASSWORD_BASE64: pwd ? btoa(pwd) : '' 
+      PASSWORD: pwd ?? '',
     };
 
     setSettings((prev) => ({

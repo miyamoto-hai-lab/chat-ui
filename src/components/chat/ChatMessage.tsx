@@ -1,6 +1,7 @@
 'use client';
 
 import { useSettings } from '@/components/providers/SettingsProvider';
+import { useAvatarImages } from '@/hooks/useAvatarImages';
 import { cn } from '@/lib/utils';
 import { Bot, Loader2, User } from 'lucide-react';
 
@@ -22,26 +23,46 @@ export function ChatMessage({
   showReadMark,
 }: ChatMessageProps) {
   const { settings } = useSettings();
+  const { userAvatarUrl, assistantAvatarUrl } = useAvatarImages();
+
+  // 設定から名前を取得
+  const userName = __APP_CONFIG__.chat.user_name || '';
+  const assistantName = __APP_CONFIG__.chat.assistant_name || '';
 
   if (role === 'system') {
     return null;
   }
 
   const isUser = role === 'user';
+  const displayName = isUser ? userName : assistantName;
 
   return (
     <div className={cn('flex gap-3 mb-4', isUser ? 'justify-end' : 'justify-start')}>
       {/* Assistantのアイコン（左側） */}
       {!isUser && (
-        <div className="flex-shrink-0">
-          <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
-            <Bot className="w-5 h-5 text-secondary-foreground" />
+        <div className="flex-shrink-0 self-start">
+          <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center overflow-hidden">
+            {assistantAvatarUrl ? (
+              <img src={assistantAvatarUrl} alt="Assistant" className="w-full h-full object-cover" />
+            ) : (
+              <Bot className="w-5 h-5 text-secondary-foreground" />
+            )}
           </div>
         </div>
       )}
 
       {/* メッセージコンテンツエリア */}
       <div className="flex flex-col max-w-[75%]">
+        {/* 名前表示（吹き出しの上） */}
+        {displayName && (
+          <span className={cn(
+            'text-xs text-muted-foreground mb-1',
+            isUser ? 'text-right' : 'text-left'
+          )}>
+            {displayName}
+          </span>
+        )}
+
         {/* 思考過程（Assistantの吹き出しの上） */}
         {!isUser && reasoning && settings.showThinking && (
           <details className="mb-2 text-sm text-muted-foreground">
@@ -117,9 +138,13 @@ export function ChatMessage({
 
       {/* ユーザーのアイコン（右側） */}
       {isUser && (
-        <div className="flex-shrink-0">
-          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-            <User className="w-5 h-5 text-primary-foreground" />
+        <div className="flex-shrink-0 self-start">
+          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center overflow-hidden">
+            {userAvatarUrl ? (
+              <img src={userAvatarUrl} alt="User" className="w-full h-full object-cover" />
+            ) : (
+              <User className="w-5 h-5 text-primary-foreground" />
+            )}
           </div>
         </div>
       )}

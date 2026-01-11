@@ -12,13 +12,7 @@ export async function sendHeartbeat(password?: string) {
   // replacePlaceholders handles missing variables by default or we can explicitly pass ""
   // But per requirements, we should pass it.
   const variables: Record<string, string> = {};
-  if (password) {
-      variables['PASSWORD'] = password;
-      variables['PASSWORD_BASE64'] = btoa(password);
-  } else {
-      variables['PASSWORD'] = '';
-      variables['PASSWORD_BASE64'] = '';
-  }
+  variables['PASSWORD'] = password ?? '';
 
   try {
     const url = replacePlaceholders(config.url, variables);
