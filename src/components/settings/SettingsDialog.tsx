@@ -3,17 +3,17 @@
 import { useSettings } from '@/components/providers/SettingsProvider';
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { PROVIDER_CONFIG } from '@/lib/provider-config';
-import { HelpCircle } from 'lucide-react';
+import { HelpCircle, Plus, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -234,6 +234,59 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   }))
                 }
               />
+            </div>
+          )}
+
+          {/* Thinking Tags設定 */}
+          {__APP_CONFIG__.llm.permissions.allow_change_config && (
+            <div className="space-y-2">
+              <Label>{t('settings.thinkingTags')}</Label>
+              <p className="text-sm text-muted-foreground">
+                {t('settings.thinkingTagsDescription')}
+              </p>
+              {localSettings.thinkingTags.map((tag, index) => (
+                <div key={index} className="flex gap-2 items-center">
+                  <Input
+                    placeholder={t('settings.startTag')}
+                    value={tag.start}
+                    onChange={(e) => {
+                      const newTags = [...localSettings.thinkingTags];
+                      newTags[index] = { ...newTags[index], start: e.target.value };
+                      setLocalSettings((prev) => ({ ...prev, thinkingTags: newTags }));
+                    }}
+                  />
+                  <Input
+                    placeholder={t('settings.endTag')}
+                    value={tag.end}
+                    onChange={(e) => {
+                      const newTags = [...localSettings.thinkingTags];
+                      newTags[index] = { ...newTags[index], end: e.target.value };
+                      setLocalSettings((prev) => ({ ...prev, thinkingTags: newTags }));
+                    }}
+                  />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      const newTags = localSettings.thinkingTags.filter((_, i) => i !== index);
+                      setLocalSettings((prev) => ({ ...prev, thinkingTags: newTags }));
+                    }}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const newTags = [...localSettings.thinkingTags, { start: '', end: '' }];
+                  setLocalSettings((prev) => ({ ...prev, thinkingTags: newTags }));
+                }}
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                {t('settings.addTag')}
+              </Button>
             </div>
           )}
 

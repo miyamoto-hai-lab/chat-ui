@@ -5,6 +5,7 @@ export interface ChatSettings {
   modelName: string;
   systemPrompt: string;
   showThinking: boolean;
+  thinkingTags: { start: string; end: string }[];
   language: string;
 }
 

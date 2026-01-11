@@ -27,7 +27,19 @@
             "model": { "type": "string" },
             "api_key": { "type": "string" },
             "system_prompt": { "type": "string" },
-            "enable_thinking": { "type": "boolean" }
+            "enable_thinking": { "type": "boolean" },
+            "thinking_tags": {
+              "type": "array",
+              "description": "思考過程として扱うタグのペア",
+              "items": {
+                "type": "object",
+                "required": ["start", "end"],
+                "properties": {
+                  "start": { "type": "string", "description": "開始タグ" },
+                  "end": { "type": "string", "description": "終了タグ" }
+                }
+              }
+            }
           },
           "required": ["provider", "model"]
         },

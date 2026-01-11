@@ -11,6 +11,7 @@ export const defaultSettings: ChatSettings = {
   modelName: __APP_CONFIG__.llm.defaults.model,
   systemPrompt: __APP_CONFIG__.llm.defaults.system_prompt || '',
   showThinking: __APP_CONFIG__.llm.defaults.enable_thinking || false,
+  thinkingTags: __APP_CONFIG__.llm.defaults.thinking_tags || [],
   language: 'ja',
 };
 
@@ -66,6 +67,9 @@ export function loadSettings(): ChatSettings {
     }
     if (!__APP_CONFIG__.llm.permissions.allow_change_config) {
       settings.systemPrompt = __APP_CONFIG__.llm.defaults.system_prompt || '';
+    }
+    if (!__APP_CONFIG__.llm.permissions.allow_change_config) {
+      settings.thinkingTags = __APP_CONFIG__.llm.defaults.thinking_tags || [];
     }
 
     return settings;

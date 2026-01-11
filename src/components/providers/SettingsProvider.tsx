@@ -43,6 +43,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       showThinking: __APP_CONFIG__.llm.permissions.allow_toggle_thinking
         ? loaded.showThinking ?? __APP_CONFIG__.llm.defaults.enable_thinking ?? false
         : __APP_CONFIG__.llm.defaults.enable_thinking ?? false,
+      thinkingTags: __APP_CONFIG__.llm.permissions.allow_change_config
+        ? loaded.thinkingTags ?? __APP_CONFIG__.llm.defaults.thinking_tags ?? []
+        : __APP_CONFIG__.llm.defaults.thinking_tags ?? [],
     };
   });
 
