@@ -13,8 +13,8 @@
   "chat": {
     "inputPlaceholder": "Type a message...",
     "send": "Send",
-    "turnCounter": "{{current}} / {{max}}",
-    "turnCounterNoLimit": "{{current}}",
+    "turnCounter": "Turn Count: {{current}} / {{max}}",
+    "turnCounterNoLimit": "Turn Count: {{current}}",
     "limitReached": "Conversation turn limit reached",
     "limitReachedTitle": "Conversation Ended",
     "limitReachedBody": "Turn limit of {{max}} reached.\nPlease click the \"Exit Chat\" button below to proceed.",

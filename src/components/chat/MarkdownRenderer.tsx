@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { memo } from 'react';
 import type { Components } from 'react-markdown';
 import ReactMarkdown from 'react-markdown';
+import remarkBreaks from 'remark-breaks';
 import remarkGfm from 'remark-gfm';
 
 interface MarkdownRendererProps {
@@ -48,7 +49,7 @@ const MarkdownComponents: Components = {
   ),
   // Typography
   p: ({ node, ...props }) => (
-    <p className="my-2 leading-relaxed whitespace-pre-wrap break-words last:mb-0 first:mt-0" {...props} />
+    <p className="my-2 leading-relaxed break-words last:mb-0 first:mt-0" {...props} />
   ),
   ul: ({ node, ...props }) => (
     <ul className="list-disc pl-6 my-2 space-y-1" {...props} />
@@ -80,7 +81,7 @@ function MarkdownRendererBase({ content, isStreaming, className }: MarkdownRende
   return (
     <div className={cn("markdown-content", className)}>
       <ReactMarkdown 
-        remarkPlugins={[remarkGfm]}
+        remarkPlugins={[remarkGfm, remarkBreaks]}
         components={MarkdownComponents}
       >
         {content}
