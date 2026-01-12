@@ -125,6 +125,7 @@
   html,
   body {
     @apply bg-background text-foreground h-full;
+    padding-top: env(safe-area-inset-top);
   }
 }
 

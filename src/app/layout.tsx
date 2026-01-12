@@ -18,10 +18,33 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
-export const metadata: Metadata = {
-  title: __APP_CONFIG__.app.title || 'Chat UI',
-  description: __APP_CONFIG__.app.description || '',
-};
+// メタデータ生成関数（動的な設定値を反映するため）
+export async function generateMetadata(): Promise<Metadata> {
+  const title = __APP_CONFIG__.app.title || 'Chat UI';
+  const description = __APP_CONFIG__.app.description || '';
+
+  return {
+    title: title,
+    description: description,
+    manifest: '/manifest.webmanifest', // Next.jsが生成するパス
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: 'black-translucent',
+      title: title,
+    },
+    // アイコン設定
+    // favicon.pngが存在する場合はそれを優先的に使用（iOS含む）
+    icons: {
+      icon: [
+        { url: '/favicon.png', type: 'image/png' },
+        { url: '/favicon.ico', type: 'image/x-icon' },
+      ],
+      apple: [
+        { url: '/favicon.png', type: 'image/png' },
+      ],
+    },
+  };
+}
 
 export default function RootLayout({
   children,
