@@ -46,6 +46,7 @@ export default function Home() {
     const exportMessages = messages.map((msg) => ({
       created_at: msg.createdAt ? toLocalISOString(msg.createdAt) : null,
       role: msg.role,
+      reasoning: msg.reasoning,
       text: msg.content,
       is_prefilled: msg.isPrefilled ?? false,
       id: msg.id,

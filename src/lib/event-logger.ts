@@ -68,10 +68,12 @@ export function logKeyInput(inputValue: string): void {
 export function logChatMessage(
   role: 'user' | 'assistant',
   content: string,
-  turnNumber: number
+  turnNumber: number,
+  reasoning?: string
 ): void {
   logEvent('CHAT_MESSAGE', {
     role,
+    reasoning,
     content,
     turnNumber,
   });

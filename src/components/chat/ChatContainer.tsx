@@ -3,12 +3,12 @@
 import { useSettings } from '@/components/providers/SettingsProvider';
 import { Button } from '@/components/ui/button';
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChatService } from '@/lib/chat-service';
@@ -140,7 +140,14 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
         };
         
         setMessages((prev) => [...prev, assistantMessage]);
-        logChatMessage('assistant', assistantMessage.content, currentTurns + 1);
+        
+        // 【修正】第4引数に reasoning を渡すように変更
+        logChatMessage(
+            'assistant', 
+            assistantMessage.content, 
+            currentTurns + 1, 
+            assistantMessage.reasoning
+        );
         
       } catch (err) {
         if (err instanceof Error && err.name === 'AbortError') {
@@ -249,7 +256,6 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
           </DialogContent>
         </Dialog>
 
-        {/* アプリ説明 */}
         {/* アプリ説明 */}
         {showDescription && (
           <MarkdownRenderer

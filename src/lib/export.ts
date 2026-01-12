@@ -34,6 +34,7 @@ export function exportChatHistory(messages: Message[], filename: string): void {
       exportedAt: new Date().toISOString(),
       messages: messages.map((m) => ({
         role: m.role,
+        reasoning: (m as any).reasoning || '',
         content: (m as any).content || '',
         id: m.id,
       })),

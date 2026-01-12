@@ -156,15 +156,16 @@ If `system.security.password_auth_enabled: true`, an `Authorization` header is i
 **`data` content per event:**
 
 *   **`CHAT_MESSAGE`** (When message is sent/received):
-    ```json
+    ```jsonc
     {
       "role": "user",       // "user" or "assistant"
+      "reasoning": "Greet to user.", // Thinking content
       "content": "Hello",   // Message content
       "turnNumber": 1       // Turn number (starts from 1)
     }
     ```
 *   **`KEY_INPUT`** (When typing in the input area):
-    ```json
+    ```jsonc
     {
       "inputValue": "He",   // Current value of the input area
       "inputLength": 2      // Character count
@@ -192,8 +193,8 @@ body: '{"status": "alive", "user": "${id}"}' # Write as JSON string
 
 You can override the default avatar icons by placing image files with specific names in the `public` directory.
 
-*   **User Avatar**: `user_avatar.png` (or `jpg`, `svg`, `gif`, `webp`, etc.)
-*   **Assistant Avatar**: `assistant_avatar.png` (or `jpg`, `svg`, `gif`, `webp`, etc.)
+*   **User Avatar**: `user_avatar.png` (or `jpg`, `jpeg`, `gif`, `webp`, `svg`, `ico`, `avif`)
+*   **Assistant Avatar**: `assistant_avatar.png` (or `jpg`, `jpeg`, `gif`, `webp`, `svg`, `ico`, `avif`)
 
 These are automatically detected and applied at build time. If files do not exist, default icons are used.
 
