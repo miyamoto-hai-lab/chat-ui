@@ -108,14 +108,21 @@ export class ChatService {
     const decoder = new TextDecoder();
     let accumulatedReasoning = '';
     let filterState = createInitialState();
+    
+    // 【修正】バッファ変数を追加
+    let streamBuffer = '';
 
     try {
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n');
+        // 【修正】新しいデータをバッファに追加してから処理
+        streamBuffer += decoder.decode(value, { stream: true });
+        const lines = streamBuffer.split('\n');
+        
+        // 【修正】最後の要素は不完全な行の可能性があるため、バッファに戻して次回に持ち越す
+        streamBuffer = lines.pop() || '';
 
         for (const line of lines) {
           if (line.startsWith('data: ')) {
@@ -140,7 +147,7 @@ export class ChatService {
               const combinedReasoning = accumulatedReasoning + (filterState.streamingReasoning ? '\n' + filterState.streamingReasoning : '');
               onUpdate(filterState.displayedContent, combinedReasoning.trim() || undefined);
             } catch {
-              // Ignore parse errors
+              // Ignore parse errors (which should be rare now with proper buffering)
             }
           }
         }
@@ -179,18 +186,12 @@ export class ChatService {
     }
 
     // Construct URL with API key
-    // Base URL should be like https://generativelanguage.googleapis.com/v1beta/models/
-    // We append {model}:{method}
     
     const providerConfig = PROVIDER_CONFIG['gemini'];
     let baseUrl = settings.apiServerUrl || providerConfig.defaultUrl;
     if (!baseUrl.endsWith('/')) {
       baseUrl += '/';
     }
-    
-    // If the user entered a full URL including the model, we should probably respect it if it matches our expectations,
-    // but the requirement is to construct it.
-    // The settings dialog trims it to .../models/, so we assume that format.
     
     const modelName = settings.modelName || providerConfig.defaultModel;
     const method = __APP_CONFIG__.ui.styles.generation_style === 'streaming' ? 'streamGenerateContent' : 'generateContent';
@@ -376,13 +377,20 @@ export class ChatService {
     const decoder = new TextDecoder();
     let filterState = createInitialState();
 
+    // 【修正】バッファ変数を追加
+    let streamBuffer = '';
+
     try {
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n');
+        // 【修正】新しいデータをバッファに追加してから処理
+        streamBuffer += decoder.decode(value, { stream: true });
+        const lines = streamBuffer.split('\n');
+        
+        // 【修正】最後の要素は不完全な行の可能性があるため、バッファに戻して次回に持ち越す
+        streamBuffer = lines.pop() || '';
 
         for (const line of lines) {
             if (line.startsWith('event: ')) {

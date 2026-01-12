@@ -159,15 +159,16 @@ URLやリクエストボディなど、一部の設定値において `${変数�
 **イベントごとの `data` の内容:**
 
 *   **`CHAT_MESSAGE`** (メッセージ送信/受信時):
-    ```json
+    ```jsonc
     {
       "role": "user",       // "user" または "assistant"
+      "reasoning": "ユーザーにあいさつを行う", // 思考過程
       "content": "こんにちは", // メッセージ本文
       "turnNumber": 1       // ターン数 (1から開始)
     }
     ```
 *   **`KEY_INPUT`** (テキスト入力エリアへの入力時):
-    ```json
+    ```jsonc
     {
       "inputValue": "こんに", // 入力エリアの現在の値
       "inputLength": 3      // 文字数
@@ -195,8 +196,8 @@ body: '{"status": "alive", "user": "${id}"}' # JSON文字列として記述
 
 `public` ディレクトリに以下の名前で画像ファイルを置くことで、デフォルトのアバターアイコンを上書きできます。
 
-*   **ユーザーアバター**: `user_avatar.png` (または `jpg`, `svg`, `gif`, `webp` 等)
-*   **アシスタントアバター**: `assistant_avatar.png` (または `jpg`, `svg`, `gif`, `webp` 等)
+*   **ユーザーアバター**: `user_avatar.png` (または `jpg`, `jpeg`, `gif`, `webp`, `svg`, `ico`, `avif`)
+*   **アシスタントアバター**: `assistant_avatar.png` (または `jpg`, `jpeg`, `gif`, `webp`, `svg`, `ico`, `avif`)
 
 ビルド時に自動的に検出され、適用されます。ファイルが存在しない場合、デフォルトのアイコンが表示されます。
 
