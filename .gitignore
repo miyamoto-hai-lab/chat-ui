@@ -44,7 +44,7 @@ next-env.d.ts
 pnpm-workspace.yaml
 
 # local config file
-config.yaml
+# config.yaml
 
 public/*
 !public/README.md

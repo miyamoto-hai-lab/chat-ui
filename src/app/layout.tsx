@@ -22,25 +22,26 @@ const geistMono = Geist_Mono({
 export async function generateMetadata(): Promise<Metadata> {
   const title = __APP_CONFIG__.app.title || 'Chat UI';
   const description = __APP_CONFIG__.app.description || '';
+  const basePath = __APP_CONFIG__.base_path && __APP_CONFIG__.base_path !== '/' ? __APP_CONFIG__.base_path : '';
 
   return {
     title: title,
     description: description,
-    manifest: '/manifest.webmanifest', // Next.jsが生成するパス
+    manifest: `${basePath}/manifest.webmanifest`, // Next.jsが生成するパス
     appleWebApp: {
       capable: true,
       statusBarStyle: 'black-translucent',
       title: title,
     },
     // アイコン設定
-    // favicon.pngが存在する場合はそれを優先的に使用（iOS含む）
+    // base_pathを考慮してパスを設定
     icons: {
       icon: [
-        { url: '/favicon.png', type: 'image/png' },
-        { url: '/favicon.ico', type: 'image/x-icon' },
+        { url: `${basePath}/favicon.png`, type: 'image/png' },
+        { url: `${basePath}/favicon.ico`, type: 'image/x-icon' },
       ],
       apple: [
-        { url: '/favicon.png', type: 'image/png' },
+        { url: `${basePath}/favicon.png`, type: 'image/png' },
       ],
     },
   };

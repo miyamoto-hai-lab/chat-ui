@@ -124,7 +124,12 @@
         "export": {
           "type": "object",
           "properties": {
-            "filename_prefix": { "type": "string" }
+            "filename_prefix": { "type": "string" },
+            "include_settings": { 
+              "type": "boolean",
+              "description": "エクスポートデータに現在のllm設定を含めるかどうか",
+              "default": false
+            }
           },
           "required": ["filename_prefix"]
         },
