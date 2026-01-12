@@ -22,6 +22,7 @@ import { useTranslation } from 'react-i18next';
 import { ChatInput } from './ChatInput';
 import { ChatMessage as ChatMessageComponent } from './ChatMessage';
 import { ChatTurnCounter } from './ChatTurnCounter';
+import { MarkdownRenderer } from './MarkdownRenderer';
 
 export interface ChatContainerHandle {
   setMessages: (messages: ChatMessage[]) => void;
@@ -249,11 +250,11 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
         </Dialog>
 
         {/* アプリ説明 */}
+        {/* アプリ説明 */}
         {showDescription && (
-          <div
+          <MarkdownRenderer
             className="p-4 border-b bg-muted/30"
-            // biome-ignore lint/security/noDangerouslySetInnerHtml: 環境変数から設定されたHTMLを表示
-            dangerouslySetInnerHTML={{ __html: description }}
+            content={description}
           />
         )}
 

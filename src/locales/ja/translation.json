@@ -13,8 +13,8 @@
   "chat": {
     "inputPlaceholder": "メッセージを入力...",
     "send": "送信",
-    "turnCounter": "{{current}} / {{max}}",
-    "turnCounterNoLimit": "{{current}}",
+    "turnCounter": "会話ターン数: {{current}} / {{max}}",
+    "turnCounterNoLimit": "会話ターン数: {{current}}",
     "limitReached": "会話のターン数制限に達しました",
     "limitReachedTitle": "会話終了です",
     "limitReachedBody": "ターン数が{{max}}回に達しました。\n以下の「チャットから退出」ボタンを押して次に進んでください。",
