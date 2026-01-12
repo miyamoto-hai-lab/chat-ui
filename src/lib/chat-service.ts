@@ -1,3 +1,4 @@
+import { replacePlaceholders } from '@/lib/placeholder';
 import { PROVIDER_CONFIG } from '@/lib/provider-config';
 import { createInitialState, finalizeStreaming, processStreamingChunk } from '@/lib/thinking-tag-filter';
 import type { ChatMessage, ChatSettings } from '@/types/chat';
@@ -18,20 +19,32 @@ export class ChatService {
     onUpdate,
     signal,
   }: ChatRequestOptions): Promise<void> {
-    const { provider } = settings;
+    const variables = {
+      PASSWORD: password || '',
+    };
+
+    const processedSettings: ChatSettings = {
+      ...settings,
+      apiKey: replacePlaceholders(settings.apiKey || '', variables),
+      apiServerUrl: replacePlaceholders(settings.apiServerUrl || '', variables),
+      systemPrompt: replacePlaceholders(settings.systemPrompt || '', variables),
+      modelName: replacePlaceholders(settings.modelName || '', variables),
+    };
+
+    const { provider } = processedSettings;
 
     switch (provider) {
       case 'gemini':
-        await this.sendGeminiRequest({ messages, settings, password, onUpdate, signal });
+        await this.sendGeminiRequest({ messages, settings: processedSettings, password, onUpdate, signal });
         break;
       case 'anthropic':
-        await this.sendAnthropicRequest({ messages, settings, password, onUpdate, signal });
+        await this.sendAnthropicRequest({ messages, settings: processedSettings, password, onUpdate, signal });
         break;
       case 'grok':
       case 'deepseek':
       case 'openai':
       default:
-        await this.sendOpenAICompatibleRequest({ messages, settings, password, onUpdate, signal });
+        await this.sendOpenAICompatibleRequest({ messages, settings: processedSettings, password, onUpdate, signal });
         break;
     }
   }

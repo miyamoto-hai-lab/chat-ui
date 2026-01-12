@@ -36,7 +36,9 @@
     "startTag": "開始タグ",
     "endTag": "終了タグ",
     "addTag": "タグを追加",
-    "language": "言語"
+    "language": "言語",
+    "resetToDefaults": "デフォルト設定に戻す",
+    "confirmReset": "本当に設定をリセットしてもよろしいですか？\nすべての設定がデフォルトに戻ります。"
   },
   "password": {
     "title": "パスワード認証",

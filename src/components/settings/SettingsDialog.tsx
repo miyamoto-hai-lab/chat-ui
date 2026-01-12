@@ -1,5 +1,8 @@
 'use client';
 
+import { HelpCircle, Plus, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSettings } from '@/components/providers/SettingsProvider';
 import { Button } from '@/components/ui/button';
 import {
@@ -13,9 +16,6 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { PROVIDER_CONFIG } from '@/lib/provider-config';
-import { HelpCircle, Plus, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 
 interface SettingsDialogProps {
   open: boolean;
@@ -43,7 +43,7 @@ function SimpleTooltip({ children, content }: { children: React.ReactNode; conte
 
 export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const { t, i18n } = useTranslation();
-  const { settings, updateSettings } = useSettings();
+  const { settings, updateSettings, resetSettings } = useSettings();
   
   const [localSettings, setLocalSettings] = useState(settings);
   const [apiKeyError, setApiKeyError] = useState(false);
@@ -314,11 +314,24 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
         </div>
 
         {/* ボタン */}
-        <div className="flex justify-end gap-2 mt-4">
-          <Button variant="outline" onClick={handleCancel}>
-            {t('common.cancel')}
+        <div className="flex justify-between items-center mt-4 pt-4 border-t">
+          <Button
+            variant="destructive"
+            onClick={() => {
+              if (window.confirm(t('settings.confirmReset') || '本当に設定をリセットしてもよろしいですか？\nすべての設定がデフォルトに戻ります。')) {
+                resetSettings();
+                onOpenChange(false);
+              }
+            }}
+          >
+            {t('settings.resetToDefaults') || 'デフォルト設定に戻す'}
           </Button>
-          <Button onClick={handleSave}>{t('common.save')}</Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={handleCancel}>
+              {t('common.cancel')}
+            </Button>
+            <Button onClick={handleSave}>{t('common.save')}</Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
