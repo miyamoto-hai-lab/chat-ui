@@ -15,6 +15,7 @@ export interface ChatMessage {
   content: string;
   reasoning?: string;
   createdAt?: Date;
+  isPrefilled?: boolean;
 }
 
 export type ResponseMode = 'streaming' | 'spinner' | 'read' | 'instant';

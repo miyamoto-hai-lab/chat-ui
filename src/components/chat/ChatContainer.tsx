@@ -3,12 +3,12 @@
 import { useSettings } from '@/components/providers/SettingsProvider';
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChatService } from '@/lib/chat-service';
@@ -25,6 +25,7 @@ import { ChatTurnCounter } from './ChatTurnCounter';
 
 export interface ChatContainerHandle {
   setMessages: (messages: ChatMessage[]) => void;
+  getContainerState: () => { messages: ChatMessage[]; currentTurns: number };
 }
 
 interface ChatContainerProps {
@@ -49,6 +50,7 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
           role: msg.role,
           content: msg.text,
           createdAt: new Date(),
+          isPrefilled: true,
         }));
       }
       return [];
@@ -61,11 +63,21 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
     const accumulatedRef = useRef({ content: '', reasoning: '' });
     const hasInitialized = useRef(false);
 
-    useImperativeHandle(ref, () => ({
-      setMessages: (newMessages: ChatMessage[]) => {
-        setMessages(newMessages);
-      },
-    }));
+    useImperativeHandle(
+      ref,
+      () => ({
+        setMessages: (newMessages: ChatMessage[]) => {
+          setMessages(newMessages);
+        },
+        getContainerState: () => ({
+          messages,
+          currentTurns: Math.floor(
+            messages.filter((m) => m.role !== 'system').length / 2
+          ),
+        }),
+      }),
+      [messages]
+    );
 
     // スクロール処理
     const scrollToBottom = useCallback(() => {

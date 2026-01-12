@@ -54,6 +54,7 @@ export interface AppConfig {
     };
     export: {
       filename_prefix: string;
+      include_settings?: boolean;
     };
     theme?: {
       base?: 'light' | 'dark' | 'system';

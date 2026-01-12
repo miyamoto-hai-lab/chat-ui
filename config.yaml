@@ -164,6 +164,9 @@ ui:
     # ダウンロード時のファイル名プレフィックス
     # 例: "chatlog" -> "chatlog_2026-01-01_12-00-00.json"
     filename_prefix: "chatlog"
+    # エクスポートするログファイルにllm設定を含めるか
+    # 一般公開時はfalseにすることをお勧めします。
+    include_settings: true
 
   # --- テーマ設定 ---
   # theme:
