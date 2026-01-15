@@ -40,9 +40,18 @@ app:
   # ブラウザのタブやヘッダーに表示されるタイトル
   title: "Chat UI"
   
-  # 画面に表示する説明文や被験者への指示（Markdown対応を想定）
-  # 空白の場合は表示されません
-  description: ""
+  # 画面に表示する説明文や被験者への指示（Markdown・テーブル記法対応）
+  # contentsではプレースホルダが利用可能です
+  description: 
+    contents: |
+      ## Description Area
+      画面に表示する説明文やユーザへの指示を記載して表示できます。
+      **Markdown**にも対応しています。
+      プレースホルダにも対応。クエリパラメータ `q`をつけてアクセスするとここに表示されます： ${q}
+    # position: "top"  # "top" | "bottom" | "left" | "right" (モバイル環境ではleft, rightはtopに置き換えられます)
+    # max_height: "12rem"  # top/buttom時の最大高さ (例: "12rem", "30vh", "200px")
+    # width: "16rem" # left/right時の幅 (例: "16rem", "250px", "30%")
+    # style: "fixed" # "fixed" | "floating" (left/right時のみ有効) (モバイル環境ではfixed固定となります)
 
 # ------------------------------------------
 # 2. LLM設定 (LLM)
@@ -84,20 +93,19 @@ chat:
 
   # 表示名（アバターの横、吹き出しの上に表示）
   # 空文字または未定義の場合は名前を表示しません
-  # user_name: "あなた"
-  # assistant_name: "アシスタント"
+  user_name: "あなた"
+  assistant_name: "アシスタント"
 
   # 初期メッセージ
   # ユーザがページを開いた時にあらかじめ表示され、このメッセージの後から対話がスタートします
-  # prefill_messages:
-  # - role: "user"
-  #   text: "こんにちは！"
-  # - role: "assistant"
-  #   text: "こんにちは！何かお手伝いできることはありますか？"
+  prefill_messages:
+  - role: "assistant"
+    reasoning: "ユーザーに丁寧に挨拶し、用件を伺う。"
+    text: "こんにちは！何かお手伝いできることはありますか？"
 
   # 最大ターン数 (0: 無制限, ユーザとLLMの発話1回ずつで1ターンです)
   # prefill_messagesも含めたターン数を設定してください。
-  max_turns: 0
+  max_turns: 15
 
   # 最大ターン到達時の挙動 (Completion Behavior)
   on_limit_reached:
@@ -106,11 +114,15 @@ chat:
     # inline: チャットの最後にメッセージと退出ボタンを表示
     # none: 何も表示しない（会話だけ止まる）
     action: "modal"
+
+    # action: "modal"時の最後のメッセージ到着後からモーダル表示までの遅延時間
+    # 長くすることでユーザが最後のメッセージを読みやすくなります。
+    # modal_delay_sec: 1
     
     # 自動退出（秒数）
     # 0: 自動退出しない
     # n: n秒後に指定のリダイレクト先へ、またはタブを閉じる等の処理
-    auto_exit_delay_sec: 0
+    auto_exit_delay_sec: 5
   
   # 退出時のリダイレクト先URL（空の場合はChat UIを再読み込み）
   # プレースホルダが利用可能です
@@ -147,17 +159,32 @@ ui:
     allow_import: true
     allow_export: true
 
+    # 返答文の候補を表示できます。
+    candidates:
+      contents:
+        - "こんにちは！" # 表示する返答候補
+        - "自己紹介して"
+        - "GitHub Organizationのプランごとの違いをMarkdownやテーブルを用いて分かりやすく説明して" # 長い候補は省略して表示されます
+      show_turn: 0 # 0ターン目から表示を開始
+      hide_turn: 5 # 5ターン目で表示を終了。以後表示しない。
+      before_show_text: "まだ候補はありません" # show_turnより前の場合に表示
+      after_hide_text: "以降候補は表示されません" # hide_turn以降の場合に表示
+      # 使用された候補をリストから削除したり末尾に移動させたりできます
+      # used_contents_behavior: "remove" #  # "none" | "move_to_end" | "remove"
+
+
+
   # --- ターン数の表示 ---
   turn_counter:
     # 表示形式
     # hidden: 表示なし
     # fraction: "n / N" 形式 (例: 5/10)
-    # custom: "n / 任意の文字列" 形式
+    # custom: "n{任意の文字列}" 形式
     style: "fraction"
     
     # styleが 'custom' の場合に使用されるサフィックス
-    # 例: "/ 10 (上限)" と設定すると "5 / 10 (上限)" と表示
-    # custom_label: ""
+    # 例: " / 10 (上限)" と設定すると "5 / 10 (上限)" と表示
+    custom_suffix: "/ 15 (上限)"
 
   # --- ファイル出力 ---
   export:
@@ -205,6 +232,7 @@ system:
     
     # 送信するイベント（配列で複数指定）
     # options: KEY_INPUT, CHAT_MESSAGE
+    # イベントが指定されていない場合は endpoint_url が指定されていても操作ログは送信されません。
     target_events: []
 
   # --- ハートビート (死活監視) ---
