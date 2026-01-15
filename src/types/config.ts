@@ -12,6 +12,7 @@ export interface AppConfig {
       position?: 'top' | 'bottom' | 'left' | 'right';
       max_height?: string;
       width?: string;
+      style?: 'fixed' | 'floating';
     };
   };
   llm: {

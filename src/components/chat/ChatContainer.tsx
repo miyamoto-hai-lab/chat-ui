@@ -260,6 +260,10 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
         ? (__APP_CONFIG__.app.description.width || '16rem')
         : '16rem';
 
+    const descStyle = typeof __APP_CONFIG__.app.description === 'object'
+        ? (__APP_CONFIG__.app.description.style || 'fixed')
+        : 'fixed';
+
     const description = replacePlaceholders(rawDescription, {
       PASSWORD: password ?? '',
     });
@@ -315,9 +319,35 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
           </ScrollArea>
         )}
 
-        <div className="flex flex-1 min-h-0 overflow-hidden">
-          {/* アプリ説明 (Left - Desktop only) */}
-          {showDescription && descPosition === 'left' && (
+        {/* アプリ説明 (Floating Left) */}
+        {showDescription && descPosition === 'left' && descStyle === 'floating' && (
+             <div className="hidden md:block absolute top-4 left-4 z-20 border bg-background/95 backdrop-blur shadow-lg rounded-lg overflow-hidden" 
+                  style={{ width: descWidth, maxHeight: descMaxHeight }}>
+               <ScrollArea className="h-full" style={{ maxHeight: descMaxHeight }}>
+                  <MarkdownRenderer
+                    className="p-4"
+                    content={description}
+                  />
+               </ScrollArea>
+             </div>
+        )}
+
+        {/* アプリ説明 (Floating Right) */}
+        {showDescription && descPosition === 'right' && descStyle === 'floating' && (
+             <div className="hidden md:block absolute top-4 right-4 z-20 border bg-background/95 backdrop-blur shadow-lg rounded-lg overflow-hidden" 
+                  style={{ width: descWidth, maxHeight: descMaxHeight }}>
+               <ScrollArea className="h-full" style={{ maxHeight: descMaxHeight }}>
+                  <MarkdownRenderer
+                    className="p-4"
+                    content={description}
+                  />
+               </ScrollArea>
+             </div>
+        )}
+
+        <div className="flex flex-1 min-h-0 overflow-hidden relative">
+          {/* アプリ説明 (Left - Desktop only - Fixed Mode) */}
+          {showDescription && descPosition === 'left' && descStyle === 'fixed' && (
             <div className="hidden md:block border-r bg-muted/30 flex-shrink-0 overflow-hidden" style={{ width: descWidth }}>
                <ScrollArea className="h-full">
                   <MarkdownRenderer
@@ -341,7 +371,7 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
                 </div>
              )}
 
-            {/* ターン数カウンター (Mobile or when floating is not suitable) - Left only on Desktop to avoid overlap? No, Logic changed below */}
+            {/* ターン数カウンター (Mobile or when floating is not suitable) */}
             {/* 
                 Desktop: Floating badge
                 Mobile: Fixed bar at top 
@@ -354,8 +384,8 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
 
             {/* Desktop View: Floating Badge */}
             {/* Position logic:
-                - If Description is LEFT: Badge goes top-RIGHT
-                - If Description is RIGHT: Badge goes top-LEFT
+                - If Description is LEFT (Fixed or Floating): Badge goes top-RIGHT
+                - If Description is RIGHT (Fixed or Floating): Badge goes top-LEFT
                 - If Description is TOP/BOTTOM/NONE: Badge goes top-LEFT
             */}
             <div className={cn(
@@ -461,8 +491,8 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
             </div>
          </div>
 
-          {/* アプリ説明 (Right - Desktop only) */}
-          {showDescription && descPosition === 'right' && (
+          {/* アプリ説明 (Right - Desktop only - Fixed Mode) */}
+          {showDescription && descPosition === 'right' && descStyle === 'fixed' && (
              <div className="hidden md:block border-l bg-muted/30 flex-shrink-0 overflow-hidden" style={{ width: descWidth }}>
                <ScrollArea className="h-full">
                   <MarkdownRenderer
