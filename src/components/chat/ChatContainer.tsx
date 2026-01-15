@@ -52,6 +52,7 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
           id: `prefill-${index}`,
           role: msg.role,
           content: msg.text,
+          reasoning: msg.reasoning,
           createdAt: new Date(),
           isPrefilled: true,
         }));

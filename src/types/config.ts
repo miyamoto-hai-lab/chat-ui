@@ -34,6 +34,7 @@ export interface AppConfig {
     prefill_messages?: {
       role: 'user' | 'assistant';
       text: string;
+      reasoning?: string;
     }[];
     user_name?: string;
     assistant_name?: string;

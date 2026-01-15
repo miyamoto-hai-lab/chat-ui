@@ -78,6 +78,10 @@
               "text": {
                 "type": "string",
                 "description": "メッセージの本文"
+              },
+              "reasoning": {
+                "type": "string",
+                "description": "思考過程のテキスト（オプション）"
               }
             }
           }
