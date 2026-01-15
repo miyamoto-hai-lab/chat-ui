@@ -179,7 +179,7 @@
           "type": "object",
           "properties": {
             "style": { "type": "string", "enum": ["hidden", "fraction", "custom"] },
-            "custom_label": { "type": "string" }
+            "custom_suffix": { "type": "string" }
           },
           "required": ["style"]
         },

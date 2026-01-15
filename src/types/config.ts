@@ -66,7 +66,7 @@ export interface AppConfig {
     };
     turn_counter: {
       style: 'hidden' | 'fraction' | 'custom';
-      custom_label?: string;
+      custom_suffix?: string;
     };
     export: {
       filename_prefix: string;
