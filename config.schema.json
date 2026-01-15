@@ -30,6 +30,12 @@
                   "default": "16rem",
                   "description": "サイドバー表示時の幅 (CSS値)"
                 },
+                "style": {
+                  "type": "string",
+                  "enum": ["fixed", "floating"],
+                  "default": "fixed",
+                  "description": "表示スタイル (fixed: サイドバー固定, floating: フローティング)"
+                },
                 "max_height": { 
                   "type": "string", 
                   "default": "12rem",
