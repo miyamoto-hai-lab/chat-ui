@@ -15,6 +15,7 @@ import { ChatService } from '@/lib/chat-service';
 import { logChatMessage } from '@/lib/event-logger';
 import { performAppExit } from '@/lib/navigation';
 import { replacePlaceholders } from '@/lib/placeholder';
+import { cn } from '@/lib/utils';
 import { type ChatMessage } from '@/types/chat';
 import { Loader2, LogOut } from 'lucide-react';
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
@@ -340,15 +341,37 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
                 </div>
              )}
 
-            {/* ターン数カウンター */}
-            <div className="p-4 border-b flex-shrink-0">
+            {/* ターン数カウンター (Mobile or when floating is not suitable) - Left only on Desktop to avoid overlap? No, Logic changed below */}
+            {/* 
+                Desktop: Floating badge
+                Mobile: Fixed bar at top 
+            */}
+            
+            {/* Mobile View: Fixed Bar at Top */}
+            <div className="block md:hidden p-4 border-b flex-shrink-0">
               <ChatTurnCounter currentTurns={currentTurns} />
             </div>
 
+            {/* Desktop View: Floating Badge */}
+            {/* Position logic:
+                - If Description is LEFT: Badge goes top-RIGHT
+                - If Description is RIGHT: Badge goes top-LEFT
+                - If Description is TOP/BOTTOM/NONE: Badge goes top-LEFT
+            */}
+            <div className={cn(
+                "hidden md:block absolute z-10 top-4",
+                descPosition === 'left' ? "right-6" : "left-6"
+            )}>
+                <ChatTurnCounter 
+                    currentTurns={currentTurns} 
+                    className="bg-background/80 backdrop-blur-sm border shadow-sm px-3 py-1 rounded-full text-sm font-medium" 
+                />
+            </div>
+
             {/* メッセージリスト */}
-            <div className="flex-1 min-h-0">
+            <div className="flex-1 min-h-0 relative"> {/* Added relative for absolute positioning context if needed, though Badge is in flex-col container which is relative */}
               <ScrollArea className="h-full" ref={scrollRef}>
-              <div className="max-w-4xl mx-auto p-4">
+              <div className="max-w-4xl mx-auto p-4 pt-10 md:pt-4"> {/* Add top padding on mobile only if needed, or rely on scroll area structure */}
                 {displayMessages.map((message, index) => {
                   // 最後のユーザーメッセージかどうか
                   const isLastUserMessage =
