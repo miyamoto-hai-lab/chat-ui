@@ -22,6 +22,7 @@ export default function Home() {
   const { settings, refreshConfigDefaults } = useSettings();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [isLimitReached, setIsLimitReached] = useState(false);
+  const [currentTurns, setCurrentTurns] = useState(0);
   const chatContainerRef = useRef<ChatContainerHandle>(null);
 
   // 認証時に設定のプレースホルダーを再評価（パスワードの適用）
@@ -171,12 +172,14 @@ export default function Home() {
         onImportClick={handleImport}
         isLimitReached={isLimitReached}
         password={password}
+        currentTurns={currentTurns}
       />
       <main className="flex-1 overflow-hidden min-h-0">
         <ChatContainer 
           ref={chatContainerRef}
           password={password} 
           onLimitChange={setIsLimitReached}
+          onCurrentTurnsChange={setCurrentTurns}
         />
       </main>
       <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />

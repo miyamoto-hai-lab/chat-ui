@@ -34,6 +34,7 @@ export interface AppConfig {
     prefill_messages?: {
       role: 'user' | 'assistant';
       text: string;
+      reasoning?: string;
     }[];
     user_name?: string;
     assistant_name?: string;
@@ -44,9 +45,14 @@ export interface AppConfig {
       message_style: 'bubble' | 'flat';
     };
     components: {
-      exit_button_visibility: 'always' | 'on_limit' | 'never';
+      exit_button_visibility: 'always' | 'on_limit' | 'never' | number;
       allow_import: boolean;
       allow_export: boolean;
+      candidates?: {
+        show_turn: number;
+        hide_turn: number;
+        contents: string[];
+      };
     };
     turn_counter: {
       style: 'hidden' | 'fraction' | 'custom';

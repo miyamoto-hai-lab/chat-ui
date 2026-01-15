@@ -78,6 +78,10 @@
               "text": {
                 "type": "string",
                 "description": "メッセージの本文"
+              },
+              "reasoning": {
+                "type": "string",
+                "description": "思考過程のテキスト（オプション）"
               }
             }
           }
@@ -107,9 +111,26 @@
         "components": {
           "type": "object",
           "properties": {
-            "exit_button_visibility": { "type": "string", "enum": ["always", "on_limit", "never"] },
+            "exit_button_visibility": {
+              "anyOf": [
+                { "type": "string", "enum": ["always", "on_limit", "never"] },
+                { "type": "integer", "minimum": 0 }
+              ]
+            },
             "allow_import": { "type": "boolean" },
-            "allow_export": { "type": "boolean" }
+            "allow_export": { "type": "boolean" },
+            "candidates": {
+              "type": "object",
+              "properties": {
+                "show_turn": { "type": "integer", "minimum": 0 },
+                "hide_turn": { "type": "integer", "minimum": 0 },
+                "contents": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                }
+              },
+              "required": ["show_turn", "hide_turn", "contents"]
+            }
           },
           "required": ["exit_button_visibility", "allow_import", "allow_export"]
         },
