@@ -3,12 +3,12 @@
 import { useSettings } from '@/components/providers/SettingsProvider';
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChatService } from '@/lib/chat-service';
@@ -32,10 +32,11 @@ export interface ChatContainerHandle {
 interface ChatContainerProps {
   password?: string;
   onLimitChange?: (isLimitReached: boolean) => void;
+  onCurrentTurnsChange?: (turns: number) => void;
 }
 
 export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>(
-  ({ password, onLimitChange }, ref) => {
+  ({ password, onLimitChange, onCurrentTurnsChange }, ref) => {
     const { t } = useTranslation();
     const { settings } = useSettings();
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -105,6 +106,11 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
       messages.filter((m) => m.role !== 'system').length / 2
     );
     const isLimitReached = __APP_CONFIG__.chat.max_turns > 0 && currentTurns >= __APP_CONFIG__.chat.max_turns;
+
+    // ターン数の変更を通知
+    useEffect(() => {
+      onCurrentTurnsChange?.(currentTurns);
+    }, [currentTurns, onCurrentTurnsChange]);
 
     // メッセージ送信の実行ロジック
     const executeSendMessage = useCallback(async (newMessages: ChatMessage[]) => {

@@ -12,9 +12,10 @@ interface ChatHeaderProps {
   onImportClick?: (file: File) => void;
   isLimitReached?: boolean;
   password?: string;
+  currentTurns?: number;
 }
 
-export function ChatHeader({ onSettingsClick, onExportClick, onImportClick, isLimitReached, password }: ChatHeaderProps) { // Added onImportClick
+export function ChatHeader({ onSettingsClick, onExportClick, onImportClick, isLimitReached, password, currentTurns }: ChatHeaderProps) { // Added onImportClick
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null); // Added useRef
 
@@ -35,9 +36,13 @@ export function ChatHeader({ onSettingsClick, onExportClick, onImportClick, isLi
 
   // 終了ボタンを表示するかどうか
   const showExitButton = (() => {
-    if (__APP_CONFIG__.ui.components.exit_button_visibility === 'never') return false;
-    if (__APP_CONFIG__.ui.components.exit_button_visibility === 'always') return true;
-    if (__APP_CONFIG__.ui.components.exit_button_visibility === 'on_limit') return !!isLimitReached;
+    const visibility = __APP_CONFIG__.ui.components.exit_button_visibility;
+    if (visibility === 'never') return false;
+    if (visibility === 'always') return true;
+    if (visibility === 'on_limit') return !!isLimitReached;
+    if (typeof visibility === 'number') {
+      return (currentTurns ?? 0) >= visibility;
+    }
     return true;
   })();
 

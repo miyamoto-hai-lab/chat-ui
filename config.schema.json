@@ -107,7 +107,12 @@
         "components": {
           "type": "object",
           "properties": {
-            "exit_button_visibility": { "type": "string", "enum": ["always", "on_limit", "never"] },
+            "exit_button_visibility": {
+              "anyOf": [
+                { "type": "string", "enum": ["always", "on_limit", "never"] },
+                { "type": "integer", "minimum": 0 }
+              ]
+            },
             "allow_import": { "type": "boolean" },
             "allow_export": { "type": "boolean" }
           },

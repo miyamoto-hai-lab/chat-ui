@@ -44,7 +44,7 @@ export interface AppConfig {
       message_style: 'bubble' | 'flat';
     };
     components: {
-      exit_button_visibility: 'always' | 'on_limit' | 'never';
+      exit_button_visibility: 'always' | 'on_limit' | 'never' | number;
       allow_import: boolean;
       allow_export: boolean;
     };
