@@ -3,12 +3,12 @@
 import { useSettings } from '@/components/providers/SettingsProvider';
 import { Button } from '@/components/ui/button';
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChatService } from '@/lib/chat-service';
@@ -125,21 +125,74 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
     // 現在表示すべき候補リスト（実際のレンダリングにはcandidatesステートを使用）
     const visibleCandidates = showCandidates ? candidates : [];
 
+    // 最後に選択された候補（送信時の挙動に使用）
+    const [lastSelectedCandidate, setLastSelectedCandidate] = useState<string | null>(null);
+
+    // Limit Reached時のカウントダウン
+    const [countDown, setCountDown] = useState<number | null>(null);
+    // モーダル表示制御用の状態
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // モーダル遅延と自動退出の制御
+    useEffect(() => {
+        if (!isLimitReached) {
+            setIsModalOpen(false);
+            setCountDown(null);
+            return;
+        }
+
+        const limitConfig = __APP_CONFIG__.chat.on_limit_reached;
+
+        // モーダル表示遅延
+        if (limitConfig.action === 'modal') {
+             const delaySec = limitConfig.modal_delay_sec ?? 1.0;
+             const timer = setTimeout(() => {
+                 setIsModalOpen(true);
+             }, delaySec * 1000);
+             return () => clearTimeout(timer);
+        } else {
+             // inlineの場合は即座には表示できないが、レンダリング条件で制御
+             // inline表示用のステートは特に設けていないが、必要なら追加検討
+        }
+
+    }, [isLimitReached]);
+
+    // カウントダウン処理
+    useEffect(() => {
+        const limitConfig = __APP_CONFIG__.chat.on_limit_reached;
+        if (isLimitReached && limitConfig.auto_exit_delay_sec > 0) {
+             if (countDown === null) {
+                setCountDown(limitConfig.auto_exit_delay_sec);
+             }
+
+             // 0.1秒ごとに更新して小数点対応
+             const intervalMs = 100;
+             const decrement = 0.1;
+             
+             const timer = setInterval(() => {
+                setCountDown((prev) => {
+                    if (prev === null) return limitConfig.auto_exit_delay_sec;
+                    const next = prev - decrement;
+                    // 浮動小数点の誤差を考慮して少し余裕を持つか、toFixedで管理
+                    if (next <= 0) {
+                        clearInterval(timer);
+                        performAppExit(password);
+                        return 0;
+                    }
+                    return next;
+                });
+             }, intervalMs);
+
+             return () => clearInterval(timer);
+        }
+    }, [isLimitReached, password, countDown]);
+
     // 候補選択ハンドラー
     const handleCandidateSelect = (text: string) => {
       // 入力をセット
       setInput(text);
-      
-      // 選択された候補を末尾に移動
-      setCandidates((prev) => {
-        const next = [...prev];
-        const index = next.indexOf(text);
-        if (index > -1) {
-          next.splice(index, 1);
-          next.push(text);
-        }
-        return next;
-      });
+      // 選択状態を保存
+      setLastSelectedCandidate(text);
     };
 
     // ターン数の変更を通知
@@ -239,6 +292,30 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
       setMessages(newMessages);
       logChatMessage('user', userMessage.content, currentTurns + 1);
       setInput('');
+
+      // 候補の更新ロジック (used_contents_behavior)
+      if (
+        candidatesConfig?.used_contents_behavior &&
+        candidatesConfig.used_contents_behavior !== 'none' &&
+        lastSelectedCandidate &&
+        input.includes(lastSelectedCandidate)
+      ) {
+        setCandidates((prev) => {
+          const next = [...prev];
+          const index = next.indexOf(lastSelectedCandidate);
+          
+          if (index > -1) {
+             if (candidatesConfig.used_contents_behavior === 'remove') {
+               next.splice(index, 1);
+             } else if (candidatesConfig.used_contents_behavior === 'move_to_end') {
+               next.splice(index, 1);
+               next.push(lastSelectedCandidate);
+             }
+          }
+          return next;
+        });
+      }
+      setLastSelectedCandidate(null);
       
       await executeSendMessage(newMessages);
     };
@@ -283,7 +360,7 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
     return (
       <div className="flex flex-col h-full relative">
         {/* ターン数制限到達時のポップアップ (modalモード) */}
-        <Dialog open={isLimitReached && __APP_CONFIG__.chat.on_limit_reached.action === 'modal'}>
+        <Dialog open={isModalOpen && __APP_CONFIG__.chat.on_limit_reached.action === 'modal'}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle className="text-center text-xl font-bold text-destructive">
@@ -306,6 +383,11 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
                 {t('chat.exitChat') || 'チャットから退出'}
               </Button>
             </DialogFooter>
+            {countDown !== null && countDown > 0 && (
+              <p className="text-center text-sm text-muted-foreground mt-2 font-mono">
+                {t('chat.autoExitMessage', { seconds: countDown.toFixed(1) }) || `${countDown.toFixed(1)}秒後に自動的に移動します...`}
+              </p>
+            )}
           </DialogContent>
         </Dialog>
 
@@ -361,7 +443,7 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
           <div className="flex flex-col flex-1 min-h-0 relative">
              {/* アプリ説明 (Left/Right Fallback on Mobile - render as Top) */}
              {showDescription && (descPosition === 'left' || descPosition === 'right') && (
-                <div className="md:hidden border-b bg-muted/30">
+                <div className="lg:hidden border-b bg-muted/30">
                   <ScrollArea style={{ maxHeight: descMaxHeight }}>
                     <MarkdownRenderer
                       className="p-4"
@@ -456,6 +538,37 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
                     エラーが発生しました: {error.message}
                   </div>
                 )}
+
+                {/* Inline Limit Reached Display */}
+                {isLimitReached && __APP_CONFIG__.chat.on_limit_reached.action === 'inline' && (
+                  <div className="mt-8 border-t-2 border-dashed pt-8 pb-4 animate-in fade-in slide-in-from-bottom-5">
+                    <div className="flex flex-col items-center justify-center space-y-4 text-center">
+                      <h3 className="text-lg font-bold text-destructive">
+                        {t('chat.limitReachedTitle') || '会話終了です'}
+                      </h3>
+                      <p className="text-muted-foreground whitespace-pre-wrap">
+                        {t('chat.limitReachedBody', { max: __APP_CONFIG__.chat.max_turns }) || 
+                         `ターン数が${__APP_CONFIG__.chat.max_turns}回に達しました。\n以下のボタンを押して次に進んでください。`}
+                      </p>
+                      
+                      <Button 
+                        variant="destructive" 
+                        size="lg"
+                        onClick={() => performAppExit(password)}
+                        className="animate-pulse"
+                      >
+                        <LogOut className="mr-2 h-5 w-5" />
+                        {t('chat.exitChat') || 'チャットから退出'}
+                      </Button>
+
+                      {countDown !== null && countDown > 0 && (
+                        <p className="text-sm font-medium text-muted-foreground font-mono">
+                          {t('chat.autoExitMessage', { seconds: countDown.toFixed(1) }) || `${countDown.toFixed(1)}秒後に自動的に移動します...`}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
               </ScrollArea>
             </div>
@@ -474,13 +587,27 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
             <div className="p-4 border-t bg-background flex-shrink-0">
               <div className="max-w-4xl mx-auto space-y-2">
                 {/* 候補バー (条件付き表示) */}
-                <CandidatesBar
-                  candidates={visibleCandidates}
-                  onSelect={handleCandidateSelect}
-                  className={showCandidates ? 'animate-in fade-in slide-in-from-bottom-2' : 'hidden'}
-                />
-                
-                <ChatInput
+            {showCandidates ? (
+              <CandidatesBar
+                candidates={visibleCandidates}
+                onSelect={handleCandidateSelect}
+                className="animate-in fade-in slide-in-from-bottom-2"
+              />
+            ) : (
+                candidatesConfig && !isLimitReached && (
+                  (currentTurns < candidatesConfig.show_turn && candidatesConfig.before_show_text) ? (
+                    <div className="flex items-center h-8 px-3 text-sm text-muted-foreground animate-in fade-in slide-in-from-bottom-2">
+                       {candidatesConfig.before_show_text}
+                    </div>
+                  ) : (currentTurns >= candidatesConfig.hide_turn && candidatesConfig.after_hide_text) ? (
+                    <div className="flex items-center h-8 px-3 text-sm text-muted-foreground animate-in fade-in slide-in-from-bottom-2">
+                       {candidatesConfig.after_hide_text}
+                   </div>
+                  ) : null
+                )
+            )}
+            
+            <ChatInput
                   input={input}
                   isLoading={isLoading}
                   isDisabled={isLimitReached}
@@ -493,7 +620,7 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
 
           {/* アプリ説明 (Right - Desktop only - Fixed Mode) */}
           {showDescription && descPosition === 'right' && descStyle === 'fixed' && (
-             <div className="hidden md:block border-l bg-muted/30 flex-shrink-0 overflow-hidden" style={{ width: descWidth }}>
+             <div className="hidden lg:block border-l bg-muted/30 flex-shrink-0 overflow-hidden" style={{ width: descWidth }}>
                <ScrollArea className="h-full">
                   <MarkdownRenderer
                     className="p-4"

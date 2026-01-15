@@ -19,7 +19,8 @@
     "limitReachedTitle": "会話終了です",
     "limitReachedBody": "ターン数が{{max}}回に達しました。\n以下の「チャットから退出」ボタンを押して次に進んでください。",
     "exitChat": "チャットから退出",
-    "assistant": "アシスタント"
+    "assistant": "アシスタント",
+    "autoExitMessage": "{{seconds}}秒後に自動的に移動します..."
   },
   "settings": {
     "title": "設定",

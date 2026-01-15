@@ -37,7 +37,8 @@ export function ChatTurnCounter({ currentTurns, className }: ChatTurnCounterProp
   // カスタム文字列の場合
   return (
     <div className={cn("text-sm text-muted-foreground", className)}>
-      {currentTurns} / {__APP_CONFIG__.ui.turn_counter.custom_label || __APP_CONFIG__.chat.max_turns}
+      {currentTurns}
+      {__APP_CONFIG__.ui.turn_counter.custom_suffix || ` / ${__APP_CONFIG__.chat.max_turns}`}
     </div>
   );
 }

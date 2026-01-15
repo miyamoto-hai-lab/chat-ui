@@ -35,6 +35,7 @@ export interface AppConfig {
     on_limit_reached: {
       action: 'modal' | 'inline' | 'none';
       auto_exit_delay_sec: number;
+      modal_delay_sec?: number;
     };
     exit_redirect_url: string;
     prefill_messages?: {
@@ -57,12 +58,15 @@ export interface AppConfig {
       candidates?: {
         show_turn: number;
         hide_turn: number;
+        before_show_text?: string;
+        after_hide_text?: string;
+        used_contents_behavior?: 'none' | 'move_to_end' | 'remove';
         contents: string[];
       };
     };
     turn_counter: {
       style: 'hidden' | 'fraction' | 'custom';
-      custom_label?: string;
+      custom_suffix?: string;
     };
     export: {
       filename_prefix: string;

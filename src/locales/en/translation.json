@@ -19,7 +19,8 @@
     "limitReachedTitle": "Conversation Ended",
     "limitReachedBody": "Turn limit of {{max}} reached.\nPlease click the \"Exit Chat\" button below to proceed.",
     "exitChat": "Exit Chat",
-    "assistant": "Assistant"
+    "assistant": "Assistant",
+    "autoExitMessage": "Automatically moving in {{seconds}} seconds..."
   },
   "settings": {
     "title": "Settings",

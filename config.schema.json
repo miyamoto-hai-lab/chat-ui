@@ -19,14 +19,18 @@
               "type": "object",
               "properties": {
                 "contents": { "type": "string", "description": "Markdownテキスト" },
-                "position": { 
-                  "type": "string", 
+                "contents": {
+                  "type": "string",
+                  "description": "説明文の内容 (Markdown format)。${PASSWORD}やURLクエリパラメータのプレースホルダーが使用可能。"
+                },
+                "position": {
+                  "type": "string",
                   "enum": ["top", "bottom", "left", "right"],
                   "default": "top",
                   "description": "表示位置"
                 },
-                "width": { 
-                  "type": "string", 
+                "width": {
+                  "type": "string",
                   "default": "16rem",
                   "description": "サイドバー表示時の幅 (CSS値)"
                 },
@@ -36,10 +40,10 @@
                   "default": "fixed",
                   "description": "表示スタイル (fixed: サイドバー固定, floating: フローティング)"
                 },
-                "max_height": { 
-                  "type": "string", 
+                "max_height": {
+                  "type": "string",
                   "default": "12rem",
-                  "description": "最大高さ (CSS値)"
+                  "description": "説明文の最大高さ (CSS値: px, rem, %, vhなど)"
                 }
               },
               "required": ["contents"]
@@ -91,7 +95,12 @@
           "type": "object",
           "properties": {
             "action": { "type": "string", "enum": ["modal", "inline", "none"] },
-            "auto_exit_delay_sec": { "type": "integer", "minimum": 0 }
+            "auto_exit_delay_sec": { "type": "number", "minimum": 0 },
+            "modal_delay_sec": {
+              "type": "number",
+              "default": 1.0,
+              "description": "モーダル表示までの遅延時間（秒）"
+            }
           },
           "required": ["action", "auto_exit_delay_sec"]
         },
@@ -157,12 +166,15 @@
               "properties": {
                 "show_turn": { "type": "integer", "minimum": 0 },
                 "hide_turn": { "type": "integer", "minimum": 0 },
+                "before_show_text": { "type": "string" },
+                "after_hide_text": { "type": "string" },
+                "used_contents_behavior": { "type": "string", "enum": ["none", "move_to_end", "remove"] },
                 "contents": {
                   "type": "array",
                   "items": { "type": "string" }
                 }
               },
-              "required": ["show_turn", "hide_turn", "contents"]
+              "required": ["contents"]
             }
           },
           "required": ["exit_button_visibility", "allow_import", "allow_export"]
@@ -171,7 +183,7 @@
           "type": "object",
           "properties": {
             "style": { "type": "string", "enum": ["hidden", "fraction", "custom"] },
-            "custom_label": { "type": "string" }
+            "custom_suffix": { "type": "string" }
           },
           "required": ["style"]
         },
