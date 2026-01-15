@@ -157,6 +157,9 @@
               "properties": {
                 "show_turn": { "type": "integer", "minimum": 0 },
                 "hide_turn": { "type": "integer", "minimum": 0 },
+                "before_show_text": { "type": "string" },
+                "after_hide_text": { "type": "string" },
+                "used_contents_behavior": { "type": "string", "enum": ["none", "move_to_end", "remove"] },
                 "contents": {
                   "type": "array",
                   "items": { "type": "string" }

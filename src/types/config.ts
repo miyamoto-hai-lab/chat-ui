@@ -57,6 +57,9 @@ export interface AppConfig {
       candidates?: {
         show_turn: number;
         hide_turn: number;
+        before_show_text?: string;
+        after_hide_text?: string;
+        used_contents_behavior?: 'none' | 'move_to_end' | 'remove';
         contents: string[];
       };
     };

@@ -125,21 +125,15 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
     // 現在表示すべき候補リスト（実際のレンダリングにはcandidatesステートを使用）
     const visibleCandidates = showCandidates ? candidates : [];
 
+    // 最後に選択された候補（送信時の挙動に使用）
+    const [lastSelectedCandidate, setLastSelectedCandidate] = useState<string | null>(null);
+
     // 候補選択ハンドラー
     const handleCandidateSelect = (text: string) => {
       // 入力をセット
       setInput(text);
-      
-      // 選択された候補を末尾に移動
-      setCandidates((prev) => {
-        const next = [...prev];
-        const index = next.indexOf(text);
-        if (index > -1) {
-          next.splice(index, 1);
-          next.push(text);
-        }
-        return next;
-      });
+      // 選択状態を保存
+      setLastSelectedCandidate(text);
     };
 
     // ターン数の変更を通知
@@ -239,6 +233,30 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
       setMessages(newMessages);
       logChatMessage('user', userMessage.content, currentTurns + 1);
       setInput('');
+
+      // 候補の更新ロジック (used_contents_behavior)
+      if (
+        candidatesConfig?.used_contents_behavior &&
+        candidatesConfig.used_contents_behavior !== 'none' &&
+        lastSelectedCandidate &&
+        input.includes(lastSelectedCandidate)
+      ) {
+        setCandidates((prev) => {
+          const next = [...prev];
+          const index = next.indexOf(lastSelectedCandidate);
+          
+          if (index > -1) {
+             if (candidatesConfig.used_contents_behavior === 'remove') {
+               next.splice(index, 1);
+             } else if (candidatesConfig.used_contents_behavior === 'move_to_end') {
+               next.splice(index, 1);
+               next.push(lastSelectedCandidate);
+             }
+          }
+          return next;
+        });
+      }
+      setLastSelectedCandidate(null);
       
       await executeSendMessage(newMessages);
     };
@@ -474,13 +492,27 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
             <div className="p-4 border-t bg-background flex-shrink-0">
               <div className="max-w-4xl mx-auto space-y-2">
                 {/* 候補バー (条件付き表示) */}
-                <CandidatesBar
-                  candidates={visibleCandidates}
-                  onSelect={handleCandidateSelect}
-                  className={showCandidates ? 'animate-in fade-in slide-in-from-bottom-2' : 'hidden'}
-                />
-                
-                <ChatInput
+            {showCandidates ? (
+              <CandidatesBar
+                candidates={visibleCandidates}
+                onSelect={handleCandidateSelect}
+                className="animate-in fade-in slide-in-from-bottom-2"
+              />
+            ) : (
+                candidatesConfig && !isLimitReached && (
+                  (currentTurns < candidatesConfig.show_turn && candidatesConfig.before_show_text) ? (
+                    <div className="flex items-center h-8 px-3 text-sm text-muted-foreground animate-in fade-in slide-in-from-bottom-2">
+                       {candidatesConfig.before_show_text}
+                    </div>
+                  ) : (currentTurns >= candidatesConfig.hide_turn && candidatesConfig.after_hide_text) ? (
+                    <div className="flex items-center h-8 px-3 text-sm text-muted-foreground animate-in fade-in slide-in-from-bottom-2">
+                       {candidatesConfig.after_hide_text}
+                   </div>
+                  ) : null
+                )
+            )}
+            
+            <ChatInput
                   input={input}
                   isLoading={isLoading}
                   isDisabled={isLimitReached}
