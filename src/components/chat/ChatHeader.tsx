@@ -48,7 +48,7 @@ export function ChatHeader({ onSettingsClick, onExportClick, onImportClick, isLi
 
   return (
     <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 max-w-screen-2xl items-center justify-between px-4">
+      <div className="flex h-14 w-full items-center justify-between px-4">
         <h1 className="text-xl font-semibold">{__APP_CONFIG__.app.title}</h1>
         
         <div className="flex items-center gap-2">

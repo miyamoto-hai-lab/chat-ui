@@ -3,12 +3,12 @@
 import { useSettings } from '@/components/providers/SettingsProvider';
 import { Button } from '@/components/ui/button';
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChatService } from '@/lib/chat-service';
@@ -443,7 +443,7 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
           <div className="flex flex-col flex-1 min-h-0 relative">
              {/* アプリ説明 (Left/Right Fallback on Mobile - render as Top) */}
              {showDescription && (descPosition === 'left' || descPosition === 'right') && (
-                <div className="md:hidden border-b bg-muted/30">
+                <div className="lg:hidden border-b bg-muted/30">
                   <ScrollArea style={{ maxHeight: descMaxHeight }}>
                     <MarkdownRenderer
                       className="p-4"
@@ -620,7 +620,7 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
 
           {/* アプリ説明 (Right - Desktop only - Fixed Mode) */}
           {showDescription && descPosition === 'right' && descStyle === 'fixed' && (
-             <div className="hidden md:block border-l bg-muted/30 flex-shrink-0 overflow-hidden" style={{ width: descWidth }}>
+             <div className="hidden lg:block border-l bg-muted/30 flex-shrink-0 overflow-hidden" style={{ width: descWidth }}>
                <ScrollArea className="h-full">
                   <MarkdownRenderer
                     className="p-4"
