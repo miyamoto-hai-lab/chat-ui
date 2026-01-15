@@ -19,6 +19,7 @@ import { type ChatMessage } from '@/types/chat';
 import { Loader2, LogOut } from 'lucide-react';
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { CandidatesBar } from './CandidatesBar';
 import { ChatInput } from './ChatInput';
 import { ChatMessage as ChatMessageComponent } from './ChatMessage';
 import { ChatTurnCounter } from './ChatTurnCounter';
@@ -63,7 +64,10 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
     const [streamingReasoning, setStreamingReasoning] = useState('');
     const abortControllerRef = useRef<AbortController | null>(null);
     const accumulatedRef = useRef({ content: '', reasoning: '' });
+
     const hasInitialized = useRef(false);
+
+
 
     useImperativeHandle(
       ref,
@@ -106,6 +110,41 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
       messages.filter((m) => m.role !== 'system').length / 2
     );
     const isLimitReached = __APP_CONFIG__.chat.max_turns > 0 && currentTurns >= __APP_CONFIG__.chat.max_turns;
+
+    // 候補リストの状態管理
+    const [candidates, setCandidates] = useState<string[]>(() => {
+      // Configから初期値を読み込み
+      return __APP_CONFIG__.ui.components.candidates?.contents || [];
+    });
+
+    // 候補の表示判定
+    const candidatesConfig = __APP_CONFIG__.ui.components.candidates;
+    const showCandidates = 
+      candidatesConfig &&
+      candidates.length > 0 &&
+      currentTurns >= candidatesConfig.show_turn &&
+      currentTurns < candidatesConfig.hide_turn &&
+      !isLimitReached;
+
+    // 現在表示すべき候補リスト（実際のレンダリングにはcandidatesステートを使用）
+    const visibleCandidates = showCandidates ? candidates : [];
+
+    // 候補選択ハンドラー
+    const handleCandidateSelect = (text: string) => {
+      // 入力をセット
+      setInput(text);
+      
+      // 選択された候補を末尾に移動
+      setCandidates((prev) => {
+        const next = [...prev];
+        const index = next.indexOf(text);
+        if (index > -1) {
+          next.splice(index, 1);
+          next.push(text);
+        }
+        return next;
+      });
+    };
 
     // ターン数の変更を通知
     useEffect(() => {
@@ -339,7 +378,14 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
 
         {/* 入力フォーム */}
         <div className="p-4 border-t bg-background">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto space-y-2">
+            {/* 候補バー (条件付き表示) */}
+            <CandidatesBar
+              candidates={visibleCandidates}
+              onSelect={handleCandidateSelect}
+              className={showCandidates ? 'animate-in fade-in slide-in-from-bottom-2' : 'hidden'}
+            />
+            
             <ChatInput
               input={input}
               isLoading={isLoading}
