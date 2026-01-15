@@ -21,7 +21,8 @@ const geistMono = Geist_Mono({
 // メタデータ生成関数（動的な設定値を反映するため）
 export async function generateMetadata(): Promise<Metadata> {
   const title = __APP_CONFIG__.app.title || 'Chat UI';
-  const description = __APP_CONFIG__.app.description || '';
+  const descriptionVal = __APP_CONFIG__.app.description;
+  const description = typeof descriptionVal === 'object' ? descriptionVal.contents : (descriptionVal || '');
   const basePath = __APP_CONFIG__.base_path && __APP_CONFIG__.base_path !== '/' ? __APP_CONFIG__.base_path : '';
 
   return {

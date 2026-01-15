@@ -15,6 +15,7 @@ import { ChatService } from '@/lib/chat-service';
 import { logChatMessage } from '@/lib/event-logger';
 import { performAppExit } from '@/lib/navigation';
 import { replacePlaceholders } from '@/lib/placeholder';
+import { cn } from '@/lib/utils';
 import { type ChatMessage } from '@/types/chat';
 import { Loader2, LogOut } from 'lucide-react';
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
@@ -68,8 +69,6 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
 
     const hasInitialized = useRef(false);
 
-
-
     useImperativeHandle(
       ref,
       () => ({
@@ -101,10 +100,6 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
     useEffect(() => {
       scrollToBottom();
     }, [messages, streamingContent, streamingReasoning, isLoading, scrollToBottom]);
-
-    // ... (turn calculation)
-
-    // ... (useEffect for exit)
 
     // ターン数の計算（systemメッセージを除外）
     const currentTurns = Math.floor(
@@ -187,7 +182,6 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
         
         setMessages((prev) => [...prev, assistantMessage]);
         
-        // 【修正】第4引数に reasoning を渡すように変更
         logChatMessage(
             'assistant', 
             assistantMessage.content, 
@@ -218,12 +212,6 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
         __APP_CONFIG__.chat.start_role === 'assistant' &&
         !isLoading
       ) {
-        // prefill_messagesがある場合はそれを踏まえて発話（=既存メッセージとして渡す）
-        // prefill_messagesがない場合は空配列で発話開始
-        // ここでのmessagesは初期化済みなのでそのまま渡せばOK
-        // ただし、もしユーザーが既に何か入力してしまった後（レアケース）は避けるため
-        // messagesのlengthチェックは外すが、hasInitializedで制御
-        
         hasInitialized.current = true;
         executeSendMessage(messages);
       }
@@ -256,7 +244,22 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
     };
 
     // アプリ説明の表示
-    const rawDescription = __APP_CONFIG__.app.description || '';
+    const rawDescription = typeof __APP_CONFIG__.app.description === 'object' 
+        ? __APP_CONFIG__.app.description.contents 
+        : (__APP_CONFIG__.app.description || '');
+        
+    const descPosition = typeof __APP_CONFIG__.app.description === 'object' 
+        ? (__APP_CONFIG__.app.description.position || 'top') 
+        : 'top';
+        
+    const descMaxHeight = typeof __APP_CONFIG__.app.description === 'object'
+        ? (__APP_CONFIG__.app.description.max_height || '12rem')
+        : '12rem';
+
+    const descWidth = typeof __APP_CONFIG__.app.description === 'object'
+        ? (__APP_CONFIG__.app.description.width || '16rem')
+        : '16rem';
+
     const description = replacePlaceholders(rawDescription, {
       PASSWORD: password ?? '',
     });
@@ -302,99 +305,174 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
           </DialogContent>
         </Dialog>
 
-        {/* アプリ説明 */}
-        {showDescription && (
-          <MarkdownRenderer
-            className="p-4 border-b bg-muted/30"
-            content={description}
-          />
+        {/* アプリ説明 (Top) */}
+        {showDescription && descPosition === 'top' && (
+          <ScrollArea className="border-b bg-muted/30" style={{ maxHeight: descMaxHeight }}>
+            <MarkdownRenderer
+              className="p-4"
+              content={description}
+            />
+          </ScrollArea>
         )}
 
-        {/* ターン数カウンター */}
-        <div className="p-4 border-b">
-          <ChatTurnCounter currentTurns={currentTurns} />
-        </div>
+        <div className="flex flex-1 min-h-0 overflow-hidden">
+          {/* アプリ説明 (Left - Desktop only) */}
+          {showDescription && descPosition === 'left' && (
+            <div className="hidden md:block border-r bg-muted/30 flex-shrink-0 overflow-hidden" style={{ width: descWidth }}>
+               <ScrollArea className="h-full">
+                  <MarkdownRenderer
+                    className="p-4"
+                    content={description}
+                  />
+               </ScrollArea>
+            </div>
+          )}
 
-        {/* メッセージリスト */}
-        <div className="flex-1 min-h-0">
-          <ScrollArea className="h-full" ref={scrollRef}>
-          <div className="max-w-4xl mx-auto p-4">
-            {displayMessages.map((message, index) => {
-              // 最後のユーザーメッセージかどうか
-              const isLastUserMessage =
-                message.role === 'user' &&
-                index === displayMessages.length - 1 &&
-                isLoading;
-
-              // スピナーを表示するかどうか（最後のメッセージでローディング中、かつspinnerモード）
-              const showSpinner =
-                message.id === 'streaming' &&
-                isLoading &&
-                __APP_CONFIG__.ui.styles.generation_style === 'spinner';
-
-              // 既読マークを表示するかどうか（最後のユーザーメッセージでローディング中、かつreadモード）
-              const showReadMark =
-                isLastUserMessage && __APP_CONFIG__.ui.styles.generation_style === 'read';
-              return (
-                <ChatMessageComponent
-                  key={message.id}
-                  role={message.role}
-                  content={message.content}
-                  reasoning={message.reasoning}
-                  isStreaming={
-                    message.id === 'streaming' &&
-                    __APP_CONFIG__.ui.styles.generation_style === 'streaming'
-                  }
-                  showSpinner={showSpinner}
-                  showReadMark={showReadMark}
-                />
-              );
-            })}
-
-            {/* ローディング表示（非ストリーミングモードでスピナー） */}
-            {isLoading &&
-              __APP_CONFIG__.ui.styles.generation_style === 'spinner' &&
-              !streamingContent && (
-                <div className="flex gap-3 mb-4">
-                  <div className="flex-shrink-0">
-                    <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
-                      <Loader2 className="w-5 h-5 text-secondary-foreground animate-spin" />
-                    </div>
-                  </div>
-                  <div className="relative max-w-[75%] rounded-2xl px-4 py-2.5 shadow-sm bg-muted rounded-tl-sm flex items-center">
-                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                  </div>
+          <div className="flex flex-col flex-1 min-h-0 relative">
+             {/* アプリ説明 (Left/Right Fallback on Mobile - render as Top) */}
+             {showDescription && (descPosition === 'left' || descPosition === 'right') && (
+                <div className="md:hidden border-b bg-muted/30">
+                  <ScrollArea style={{ maxHeight: descMaxHeight }}>
+                    <MarkdownRenderer
+                      className="p-4"
+                      content={description}
+                    />
+                  </ScrollArea>
                 </div>
-              )}
+             )}
 
-            {/* エラー表示 */}
-            {error && (
-              <div className="p-4 bg-destructive/10 text-destructive rounded-lg">
-                エラーが発生しました: {error.message}
-              </div>
-            )}
-          </div>
-          </ScrollArea>
-        </div>
-
-        {/* 入力フォーム */}
-        <div className="p-4 border-t bg-background">
-          <div className="max-w-4xl mx-auto space-y-2">
-            {/* 候補バー (条件付き表示) */}
-            <CandidatesBar
-              candidates={visibleCandidates}
-              onSelect={handleCandidateSelect}
-              className={showCandidates ? 'animate-in fade-in slide-in-from-bottom-2' : 'hidden'}
-            />
+            {/* ターン数カウンター (Mobile or when floating is not suitable) - Left only on Desktop to avoid overlap? No, Logic changed below */}
+            {/* 
+                Desktop: Floating badge
+                Mobile: Fixed bar at top 
+            */}
             
-            <ChatInput
-              input={input}
-              isLoading={isLoading}
-              isDisabled={isLimitReached}
-              onInputChange={handleInputChange}
-              onSubmit={handleFormSubmit}
-            />
-          </div>
+            {/* Mobile View: Fixed Bar at Top */}
+            <div className="block md:hidden p-4 border-b flex-shrink-0">
+              <ChatTurnCounter currentTurns={currentTurns} />
+            </div>
+
+            {/* Desktop View: Floating Badge */}
+            {/* Position logic:
+                - If Description is LEFT: Badge goes top-RIGHT
+                - If Description is RIGHT: Badge goes top-LEFT
+                - If Description is TOP/BOTTOM/NONE: Badge goes top-LEFT
+            */}
+            <div className={cn(
+                "hidden md:block absolute z-10 top-4",
+                descPosition === 'left' ? "right-6" : "left-6"
+            )}>
+                <ChatTurnCounter 
+                    currentTurns={currentTurns} 
+                    className="bg-background/80 backdrop-blur-sm border shadow-sm px-3 py-1 rounded-full text-sm font-medium" 
+                />
+            </div>
+
+            {/* メッセージリスト */}
+            <div className="flex-1 min-h-0 relative"> {/* Added relative for absolute positioning context if needed, though Badge is in flex-col container which is relative */}
+              <ScrollArea className="h-full" ref={scrollRef}>
+              <div className="max-w-4xl mx-auto p-4 pt-10 md:pt-4"> {/* Add top padding on mobile only if needed, or rely on scroll area structure */}
+                {displayMessages.map((message, index) => {
+                  // 最後のユーザーメッセージかどうか
+                  const isLastUserMessage =
+                    message.role === 'user' &&
+                    index === displayMessages.length - 1 &&
+                    isLoading;
+
+                  // スピナーを表示するかどうか（最後のメッセージでローディング中、かつspinnerモード）
+                  const showSpinner =
+                    message.id === 'streaming' &&
+                    isLoading &&
+                    __APP_CONFIG__.ui.styles.generation_style === 'spinner';
+
+                  // 既読マークを表示するかどうか（最後のユーザーメッセージでローディング中、かつreadモード）
+                  const showReadMark =
+                    isLastUserMessage && __APP_CONFIG__.ui.styles.generation_style === 'read';
+                  return (
+                    <ChatMessageComponent
+                      key={message.id}
+                      role={message.role}
+                      content={message.content}
+                      reasoning={message.reasoning}
+                      isStreaming={
+                        message.id === 'streaming' &&
+                        __APP_CONFIG__.ui.styles.generation_style === 'streaming'
+                      }
+                      showSpinner={showSpinner}
+                      showReadMark={showReadMark}
+                    />
+                  );
+                })}
+
+                {/* ローディング表示（非ストリーミングモードでスピナー） */}
+                {isLoading &&
+                  __APP_CONFIG__.ui.styles.generation_style === 'spinner' &&
+                  !streamingContent && (
+                    <div className="flex gap-3 mb-4">
+                      <div className="flex-shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
+                          <Loader2 className="w-5 h-5 text-secondary-foreground animate-spin" />
+                        </div>
+                      </div>
+                      <div className="relative max-w-[75%] rounded-2xl px-4 py-2.5 shadow-sm bg-muted rounded-tl-sm flex items-center">
+                        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                      </div>
+                    </div>
+                  )}
+
+                {/* エラー表示 */}
+                {error && (
+                  <div className="p-4 bg-destructive/10 text-destructive rounded-lg">
+                    エラーが発生しました: {error.message}
+                  </div>
+                )}
+              </div>
+              </ScrollArea>
+            </div>
+             
+             {/* アプリ説明 (Bottom) */}
+            {showDescription && descPosition === 'bottom' && (
+              <ScrollArea className="border-t bg-muted/30" style={{ maxHeight: descMaxHeight }}>
+                <MarkdownRenderer
+                  className="p-4"
+                  content={description}
+                />
+              </ScrollArea>
+            )}
+
+            {/* 入力フォーム */}
+            <div className="p-4 border-t bg-background flex-shrink-0">
+              <div className="max-w-4xl mx-auto space-y-2">
+                {/* 候補バー (条件付き表示) */}
+                <CandidatesBar
+                  candidates={visibleCandidates}
+                  onSelect={handleCandidateSelect}
+                  className={showCandidates ? 'animate-in fade-in slide-in-from-bottom-2' : 'hidden'}
+                />
+                
+                <ChatInput
+                  input={input}
+                  isLoading={isLoading}
+                  isDisabled={isLimitReached}
+                  onInputChange={handleInputChange}
+                  onSubmit={handleFormSubmit}
+                />
+              </div>
+            </div>
+         </div>
+
+          {/* アプリ説明 (Right - Desktop only) */}
+          {showDescription && descPosition === 'right' && (
+             <div className="hidden md:block border-l bg-muted/30 flex-shrink-0 overflow-hidden" style={{ width: descWidth }}>
+               <ScrollArea className="h-full">
+                  <MarkdownRenderer
+                    className="p-4"
+                    content={description}
+                  />
+               </ScrollArea>
+             </div>
+          )}
+
         </div>
       </div>
     );

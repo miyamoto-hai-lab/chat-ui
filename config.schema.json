@@ -12,7 +12,34 @@
       "type": "object",
       "properties": {
         "title": { "type": "string", "description": "ブラウザのタブやヘッダーに表示されるタイトル" },
-        "description": { "type": "string", "description": "画面に表示する説明文や指示（Markdown対応）" }
+        "description": {
+          "anyOf": [
+            { "type": "string", "description": "画面に表示する説明文や指示（Markdown対応）" },
+            {
+              "type": "object",
+              "properties": {
+                "contents": { "type": "string", "description": "Markdownテキスト" },
+                "position": { 
+                  "type": "string", 
+                  "enum": ["top", "bottom", "left", "right"],
+                  "default": "top",
+                  "description": "表示位置"
+                },
+                "width": { 
+                  "type": "string", 
+                  "default": "16rem",
+                  "description": "サイドバー表示時の幅 (CSS値)"
+                },
+                "max_height": { 
+                  "type": "string", 
+                  "default": "12rem",
+                  "description": "最大高さ (CSS値)"
+                }
+              },
+              "required": ["contents"]
+            }
+          ]
+        }
       },
       "required": ["title"]
     },
