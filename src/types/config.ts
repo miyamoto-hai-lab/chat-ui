@@ -7,7 +7,12 @@ export interface AppConfig {
   base_path: string;
   app: {
     title: string;
-    description?: string;
+    description?: string | {
+      contents: string;
+      position?: 'top' | 'bottom' | 'left' | 'right';
+      max_height?: string;
+      width?: string;
+    };
   };
   llm: {
     provider: 'openai' | 'gemini' | 'anthropic' | 'grok' | 'deepseek';
