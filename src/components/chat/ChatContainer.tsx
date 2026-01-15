@@ -128,6 +128,65 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
     // 最後に選択された候補（送信時の挙動に使用）
     const [lastSelectedCandidate, setLastSelectedCandidate] = useState<string | null>(null);
 
+    // Limit Reached時のカウントダウン
+    const [countDown, setCountDown] = useState<number | null>(null);
+    // モーダル表示制御用の状態
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // モーダル遅延と自動退出の制御
+    useEffect(() => {
+        if (!isLimitReached) {
+            setIsModalOpen(false);
+            setCountDown(null);
+            return;
+        }
+
+        const limitConfig = __APP_CONFIG__.chat.on_limit_reached;
+
+        // モーダル表示遅延
+        if (limitConfig.action === 'modal') {
+             const delaySec = limitConfig.modal_delay_sec ?? 1.0;
+             const timer = setTimeout(() => {
+                 setIsModalOpen(true);
+             }, delaySec * 1000);
+             return () => clearTimeout(timer);
+        } else {
+             // inlineの場合は即座には表示できないが、レンダリング条件で制御
+             // inline表示用のステートは特に設けていないが、必要なら追加検討
+        }
+
+    }, [isLimitReached]);
+
+    // カウントダウン処理
+    useEffect(() => {
+        const limitConfig = __APP_CONFIG__.chat.on_limit_reached;
+        if (isLimitReached && limitConfig.auto_exit_delay_sec > 0) {
+             if (countDown === null) {
+                setCountDown(limitConfig.auto_exit_delay_sec);
+             }
+
+             // 0.1秒ごとに更新して小数点対応
+             const intervalMs = 100;
+             const decrement = 0.1;
+             
+             const timer = setInterval(() => {
+                setCountDown((prev) => {
+                    if (prev === null) return limitConfig.auto_exit_delay_sec;
+                    const next = prev - decrement;
+                    // 浮動小数点の誤差を考慮して少し余裕を持つか、toFixedで管理
+                    if (next <= 0) {
+                        clearInterval(timer);
+                        performAppExit(password);
+                        return 0;
+                    }
+                    return next;
+                });
+             }, intervalMs);
+
+             return () => clearInterval(timer);
+        }
+    }, [isLimitReached, password, countDown]);
+
     // 候補選択ハンドラー
     const handleCandidateSelect = (text: string) => {
       // 入力をセット
@@ -301,7 +360,7 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
     return (
       <div className="flex flex-col h-full relative">
         {/* ターン数制限到達時のポップアップ (modalモード) */}
-        <Dialog open={isLimitReached && __APP_CONFIG__.chat.on_limit_reached.action === 'modal'}>
+        <Dialog open={isModalOpen && __APP_CONFIG__.chat.on_limit_reached.action === 'modal'}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle className="text-center text-xl font-bold text-destructive">
@@ -324,6 +383,11 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
                 {t('chat.exitChat') || 'チャットから退出'}
               </Button>
             </DialogFooter>
+            {countDown !== null && countDown > 0 && (
+              <p className="text-center text-sm text-muted-foreground mt-2 font-mono">
+                {t('chat.autoExitMessage', { seconds: countDown.toFixed(1) }) || `${countDown.toFixed(1)}秒後に自動的に移動します...`}
+              </p>
+            )}
           </DialogContent>
         </Dialog>
 
@@ -472,6 +536,37 @@ export const ChatContainer = forwardRef<ChatContainerHandle, ChatContainerProps>
                 {error && (
                   <div className="p-4 bg-destructive/10 text-destructive rounded-lg">
                     エラーが発生しました: {error.message}
+                  </div>
+                )}
+
+                {/* Inline Limit Reached Display */}
+                {isLimitReached && __APP_CONFIG__.chat.on_limit_reached.action === 'inline' && (
+                  <div className="mt-8 border-t-2 border-dashed pt-8 pb-4 animate-in fade-in slide-in-from-bottom-5">
+                    <div className="flex flex-col items-center justify-center space-y-4 text-center">
+                      <h3 className="text-lg font-bold text-destructive">
+                        {t('chat.limitReachedTitle') || '会話終了です'}
+                      </h3>
+                      <p className="text-muted-foreground whitespace-pre-wrap">
+                        {t('chat.limitReachedBody', { max: __APP_CONFIG__.chat.max_turns }) || 
+                         `ターン数が${__APP_CONFIG__.chat.max_turns}回に達しました。\n以下のボタンを押して次に進んでください。`}
+                      </p>
+                      
+                      <Button 
+                        variant="destructive" 
+                        size="lg"
+                        onClick={() => performAppExit(password)}
+                        className="animate-pulse"
+                      >
+                        <LogOut className="mr-2 h-5 w-5" />
+                        {t('chat.exitChat') || 'チャットから退出'}
+                      </Button>
+
+                      {countDown !== null && countDown > 0 && (
+                        <p className="text-sm font-medium text-muted-foreground font-mono">
+                          {t('chat.autoExitMessage', { seconds: countDown.toFixed(1) }) || `${countDown.toFixed(1)}秒後に自動的に移動します...`}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>

@@ -35,6 +35,7 @@ export interface AppConfig {
     on_limit_reached: {
       action: 'modal' | 'inline' | 'none';
       auto_exit_delay_sec: number;
+      modal_delay_sec?: number;
     };
     exit_redirect_url: string;
     prefill_messages?: {

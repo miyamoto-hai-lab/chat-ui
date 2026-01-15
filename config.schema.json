@@ -91,7 +91,12 @@
           "type": "object",
           "properties": {
             "action": { "type": "string", "enum": ["modal", "inline", "none"] },
-            "auto_exit_delay_sec": { "type": "integer", "minimum": 0 }
+            "auto_exit_delay_sec": { "type": "number", "minimum": 0 },
+            "modal_delay_sec": {
+              "type": "number",
+              "default": 1.0,
+              "description": "モーダル表示までの遅延時間（秒）"
+            }
           },
           "required": ["action", "auto_exit_delay_sec"]
         },
